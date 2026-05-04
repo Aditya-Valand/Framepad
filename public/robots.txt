@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Block admin/internal paths (none currently, but future-proofing)
+Disallow: /api/
+
+Sitemap: https://polamuse.netlify.app/sitemap.xml

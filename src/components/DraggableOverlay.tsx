@@ -3,10 +3,10 @@ import type { ReactNode } from 'react';
 
 interface DraggableOverlayProps {
   children: ReactNode;
-  x: number; // percent 0-100
-  y: number; // percent 0-100
+  x: number;        // percent 0-100
+  y: number;        // percent 0-100
   rotation: number; // degrees
-  scale: number; // 1 = normal
+  scale: number;    // 1 = normal
   containerW: number; // px
   containerH: number; // px
   onMove: (x: number, y: number) => void;
@@ -15,144 +15,135 @@ interface DraggableOverlayProps {
 }
 
 export function DraggableOverlay({
-  children,
-  x,
-  y,
-  rotation,
-  scale,
-  containerW,
-  containerH,
-  onMove,
-  onRotate,
-  onScale,
+  children, x, y, rotation, scale, containerW, containerH,
+  onMove, onRotate, onScale,
 }: DraggableOverlayProps) {
   const elRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
 
-  // Keep latest props in a ref so event listeners always see fresh values
+  // Always-fresh props for event handlers (no stale closure)
   const stateRef = useRef({ x, y, rotation, scale, containerW, containerH });
-  useEffect(() => {
-    stateRef.current = { x, y, rotation, scale, containerW, containerH };
-  });
-
-  // All gesture state in one ref — never stale because we read stateRef above
-  const gesture = useRef({
-    // single-pointer drag
-    dragging: false,
-    pointerId: -1,
-    startClientX: 0,
-    startClientY: 0,
-    origX: 0,
-    origY: 0,
-    // two-pointer pinch/rotate
-    pinching: false,
-    ptr0: { id: -1, x: 0, y: 0 },
-    ptr1: { id: -1, x: 0, y: 0 },
-    origRotation: 0,
-    origScale: 1,
-    origMidX: 0,
-    origMidY: 0,
-    origPosX: 0,
-    origPosY: 0,
-  });
-
-  const cb = useRef({ onMove, onRotate, onScale });
-  useEffect(() => { cb.current = { onMove, onRotate, onScale }; });
+  useEffect(() => { stateRef.current = { x, y, rotation, scale, containerW, containerH }; });
+  const cbRef = useRef({ onMove, onRotate, onScale });
+  useEffect(() => { cbRef.current = { onMove, onRotate, onScale }; });
 
   useEffect(() => {
     const el = elRef.current;
     if (!el) return;
 
-    const dist = (a: { x: number; y: number }, b: { x: number; y: number }) =>
-      Math.hypot(b.x - a.x, b.y - a.y);
-    const angle = (a: { x: number; y: number }, b: { x: number; y: number }) =>
-      Math.atan2(b.y - a.y, b.x - a.x) * (180 / Math.PI);
-    const pct = (px: number, total: number) => (px / total) * 100;
+    // Live pointer map — keyed by pointerId
+    const ptrs = new Map<number, { x: number; y: number }>();
 
-    // Active pointer tracking
-    const pointers = new Map<number, { x: number; y: number }>();
+    // Gesture baseline (captured at gesture-start, never mutated during the gesture)
+    const base = {
+      // drag
+      dragging: false,
+      dragId: -1,
+      startCX: 0, startCY: 0,
+      origX: 0, origY: 0,
+      // pinch
+      pinching: false,
+      pinchId0: -1, pinchId1: -1,
+      initP0: { x: 0, y: 0 }, initP1: { x: 0, y: 0 },
+      initDist: 0, initAngle: 0,
+      origScale: 1, origRot: 0,
+    };
+
+    const getDist = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+      Math.hypot(b.x - a.x, b.y - a.y);
+    const getAngle = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+      Math.atan2(b.y - a.y, b.x - a.x) * (180 / Math.PI);
+
+    const startPinch = () => {
+      const ids = [...ptrs.keys()];
+      if (ids.length < 2) return;
+      const s = stateRef.current;
+      const p0 = ptrs.get(ids[0])!;
+      const p1 = ptrs.get(ids[1])!;
+      base.pinching = true;
+      base.dragging = false;
+      base.pinchId0 = ids[0];
+      base.pinchId1 = ids[1];
+      base.initP0 = { ...p0 };
+      base.initP1 = { ...p1 };
+      base.initDist = getDist(p0, p1);
+      base.initAngle = getAngle(p0, p1);
+      base.origScale = s.scale;
+      base.origRot = s.rotation;
+    };
 
     const onDown = (e: PointerEvent) => {
       e.preventDefault();
       e.stopPropagation();
       el.setPointerCapture(e.pointerId);
-      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
       setActive(true);
 
-      const g = gesture.current;
-      const s = stateRef.current;
-
-      if (pointers.size === 1) {
-        // Single finger — start drag
-        g.dragging = true;
-        g.pinching = false;
-        g.pointerId = e.pointerId;
-        g.startClientX = e.clientX;
-        g.startClientY = e.clientY;
-        g.origX = s.x;
-        g.origY = s.y;
-      } else if (pointers.size === 2) {
-        // Second finger — switch to pinch
-        g.dragging = false;
-        g.pinching = true;
-        const pts = [...pointers.values()];
-        const p0 = pts[0], p1 = pts[1];
-        const ids = [...pointers.keys()];
-        g.ptr0 = { id: ids[0], x: p0.x, y: p0.y };
-        g.ptr1 = { id: ids[1], x: p1.x, y: p1.y };
-        g.origRotation = s.rotation;
-        g.origScale = s.scale;
-        // mid-point at gesture start in container %
-        g.origMidX = g.ptr0.x;
-        g.origMidY = g.ptr0.y;
-        g.origPosX = s.x;
-        g.origPosY = s.y;
+      if (ptrs.size === 1) {
+        const s = stateRef.current;
+        base.dragging = true;
+        base.pinching = false;
+        base.dragId = e.pointerId;
+        base.startCX = e.clientX;
+        base.startCY = e.clientY;
+        base.origX = s.x;
+        base.origY = s.y;
+      } else if (ptrs.size === 2) {
+        startPinch();
       }
     };
 
     const onMove = (e: PointerEvent) => {
+      if (!ptrs.has(e.pointerId)) return;
       e.preventDefault();
-      if (!pointers.has(e.pointerId)) return;
-      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-      const g = gesture.current;
       const s = stateRef.current;
 
-      if (g.dragging && e.pointerId === g.pointerId) {
-        const dx = e.clientX - g.startClientX;
-        const dy = e.clientY - g.startClientY;
-        const newX = Math.max(-10, Math.min(110, g.origX + pct(dx, s.containerW)));
-        const newY = Math.max(-10, Math.min(110, g.origY + pct(dy, s.containerH)));
-        cb.current.onMove(newX, newY);
+      if (base.dragging && e.pointerId === base.dragId) {
+        const dx = e.clientX - base.startCX;
+        const dy = e.clientY - base.startCY;
+        cbRef.current.onMove(
+          Math.max(-10, Math.min(110, base.origX + (dx / s.containerW) * 100)),
+          Math.max(-10, Math.min(110, base.origY + (dy / s.containerH) * 100)),
+        );
       }
 
-      if (g.pinching && pointers.size >= 2) {
-        const pts = [...pointers.values()];
-        const p0 = pts[0], p1 = pts[1];
-        const initAngle = angle(g.ptr0, g.ptr1);
-        const initDist = dist(g.ptr0, g.ptr1);
-        const nowAngle = angle({ x: p0.x, y: p0.y }, { x: p1.x, y: p1.y });
-        const nowDist = dist({ x: p0.x, y: p0.y }, { x: p1.x, y: p1.y });
+      if (base.pinching) {
+        const p0 = ptrs.get(base.pinchId0);
+        const p1 = ptrs.get(base.pinchId1);
+        if (!p0 || !p1) return;
 
-        if (initDist > 1) {
-          const scaleFactor = nowDist / initDist;
-          cb.current.onScale(Math.max(0.15, Math.min(6, g.origScale * scaleFactor)));
+        const nowDist = getDist(p0, p1);
+        const nowAngle = getAngle(p0, p1);
+
+        if (base.initDist > 2) {
+          cbRef.current.onScale(
+            Math.max(0.15, Math.min(6, base.origScale * (nowDist / base.initDist))),
+          );
         }
-        const deltaAngle = nowAngle - initAngle;
-        cb.current.onRotate(g.origRotation + deltaAngle);
+        cbRef.current.onRotate(base.origRot + (nowAngle - base.initAngle));
       }
     };
 
     const onUp = (e: PointerEvent) => {
-      pointers.delete(e.pointerId);
-      const g = gesture.current;
-      if (e.pointerId === g.pointerId) {
-        g.dragging = false;
+      ptrs.delete(e.pointerId);
+      if (e.pointerId === base.dragId) base.dragging = false;
+      if (ptrs.size < 2) {
+        base.pinching = false;
+        // If one finger remains, restart drag from current position
+        if (ptrs.size === 1) {
+          const [id, pos] = [...ptrs.entries()][0];
+          const s = stateRef.current;
+          base.dragging = true;
+          base.dragId = id;
+          base.startCX = pos.x;
+          base.startCY = pos.y;
+          base.origX = s.x;
+          base.origY = s.y;
+        }
       }
-      if (pointers.size < 2) {
-        g.pinching = false;
-      }
-      if (pointers.size === 0) setActive(false);
+      if (ptrs.size === 0) setActive(false);
     };
 
     el.addEventListener('pointerdown', onDown, { passive: false });
@@ -166,7 +157,7 @@ export function DraggableOverlay({
       el.removeEventListener('pointerup', onUp);
       el.removeEventListener('pointercancel', onUp);
     };
-  }, []); // mount once — all state via refs
+  }, []);
 
   return (
     <div
@@ -179,11 +170,9 @@ export function DraggableOverlay({
         transformOrigin: 'center center',
         zIndex: 10,
         cursor: active ? 'grabbing' : 'grab',
-        // Smooth visual response — no layout thrash
         willChange: 'transform',
       }}
     >
-      {/* Selection ring */}
       {active && (
         <div
           className="absolute inset-0 rounded pointer-events-none"

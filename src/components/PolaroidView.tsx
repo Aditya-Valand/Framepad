@@ -3,6 +3,7 @@ import { usePolaroidCanvas } from '../hooks/usePolaroidCanvas';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { useStore } from '../store';
 import { DraggableOverlay } from './DraggableOverlay';
+import { CropModal } from './CropModal';
 
 export function PolaroidView() {
   const { canvasRef, exportPNG } = usePolaroidCanvas();
@@ -13,6 +14,7 @@ export function PolaroidView() {
   const activeFrameId = useStore((s) => s.activeFrameId);
   const updateFrame = useStore((s) => s.updateFrame);
   const [displaySize, setDisplaySize] = useState({ w: 300, h: 400 });
+  const [showCrop, setShowCrop] = useState(false);
 
   // Calculate scale to fit canvas in container
   useEffect(() => {
@@ -34,7 +36,11 @@ export function PolaroidView() {
   }, [frame?.frameWidth, frame?.frameHeight]);
 
   const handleTap = useCallback(() => {
-    if (!frame?.imageDataUrl) fileInputRef.current?.click();
+    if (frame?.imageDataUrl) {
+      setShowCrop(true);
+    } else {
+      fileInputRef.current?.click();
+    }
   }, [frame?.imageDataUrl]);
 
   const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,7 +210,7 @@ export function PolaroidView() {
             width: '100%',
             height: '100%',
             borderRadius: 'inherit',
-            cursor: frame?.imageDataUrl ? 'move' : 'pointer',
+            cursor: frame?.imageDataUrl ? 'crosshair' : 'pointer',
             willChange: 'transform',
           }}
         />
@@ -299,6 +305,23 @@ export function PolaroidView() {
         className="hidden"
         onChange={handleFile}
       />
+
+      {/* Crop modal */}
+      {showCrop && frame?.imageDataUrl && (
+        <CropModal
+          imageDataUrl={frame.imageDataUrl}
+          aspectW={frame.frameWidth - frame.borderLeft - frame.borderRight}
+          aspectH={frame.frameHeight - frame.borderTop - frame.borderBottom}
+          initialPanX={frame.imagePanX}
+          initialPanY={frame.imagePanY}
+          initialScale={frame.imageScale}
+          onClose={() => setShowCrop(false)}
+          onConfirm={(px, py, sc) => {
+            updateFrame(activeFrameId, { imagePanX: px, imagePanY: py, imageScale: sc });
+            setShowCrop(false);
+          }}
+        />
+      )}
     </div>
   );
 }

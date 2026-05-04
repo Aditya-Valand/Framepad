@@ -10,6 +10,45 @@ import { MusicPanel } from './components/panels/MusicPanel';
 import { ExportSuccessModal } from './components/ExportSuccessModal';
 import { PrivacyPage } from './components/PrivacyPage';
 
+const TABS = ['frame', 'edit', 'text', 'music'] as const;
+type Tab = typeof TABS[number];
+
+const TAB_META: Record<Tab, { label: string; icon: ReactNode }> = {
+  frame: {
+    label: 'Frame',
+    icon: (
+      <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="1.8" />
+        <rect x="6" y="6" width="12" height="9" rx="1" strokeWidth="1.5" strokeDasharray="0" />
+      </svg>
+    ),
+  },
+  edit: {
+    label: 'Edit',
+    icon: (
+      <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+      </svg>
+    ),
+  },
+  text: {
+    label: 'Text',
+    icon: (
+      <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M4 6h16M4 12h8m-8 6h16" />
+      </svg>
+    ),
+  },
+  music: {
+    label: 'Music',
+    icon: (
+      <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
+      </svg>
+    ),
+  },
+};
+
 export default function App() {
   const activeTab = useStore((s) => s.activeTab);
   const setActiveTab = useStore((s) => s.setActiveTab);
@@ -21,7 +60,7 @@ export default function App() {
     return <PrivacyPage onBack={() => setShowPrivacy(false)} />;
   }
 
-  const handleTabClick = (tab: typeof activeTab) => {
+  const handleMobileTabClick = (tab: Tab) => {
     if (activeTab === tab && sheetOpen) {
       setSheetOpen(false);
     } else {
@@ -30,74 +69,298 @@ export default function App() {
     }
   };
 
+  const handleDesktopTabClick = (tab: Tab) => {
+    setActiveTab(tab);
+  };
+
+  const panelContent = (
+    <>
+      {activeTab === 'frame' && <FramePanel />}
+      {activeTab === 'edit' && <EditPanel />}
+      {activeTab === 'text' && <TextPanel />}
+      {activeTab === 'music' && <MusicPanel />}
+    </>
+  );
+
   return (
-    <div className="h-dvh flex flex-col bg-[#FBF8F4] overflow-hidden">
-      {/* Header */}
-      <header className="flex-shrink-0 bg-[#FFFCF8] border-b border-[#F0E6DA] px-5 py-3 flex items-center justify-between z-10">
-        <h1
-          className="tracking-wide"
-          style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '1.35rem', lineHeight: 1 }}
-        >
-          <span style={{ fontWeight: 500, fontStyle: 'normal', color: '#1A1814', letterSpacing: '0.04em' }}>Pola</span><span style={{ fontWeight: 400, fontStyle: 'italic', color: '#8B6F5C', letterSpacing: '0.01em' }}>muse</span>
-        </h1>
-        <ExportButton onSuccess={() => setExportSuccess(true)} />
-      </header>
+    <>
+      {/* ═══════════════════════════════════════════════
+          MOBILE LAYOUT  (hidden on lg+)
+          Exactly as before — zero changes
+      ═══════════════════════════════════════════════ */}
+      <div className="lg:hidden h-dvh flex flex-col bg-[#FBF8F4] overflow-hidden">
+        <header className="flex-shrink-0 bg-[#FFFCF8] border-b border-[#F0E6DA] px-5 py-3 flex items-center justify-between z-10" role="banner">
+          <Logo />
+          <ExportButton onSuccess={() => setExportSuccess(true)} />
+        </header>
 
-      {/* Canvas Area */}
-      <main className="flex-1 overflow-hidden relative">
-        <PolaroidView />
-      </main>
+        <main className="flex-1 overflow-hidden relative" aria-label="Polaroid frame editor">
+          <SeoHint />
+          <PolaroidView />
+        </main>
 
-      {/* Bottom Sheet */}
-      <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
-        {activeTab === 'frame' && <FramePanel />}
-        {activeTab === 'edit' && <EditPanel />}
-        {activeTab === 'text' && <TextPanel />}
-        {activeTab === 'music' && <MusicPanel />}
-      </BottomSheet>
+        <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
+          {panelContent}
+        </BottomSheet>
 
-      {/* Tab Bar */}
-      <nav className="flex-shrink-0 bg-[#FFFCF8] border-t border-[#F0E6DA] flex z-20 relative">
-        {(['frame', 'edit', 'text', 'music'] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => handleTabClick(tab)}
-            className={`flex-1 py-3 text-[10px] font-medium capitalize transition-all duration-200 ${
-              activeTab === tab && sheetOpen ? 'text-[#5C4A3A]' : 'text-[#C4B5A6]'
-            }`}
-          >
-            <span className={`block transition-transform duration-200 ${
-              activeTab === tab && sheetOpen ? 'scale-110' : 'scale-100'
-            }`}>
-              {tabIcons[tab]}
-            </span>
-            <span className="block mt-0.5">{tab}</span>
+        <nav className="flex-shrink-0 bg-[#FFFCF8] border-t border-[#F0E6DA] flex z-20 relative" aria-label="Editor tools">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => handleMobileTabClick(tab)}
+              className={`flex-1 py-3 text-[10px] font-medium capitalize transition-all duration-200 ${
+                activeTab === tab && sheetOpen ? 'text-[#5C4A3A]' : 'text-[#C4B5A6]'
+              }`}
+            >
+              <span className={`block transition-transform duration-200 ${activeTab === tab && sheetOpen ? 'scale-110' : 'scale-100'}`}>
+                {TAB_META[tab].icon}
+              </span>
+              <span className="block mt-0.5">{TAB_META[tab].label.toLowerCase()}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex-shrink-0 bg-[#FFFCF8] pb-safe flex justify-center py-1 border-t border-[#F0E6DA]/50">
+          <button onClick={() => setShowPrivacy(true)} className="text-[9px] text-[#C4B5A6] hover:text-[#A39080] transition-colors">
+            Privacy Policy
           </button>
-        ))}
-      </nav>
-
-      {/* Privacy link footer */}
-      <div className="flex-shrink-0 bg-[#FFFCF8] pb-safe flex justify-center py-1 border-t border-[#F0E6DA]/50">
-        <button
-          onClick={() => setShowPrivacy(true)}
-          className="text-[9px] text-[#C4B5A6] hover:text-[#A39080] transition-colors"
-        >
-          Privacy Policy
-        </button>
+        </div>
       </div>
 
-      {/* Export success + ad modal */}
+      {/* ═══════════════════════════════════════════════
+          DESKTOP LAYOUT  (hidden on < lg)
+          Left icon sidebar + center canvas + right panel
+      ═══════════════════════════════════════════════ */}
+      <div className="hidden lg:flex h-screen bg-[#F0EBE4] overflow-hidden">
+
+        {/* ── Left icon sidebar ── */}
+        <aside
+          className="flex-shrink-0 flex flex-col items-center py-5 gap-1 z-20"
+          style={{
+            width: 68,
+            background: '#FFFCF8',
+            borderRight: '1px solid #EDE5DC',
+          }}
+        >
+          {/* Logo mark */}
+          <div className="mb-5 flex flex-col items-center">
+            <span
+              style={{
+                fontFamily: '"Cormorant Garamond", serif',
+                fontSize: '1.1rem',
+                lineHeight: 1,
+                fontWeight: 500,
+                fontStyle: 'italic',
+                color: '#8B6F5C',
+                letterSpacing: '0.02em',
+              }}
+            >
+              P
+            </span>
+          </div>
+
+          {/* Tool buttons */}
+          {TABS.map((tab) => {
+            const active = activeTab === tab;
+            return (
+              <div key={tab} className="relative group">
+                <button
+                  onClick={() => handleDesktopTabClick(tab)}
+                  aria-label={TAB_META[tab].label}
+                  className="flex items-center justify-center rounded-xl transition-all duration-150 active:scale-95"
+                  style={{
+                    width: 44,
+                    height: 44,
+                    background: active ? '#F0E8E0' : 'transparent',
+                    color: active ? '#6B4F3A' : '#B5A396',
+                    border: active ? '1px solid #DDD0C4' : '1px solid transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!active) (e.currentTarget as HTMLElement).style.background = '#F7F3EF';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent';
+                  }}
+                >
+                  {TAB_META[tab].icon}
+                </button>
+                {/* Tooltip */}
+                <span
+                  className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50"
+                  style={{
+                    background: '#1A1814',
+                    color: '#F5F0EB',
+                    fontFamily: 'Inter, sans-serif',
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  {TAB_META[tab].label}
+                </span>
+              </div>
+            );
+          })}
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Desktop export button */}
+          <div className="relative group">
+            <button
+              onClick={() => {
+                document.getElementById('export-btn-inner')?.click();
+                setTimeout(() => setExportSuccess(true), 600);
+              }}
+              aria-label="Export image"
+              className="flex items-center justify-center rounded-xl transition-all duration-150 active:scale-95"
+              style={{
+                width: 44,
+                height: 44,
+                background: '#8B6F5C',
+                color: '#FFFCF8',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = '#7A6050'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = '#8B6F5C'; }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+              </svg>
+            </button>
+            <span
+              className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50"
+              style={{ background: '#1A1814', color: '#F5F0EB', fontFamily: 'Inter, sans-serif', letterSpacing: '0.04em' }}
+            >
+              Export PNG
+            </span>
+          </div>
+
+          {/* Privacy dot */}
+          <div className="relative group mt-2">
+            <button
+              onClick={() => setShowPrivacy(true)}
+              aria-label="Privacy Policy"
+              className="flex items-center justify-center rounded-xl transition-all duration-150"
+              style={{ width: 44, height: 44, color: '#D4C5B8' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#A39080'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#D4C5B8'; }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </button>
+            <span
+              className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50"
+              style={{ background: '#1A1814', color: '#F5F0EB', fontFamily: 'Inter, sans-serif', letterSpacing: '0.04em' }}
+            >
+              Privacy Policy
+            </span>
+          </div>
+        </aside>
+
+        {/* ── Canvas center ── */}
+        <main
+          className="flex-1 overflow-hidden relative flex items-center justify-center"
+          aria-label="Polaroid frame editor"
+          style={{ background: 'linear-gradient(135deg, #F5F0EA 0%, #EDE5DA 100%)' }}
+        >
+          <SeoHint />
+
+          {/* Subtle grid background */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: 'radial-gradient(circle, #C8B9AC44 1px, transparent 1px)',
+              backgroundSize: '28px 28px',
+            }}
+          />
+
+          {/* Centered canvas with drop shadow */}
+          <div className="relative w-full h-full">
+            <PolaroidView />
+          </div>
+
+          {/* Desktop watermark */}
+          <div
+            className="absolute bottom-4 right-5 pointer-events-none select-none"
+            style={{
+              fontFamily: '"Cormorant Garamond", serif',
+              fontSize: '0.75rem',
+              fontStyle: 'italic',
+              color: 'rgba(139,111,92,0.35)',
+              letterSpacing: '0.06em',
+            }}
+          >
+            polamuse
+          </div>
+        </main>
+
+        {/* ── Right panel ── */}
+        <aside
+          className="flex-shrink-0 flex flex-col overflow-hidden"
+          style={{
+            width: 320,
+            background: '#FFFCF8',
+            borderLeft: '1px solid #EDE5DC',
+          }}
+        >
+          {/* Panel header */}
+          <div
+            className="flex-shrink-0 flex items-center gap-2.5 px-5 py-4"
+            style={{ borderBottom: '1px solid #F0E8E0' }}
+          >
+            <span style={{ color: '#8B6F5C' }}>{TAB_META[activeTab].icon}</span>
+            <span
+              style={{
+                fontFamily: '"Cormorant Garamond", serif',
+                fontSize: '1.05rem',
+                fontWeight: 500,
+                color: '#1A1814',
+                letterSpacing: '0.04em',
+              }}
+            >
+              {TAB_META[activeTab].label}
+            </span>
+          </div>
+
+          {/* Panel content */}
+          <div className="flex-1 overflow-y-auto px-5 py-4 text-[#5C4A3A]" style={{ overscrollBehavior: 'contain' }}>
+            {panelContent}
+          </div>
+        </aside>
+      </div>
+
+      {/* Shared export success modal */}
       <ExportSuccessModal open={exportSuccess} onClose={() => setExportSuccess(false)} />
-    </div>
+    </>
+  );
+}
+
+function Logo() {
+  return (
+    <h1
+      className="tracking-wide"
+      style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '1.35rem', lineHeight: 1 }}
+    >
+      <span style={{ fontWeight: 500, fontStyle: 'normal', color: '#1A1814', letterSpacing: '0.04em' }}>Pola</span>
+      <span style={{ fontWeight: 400, fontStyle: 'italic', color: '#8B6F5C', letterSpacing: '0.01em' }}>muse</span>
+    </h1>
+  );
+}
+
+function SeoHint() {
+  return (
+    <span
+      aria-hidden="true"
+      style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}
+    >
+      Polamuse is a free online polaroid photo frame maker. Create beautiful instant film frames, add Spotify barcodes, vintage filters, captions, and download high-quality PNG images. Supports Polaroid 600, Instax Mini, Instax Square, Instax Wide, concert ticket, and movie poster templates.
+    </span>
   );
 }
 
 function ExportButton({ onSuccess }: { onSuccess: () => void }) {
   const handleClick = () => {
-    // Trigger the canvas export (wired by PolaroidView via id)
     const btn = document.getElementById('export-btn-inner');
     btn?.click();
-    // Show success modal after a short delay for the download to initiate
     setTimeout(onSuccess, 600);
   };
 
@@ -106,16 +369,9 @@ function ExportButton({ onSuccess }: { onSuccess: () => void }) {
       onClick={handleClick}
       className="px-4 py-1.5 bg-[#8B6F5C] text-white text-xs font-semibold rounded-full hover:bg-[#7A6050] active:scale-95 transition-all shadow-sm"
     >
-      {/* Hidden inner button that PolaroidView wires exportPNG to */}
       <span id="export-btn-inner" className="hidden" />
       Export
     </button>
   );
 }
 
-const tabIcons: Record<string, ReactNode> = {
-  frame: <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/></svg>,
-  edit: <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>,
-  text: <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16"/></svg>,
-  music: <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"/></svg>,
-};
