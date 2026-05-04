@@ -103,15 +103,18 @@ export function usePolaroidCanvas() {
   const exportPNG = useCallback(() => {
     if (!frame) return;
 
-    // Create a high-res offscreen canvas for export
+    // 3× resolution for crisp output on retina / print
+    const EXPORT_SCALE = 3;
     const exportCanvas = document.createElement('canvas');
-    exportCanvas.width = frame.frameWidth;
-    exportCanvas.height = frame.frameHeight;
+    exportCanvas.width  = frame.frameWidth  * EXPORT_SCALE;
+    exportCanvas.height = frame.frameHeight * EXPORT_SCALE;
 
-    // Re-render at full resolution on export canvas
     const currentFrame = frame;
-    const ctx = exportCanvas.getContext('2d');
+    const ctx = exportCanvas.getContext('2d', { colorSpace: 'srgb' });
     if (!ctx) return;
+
+    // Scale everything up uniformly
+    ctx.scale(EXPORT_SCALE, EXPORT_SCALE);
 
     // Draw frame background
     ctx.fillStyle = currentFrame.frameColor;
@@ -124,8 +127,8 @@ export function usePolaroidCanvas() {
 
     const imgX = currentFrame.borderLeft;
     const imgY = currentFrame.borderTop;
-    const imgW = currentFrame.frameWidth - currentFrame.borderLeft - currentFrame.borderRight;
-    const imgH = currentFrame.frameHeight - currentFrame.borderTop - currentFrame.borderBottom;
+    const imgW = currentFrame.frameWidth  - currentFrame.borderLeft - currentFrame.borderRight;
+    const imgH = currentFrame.frameHeight - currentFrame.borderTop  - currentFrame.borderBottom;
 
     if (currentFrame.imageDataUrl) {
       const img = new Image();
@@ -143,7 +146,6 @@ export function usePolaroidCanvas() {
 
         const cx = imgX + imgW / 2;
         const cy = imgY + imgH / 2;
-        const drawScale = currentFrame.imageScale;
         const panOffsetX = (currentFrame.imagePanX / 100) * imgW;
         const panOffsetY = (currentFrame.imagePanY / 100) * imgH;
 
@@ -151,13 +153,12 @@ export function usePolaroidCanvas() {
         if (currentFrame.imageRotation !== 0) {
           ctx.rotate((currentFrame.imageRotation * Math.PI) / 180);
         }
-        ctx.scale(drawScale, drawScale);
+        ctx.scale(currentFrame.imageScale, currentFrame.imageScale);
         ctx.drawImage(img, sx, sy, sw, sh, -imgW / 2, -imgH / 2, imgW, imgH);
 
         ctx.filter = 'none';
         ctx.restore();
 
-        // Draw overlays then export
         drawOverlaysSync(ctx, currentFrame, imgX, imgY, imgW, imgH, () => {
           triggerDownload(exportCanvas);
         });

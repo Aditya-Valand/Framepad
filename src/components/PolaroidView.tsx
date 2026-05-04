@@ -17,7 +17,6 @@ export function PolaroidView() {
   // Calculate scale to fit canvas in container
   useEffect(() => {
     if (!containerRef.current || !frame) return;
-
     const updateScale = () => {
       const container = containerRef.current;
       if (!container) return;
@@ -26,22 +25,16 @@ export function PolaroidView() {
       const scaleX = availW / frame.frameWidth;
       const scaleY = availH / frame.frameHeight;
       const scale = Math.min(scaleX, scaleY, 1);
-      setDisplaySize({
-        w: frame.frameWidth * scale,
-        h: frame.frameHeight * scale,
-      });
+      setDisplaySize({ w: frame.frameWidth * scale, h: frame.frameHeight * scale });
     };
-
     updateScale();
-    const resizeObs = new ResizeObserver(updateScale);
-    resizeObs.observe(containerRef.current);
-    return () => resizeObs.disconnect();
+    const obs = new ResizeObserver(updateScale);
+    obs.observe(containerRef.current);
+    return () => obs.disconnect();
   }, [frame?.frameWidth, frame?.frameHeight]);
 
   const handleTap = useCallback(() => {
-    if (!frame?.imageDataUrl) {
-      fileInputRef.current?.click();
-    }
+    if (!frame?.imageDataUrl) fileInputRef.current?.click();
   }, [frame?.imageDataUrl]);
 
   const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,62 +49,135 @@ export function PolaroidView() {
     if (file) uploadFile(file);
   }, [uploadFile]);
 
-  // Wire export button
   useEffect(() => {
     const exportBtn = document.getElementById('export-btn-inner');
-    if (exportBtn) {
-      exportBtn.onclick = exportPNG;
-    }
+    if (exportBtn) exportBtn.onclick = exportPNG;
   }, [exportPNG]);
 
-  // Image pan handler
-  const imgDragRef = useRef<{ active: boolean; startX: number; startY: number; origPanX: number; origPanY: number; pointerId: number | null }>({
-    active: false, startX: 0, startY: 0, origPanX: 0, origPanY: 0, pointerId: null,
+  // ── Image multi-touch: drag + pinch-zoom (frame stays fixed, only image moves) ──
+  const imgGesture = useRef({
+    pointers: new Map<number, { x: number; y: number }>(),
+    // single drag
+    dragging: false,
+    dragId: -1,
+    startX: 0, startY: 0,
+    origPanX: 0, origPanY: 0,
+    // pinch
+    pinching: false,
+    p0: { x: 0, y: 0 }, p1: { x: 0, y: 0 },
+    origScale: 1,
+    origPanXp: 0, origPanYp: 0,
   });
 
-  const handleImgPointerDown = useCallback((e: React.PointerEvent) => {
-    if (!frame?.imageDataUrl) return;
-    e.preventDefault();
-    e.stopPropagation();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    imgDragRef.current = {
-      active: true,
-      startX: e.clientX,
-      startY: e.clientY,
-      origPanX: frame.imagePanX,
-      origPanY: frame.imagePanY,
-      pointerId: e.pointerId,
+  // keep latest frame values accessible inside event handlers
+  const frameRef = useRef(frame);
+  useEffect(() => { frameRef.current = frame; });
+  const displayRef = useRef(displaySize);
+  useEffect(() => { displayRef.current = displaySize; });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const imgAreaW = () => {
+      const f = frameRef.current;
+      const d = displayRef.current;
+      if (!f) return 1;
+      return d.w * (f.frameWidth - f.borderLeft - f.borderRight) / f.frameWidth;
     };
-  }, [frame?.imageDataUrl, frame?.imagePanX, frame?.imagePanY]);
+    const imgAreaH = () => {
+      const f = frameRef.current;
+      const d = displayRef.current;
+      if (!f) return 1;
+      return d.h * (f.frameHeight - f.borderTop - f.borderBottom) / f.frameHeight;
+    };
+    const dist = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+      Math.hypot(b.x - a.x, b.y - a.y);
 
-  const handleImgPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!imgDragRef.current.active || e.pointerId !== imgDragRef.current.pointerId) return;
-    const dx = e.clientX - imgDragRef.current.startX;
-    const dy = e.clientY - imgDragRef.current.startY;
-    // Convert to percentage of image area
-    const imgAreaW = displaySize.w * ((frame?.frameWidth || 1080) - (frame?.borderLeft || 54) - (frame?.borderRight || 54)) / (frame?.frameWidth || 1080);
-    const imgAreaH = displaySize.h * ((frame?.frameHeight || 1350) - (frame?.borderTop || 54) - (frame?.borderBottom || 210)) / (frame?.frameHeight || 1350);
-    const newPanX = imgDragRef.current.origPanX + (dx / imgAreaW) * 100;
-    const newPanY = imgDragRef.current.origPanY + (dy / imgAreaH) * 100;
-    updateFrame(activeFrameId, {
-      imagePanX: Math.max(-50, Math.min(50, newPanX)),
-      imagePanY: Math.max(-50, Math.min(50, newPanY)),
-    });
-  }, [displaySize, frame, activeFrameId, updateFrame]);
+    const g = imgGesture.current;
 
-  const handleImgPointerUp = useCallback((e: React.PointerEvent) => {
-    if (e.pointerId === imgDragRef.current.pointerId) {
-      imgDragRef.current.active = false;
-    }
-  }, []);
+    const onDown = (e: PointerEvent) => {
+      const f = frameRef.current;
+      if (!f?.imageDataUrl) return;
+      e.preventDefault();
+      e.stopPropagation();
+      canvas.setPointerCapture(e.pointerId);
+      g.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-  // Spotify barcode URL with customizable colors
+      if (g.pointers.size === 1) {
+        g.dragging = true;
+        g.pinching = false;
+        g.dragId = e.pointerId;
+        g.startX = e.clientX;
+        g.startY = e.clientY;
+        g.origPanX = f.imagePanX;
+        g.origPanY = f.imagePanY;
+      } else if (g.pointers.size === 2) {
+        g.dragging = false;
+        g.pinching = true;
+        const pts = [...g.pointers.values()];
+        g.p0 = { ...pts[0] };
+        g.p1 = { ...pts[1] };
+        g.origScale = f.imageScale;
+        g.origPanXp = f.imagePanX;
+        g.origPanYp = f.imagePanY;
+      }
+    };
+
+    const onMove = (e: PointerEvent) => {
+      if (!g.pointers.has(e.pointerId)) return;
+      e.preventDefault();
+      g.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (g.dragging && e.pointerId === g.dragId) {
+        const dx = e.clientX - g.startX;
+        const dy = e.clientY - g.startY;
+        const newPanX = g.origPanX + (dx / imgAreaW()) * 100;
+        const newPanY = g.origPanY + (dy / imgAreaH()) * 100;
+        updateFrame(activeFrameId, {
+          imagePanX: Math.max(-100, Math.min(100, newPanX)),
+          imagePanY: Math.max(-100, Math.min(100, newPanY)),
+        });
+      }
+
+      if (g.pinching && g.pointers.size >= 2) {
+        const pts = [...g.pointers.values()];
+        const now0 = pts[0], now1 = pts[1];
+        const initDist = dist(g.p0, g.p1);
+        const nowDist = dist(now0, now1);
+        if (initDist > 1) {
+          const scaleFactor = nowDist / initDist;
+          updateFrame(activeFrameId, {
+            imageScale: Math.max(0.5, Math.min(4, g.origScale * scaleFactor)),
+          });
+        }
+      }
+    };
+
+    const onUp = (e: PointerEvent) => {
+      g.pointers.delete(e.pointerId);
+      if (e.pointerId === g.dragId) g.dragging = false;
+      if (g.pointers.size < 2) g.pinching = false;
+    };
+
+    canvas.addEventListener('pointerdown', onDown, { passive: false });
+    canvas.addEventListener('pointermove', onMove, { passive: false });
+    canvas.addEventListener('pointerup', onUp);
+    canvas.addEventListener('pointercancel', onUp);
+
+    return () => {
+      canvas.removeEventListener('pointerdown', onDown);
+      canvas.removeEventListener('pointermove', onMove);
+      canvas.removeEventListener('pointerup', onUp);
+      canvas.removeEventListener('pointercancel', onUp);
+    };
+  }, [activeFrameId, updateFrame, canvasRef]);
+
+  // Spotify barcode URL
   const spotifyMatch = frame?.musicUrl?.match(/spotify\.com\/(track|album|playlist|artist)\/([a-zA-Z0-9]+)/);
   const spotifyCodeUrl = spotifyMatch && frame
     ? `https://scannables.scdn.co/uri/plain/png/${frame.musicCodeBg.replace('#', '')}/${frame.musicCodeFg === '#FFFFFF' ? 'white' : 'black'}/640/spotify:${spotifyMatch[1]}:${spotifyMatch[2]}`
     : null;
-
-
 
   return (
     <div
@@ -129,21 +195,18 @@ export function PolaroidView() {
           borderRadius: frame?.borderRadius ? `${(frame.borderRadius / frame.frameWidth) * displaySize.w}px` : 0,
         }}
       >
-        {/* Canvas (image + frame background only) */}
+        {/* Canvas — image + frame background */}
         <canvas
           ref={canvasRef}
           onClick={handleTap}
-          className="block"
+          className="block touch-none"
           style={{
             width: '100%',
             height: '100%',
             borderRadius: 'inherit',
             cursor: frame?.imageDataUrl ? 'move' : 'pointer',
+            willChange: 'transform',
           }}
-          onPointerDown={frame?.imageDataUrl ? handleImgPointerDown : undefined}
-          onPointerMove={frame?.imageDataUrl ? handleImgPointerMove : undefined}
-          onPointerUp={frame?.imageDataUrl ? handleImgPointerUp : undefined}
-          onPointerCancel={frame?.imageDataUrl ? handleImgPointerUp : undefined}
         />
 
         {/* Draggable Top Label */}
@@ -155,15 +218,9 @@ export function PolaroidView() {
             scale={frame.topLabelPos.scale}
             containerW={displaySize.w}
             containerH={displaySize.h}
-            onMove={(nx, ny) =>
-              updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, x: nx, y: ny } })
-            }
-            onRotate={(deg) =>
-              updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, rotation: deg } })
-            }
-            onScale={(s) =>
-              updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, scale: s } })
-            }
+            onMove={(nx, ny) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, x: nx, y: ny } })}
+            onRotate={(deg) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, rotation: deg } })}
+            onScale={(s) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, scale: s } })}
           >
             <span
               className="whitespace-nowrap pointer-events-none"
@@ -180,41 +237,35 @@ export function PolaroidView() {
           </DraggableOverlay>
         )}
 
-        {/* Draggable Bottom Caption — hidden for rich templates (rendered on canvas) */}
+        {/* Draggable Bottom Caption */}
         {frame?.bottomCaptionText &&
           frame.templateId !== 'movie-poster' &&
           frame.templateId !== 'concert-ticket' &&
           frame.templateId !== 'vintage-color' && (
-          <DraggableOverlay
-            x={frame.bottomCaptionPos.x}
-            y={frame.bottomCaptionPos.y}
-            rotation={frame.bottomCaptionPos.rotation}
-            scale={frame.bottomCaptionPos.scale}
-            containerW={displaySize.w}
-            containerH={displaySize.h}
-            onMove={(nx, ny) =>
-              updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, x: nx, y: ny } })
-            }
-            onRotate={(deg) =>
-              updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, rotation: deg } })
-            }
-            onScale={(s) =>
-              updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, scale: s } })
-            }
-          >
-            <span
-              className="whitespace-nowrap pointer-events-none"
-              style={{
-                fontFamily: `"${frame.bottomCaptionFont}", sans-serif`,
-                fontSize: `${(frame.bottomCaptionSize / frame.frameHeight) * displaySize.h}px`,
-                color: frame.bottomCaptionColor,
-                lineHeight: 1.2,
-              }}
+            <DraggableOverlay
+              x={frame.bottomCaptionPos.x}
+              y={frame.bottomCaptionPos.y}
+              rotation={frame.bottomCaptionPos.rotation}
+              scale={frame.bottomCaptionPos.scale}
+              containerW={displaySize.w}
+              containerH={displaySize.h}
+              onMove={(nx, ny) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, x: nx, y: ny } })}
+              onRotate={(deg) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, rotation: deg } })}
+              onScale={(s) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, scale: s } })}
             >
-              {frame.bottomCaptionText}
-            </span>
-          </DraggableOverlay>
-        )}
+              <span
+                className="whitespace-nowrap pointer-events-none"
+                style={{
+                  fontFamily: `"${frame.bottomCaptionFont}", sans-serif`,
+                  fontSize: `${(frame.bottomCaptionSize / frame.frameHeight) * displaySize.h}px`,
+                  color: frame.bottomCaptionColor,
+                  lineHeight: 1.2,
+                }}
+              >
+                {frame.bottomCaptionText}
+              </span>
+            </DraggableOverlay>
+          )}
 
         {/* Draggable Spotify Code */}
         {spotifyCodeUrl && frame && (
@@ -225,22 +276,17 @@ export function PolaroidView() {
             scale={frame.musicPos.scale}
             containerW={displaySize.w}
             containerH={displaySize.h}
-            onMove={(nx, ny) =>
-              updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, x: nx, y: ny } })
-            }
-            onRotate={(deg) =>
-              updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, rotation: deg } })
-            }
-            onScale={(s) =>
-              updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, scale: s } })
-            }
+            onMove={(nx, ny) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, x: nx, y: ny } })}
+            onRotate={(deg) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, rotation: deg } })}
+            onScale={(s) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, scale: s } })}
           >
             <img
               src={spotifyCodeUrl}
               alt="Spotify code"
               crossOrigin="anonymous"
-              className="pointer-events-none"
-              style={{ height: `${displaySize.h * 0.055}px` }}
+              draggable={false}
+              className="pointer-events-none block"
+              style={{ height: `${displaySize.h * 0.065}px`, maxWidth: 'none' }}
             />
           </DraggableOverlay>
         )}
@@ -256,3 +302,4 @@ export function PolaroidView() {
     </div>
   );
 }
+
