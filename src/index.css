@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:wght@400;600&family=Courier+Prime&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Inter:wght@400;500;600;700&family=Lora:wght@400;700&family=Montserrat:wght@400;600;700&family=Parisienne&family=Playfair+Display:wght@400;700&family=Sacramento&family=Satisfy&family=Special+Elite&display=swap');
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  background: #FBF8F4;
+}
+
+#root {
+  width: 100%;
+  height: 100dvh;
+}
+
+/* Custom scrollbar hide */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+input[type="range"] {
+  height: 4px;
+  border-radius: 2px;
+  appearance: none;
+  background: #E8DFD6;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8B6F5C;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(139,111,92,0.3);
+}
+
+input[type="color"] {
+  appearance: none;
+  border: none;
+  padding: 0;
+  background: none;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {
+  border: 2px solid #E8DFD6;
+  border-radius: 999px;
+}
