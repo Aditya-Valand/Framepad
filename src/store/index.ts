@@ -12,6 +12,11 @@ export type TemplateId =
   | 'polaroid-itype'
   | 'polaroid-bw'
   | 'movie-poster'
+  | 'polaroid-classic'
+  | 'vintage-color'
+  | 'dark-minimal'
+  | 'tape-border'
+  | 'concert-ticket'
   | 'custom';
 
 export interface PolaroidTemplate {
@@ -130,6 +135,77 @@ export const POLAROID_TEMPLATES: PolaroidTemplate[] = [
     borderRadius: 0,
     aspectLabel: '2:3',
   },
+  {
+    id: 'polaroid-classic',
+    name: 'Classic Polaroid',
+    description: 'Timeless white border with thick bottom caption',
+    frameWidth: 1080,
+    frameHeight: 1440,
+    borderTop: 60,
+    borderLeft: 60,
+    borderRight: 60,
+    borderBottom: 300,
+    frameColor: '#FFFFFF',
+    borderRadius: 3,
+    aspectLabel: '3:4',
+  },
+  {
+    id: 'vintage-color',
+    name: 'Vintage Color 600',
+    description: 'Warm cream-toned border with retro film warmth',
+    frameWidth: 1080,
+    frameHeight: 1440,
+    borderTop: 66,
+    borderLeft: 66,
+    borderRight: 66,
+    borderBottom: 310,
+    frameColor: '#F0EBD8',
+    borderRadius: 3,
+    defaultFilter: { brightness: 10, contrast: -5, saturation: -20, warmth: 35 },
+    aspectLabel: '3:4',
+  },
+  {
+    id: 'dark-minimal',
+    name: 'Dark Minimal',
+    description: 'Editorial dark-bordered frame, high contrast and ultra clean',
+    frameWidth: 1080,
+    frameHeight: 1440,
+    borderTop: 66,
+    borderLeft: 66,
+    borderRight: 66,
+    borderBottom: 300,
+    frameColor: '#1A1814',
+    borderRadius: 3,
+    aspectLabel: '3:4',
+  },
+  {
+    id: 'tape-border',
+    name: 'Tape Border',
+    description: 'Scrapbook aesthetic with decorative tape strip across the top',
+    frameWidth: 1080,
+    frameHeight: 1440,
+    borderTop: 80,
+    borderLeft: 60,
+    borderRight: 60,
+    borderBottom: 290,
+    frameColor: '#FFFFFF',
+    borderRadius: 3,
+    aspectLabel: '3:4',
+  },
+  {
+    id: 'concert-ticket',
+    name: 'Concert Ticket',
+    description: 'Vintage stub with artist, venue and date — tear here',
+    frameWidth: 1080,
+    frameHeight: 1620,
+    borderTop: 40,
+    borderLeft: 40,
+    borderRight: 40,
+    borderBottom: 540,
+    frameColor: '#FFFEF8',
+    borderRadius: 6,
+    aspectLabel: '2:3',
+  },
 ];
 
 export interface FilterValues {
@@ -178,6 +254,12 @@ export interface FrameData {
   musicPos: OverlayPos;
   musicCodeBg: string;
   musicCodeFg: string;
+  // Structured metadata for rich templates (movie-poster, concert-ticket, vintage-color)
+  movieTitle: string;
+  movieYear: string;
+  movieDirector: string;
+  movieCast: string;
+  captionSubtext: string;
 }
 
 export interface AppState {
@@ -228,6 +310,11 @@ function createFrame(id: string): FrameData {
     musicPos: { x: 50, y: 92, rotation: 0, scale: 1 },
     musicCodeBg: '#FFFFFF',
     musicCodeFg: 'black',
+    movieTitle: '',
+    movieYear: '',
+    movieDirector: '',
+    movieCast: '',
+    captionSubtext: '',
   };
 }
 
@@ -266,6 +353,39 @@ export const useStore = create<AppState>((set) => ({
     set((s) => {
       const template = POLAROID_TEMPLATES.find((t) => t.id === templateId);
       if (!template) return s;
+
+      // Seed dummy text for rich templates
+      const richDefaults: Partial<FrameData> = {};
+      if (templateId === 'movie-poster') {
+        richDefaults.movieTitle = 'MOVIE TITLE';
+        richDefaults.movieYear = '2026';
+        richDefaults.movieDirector = 'YOUR NAME';
+        richDefaults.movieCast = 'ACTOR ONE · ACTOR TWO';
+        richDefaults.captionSubtext = 'PRODUCER NAME';
+        richDefaults.bottomCaptionText = '';
+      } else if (templateId === 'vintage-color') {
+        richDefaults.bottomCaptionText = "summer '24";
+        richDefaults.bottomCaptionFont = 'Courier Prime';
+        richDefaults.captionSubtext = 'JUNE · 2026';
+        richDefaults.movieTitle = '';
+        richDefaults.movieYear = '';
+        richDefaults.movieDirector = '';
+        richDefaults.movieCast = '';
+      } else if (templateId === 'concert-ticket') {
+        richDefaults.movieTitle = 'ARTIST NAME';
+        richDefaults.movieYear = '';
+        richDefaults.movieDirector = 'VENUE · CITY';
+        richDefaults.movieCast = 'MAY 04 · 2026';
+        richDefaults.captionSubtext = 'GA · FLOOR';
+        richDefaults.bottomCaptionText = '';
+      } else {
+        richDefaults.movieTitle = '';
+        richDefaults.movieYear = '';
+        richDefaults.movieDirector = '';
+        richDefaults.movieCast = '';
+        richDefaults.captionSubtext = '';
+      }
+
       return {
         frames: s.frames.map((f) =>
           f.id === id
@@ -281,6 +401,7 @@ export const useStore = create<AppState>((set) => ({
                 frameColor: template.frameColor,
                 borderRadius: template.borderRadius,
                 ...(template.defaultFilter ? { filters: { ...f.filters, ...template.defaultFilter } } : {}),
+                ...richDefaults,
               }
             : f
         ),

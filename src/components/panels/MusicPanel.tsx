@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../../store';
+import { useImageColors } from '../../hooks/useImageColors';
 
 const CODE_BG_COLORS = [
   { id: '#FFFFFF', label: 'White' },
@@ -15,6 +16,7 @@ export function MusicPanel() {
   const frame = useStore((s) => s.frames.find((f) => f.id === s.activeFrameId));
   const updateFrame = useStore((s) => s.updateFrame);
   const [input, setInput] = useState(frame?.musicUrl || '');
+  const photoColors = useImageColors(frame?.imageDataUrl ?? null);
 
   if (!frame) return null;
 
@@ -87,6 +89,34 @@ export function MusicPanel() {
                 className="w-8 h-8 rounded-full cursor-pointer border-0"
               />
             </div>
+
+            {/* Photo-sampled palette */}
+            {photoColors.length > 0 && (
+              <div className="mt-3">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <svg className="w-3 h-3 text-[#A39080]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 22l4-4m0 0L14.5 9.5M6 18l8.5-8.5m0 0l2-2a2.828 2.828 0 1 1 4 4l-2 2L6 18z"/>
+                    <path d="M19.5 6.5l-2-2"/>
+                  </svg>
+                  <span className="text-[9px] font-medium text-[#A39080] uppercase tracking-widest">From photo</span>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {photoColors.map((color) => (
+                    <button
+                      key={color}
+                      title={color}
+                      onClick={() => updateFrame(activeFrameId, { musicCodeBg: color })}
+                      className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 active:scale-95 ${
+                        frame.musicCodeBg === color
+                          ? 'border-[#8B6F5C] scale-110 ring-2 ring-[#8B6F5C]/20'
+                          : 'border-[#E8DFD6]'
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
 
           <section>

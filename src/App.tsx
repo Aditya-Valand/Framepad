@@ -7,15 +7,22 @@ import { FramePanel } from './components/panels/FramePanel';
 import { EditPanel } from './components/panels/EditPanel';
 import { TextPanel } from './components/panels/TextPanel';
 import { MusicPanel } from './components/panels/MusicPanel';
+import { ExportSuccessModal } from './components/ExportSuccessModal';
+import { PrivacyPage } from './components/PrivacyPage';
 
 export default function App() {
   const activeTab = useStore((s) => s.activeTab);
   const setActiveTab = useStore((s) => s.setActiveTab);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [exportSuccess, setExportSuccess] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+
+  if (showPrivacy) {
+    return <PrivacyPage onBack={() => setShowPrivacy(false)} />;
+  }
 
   const handleTabClick = (tab: typeof activeTab) => {
     if (activeTab === tab && sheetOpen) {
-      // Same tab tapped again — close
       setSheetOpen(false);
     } else {
       setActiveTab(tab);
@@ -27,8 +34,13 @@ export default function App() {
     <div className="h-dvh flex flex-col bg-[#FBF8F4] overflow-hidden">
       {/* Header */}
       <header className="flex-shrink-0 bg-[#FFFCF8] border-b border-[#F0E6DA] px-5 py-3 flex items-center justify-between z-10">
-        <h1 className="text-base font-semibold tracking-tight text-[#5C4A3A]" style={{ fontFamily: '"Playfair Display", serif' }}>framepad</h1>
-        <ExportButton />
+        <h1
+          className="tracking-wide"
+          style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '1.35rem', lineHeight: 1 }}
+        >
+          <span style={{ fontWeight: 500, fontStyle: 'normal', color: '#1A1814', letterSpacing: '0.04em' }}>Pola</span><span style={{ fontWeight: 400, fontStyle: 'italic', color: '#8B6F5C', letterSpacing: '0.01em' }}>muse</span>
+        </h1>
+        <ExportButton onSuccess={() => setExportSuccess(true)} />
       </header>
 
       {/* Canvas Area */}
@@ -44,16 +56,14 @@ export default function App() {
         {activeTab === 'music' && <MusicPanel />}
       </BottomSheet>
 
-      {/* Tab Bar (Mobile bottom nav) */}
+      {/* Tab Bar */}
       <nav className="flex-shrink-0 bg-[#FFFCF8] border-t border-[#F0E6DA] flex z-20 relative">
         {(['frame', 'edit', 'text', 'music'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => handleTabClick(tab)}
             className={`flex-1 py-3 text-[10px] font-medium capitalize transition-all duration-200 ${
-              activeTab === tab && sheetOpen
-                ? 'text-[#5C4A3A]'
-                : 'text-[#C4B5A6]'
+              activeTab === tab && sheetOpen ? 'text-[#5C4A3A]' : 'text-[#C4B5A6]'
             }`}
           >
             <span className={`block transition-transform duration-200 ${
@@ -65,16 +75,39 @@ export default function App() {
           </button>
         ))}
       </nav>
+
+      {/* Privacy link footer */}
+      <div className="flex-shrink-0 bg-[#FFFCF8] pb-safe flex justify-center py-1 border-t border-[#F0E6DA]/50">
+        <button
+          onClick={() => setShowPrivacy(true)}
+          className="text-[9px] text-[#C4B5A6] hover:text-[#A39080] transition-colors"
+        >
+          Privacy Policy
+        </button>
+      </div>
+
+      {/* Export success + ad modal */}
+      <ExportSuccessModal open={exportSuccess} onClose={() => setExportSuccess(false)} />
     </div>
   );
 }
 
-function ExportButton() {
+function ExportButton({ onSuccess }: { onSuccess: () => void }) {
+  const handleClick = () => {
+    // Trigger the canvas export (wired by PolaroidView via id)
+    const btn = document.getElementById('export-btn-inner');
+    btn?.click();
+    // Show success modal after a short delay for the download to initiate
+    setTimeout(onSuccess, 600);
+  };
+
   return (
     <button
-      id="export-btn"
+      onClick={handleClick}
       className="px-4 py-1.5 bg-[#8B6F5C] text-white text-xs font-semibold rounded-full hover:bg-[#7A6050] active:scale-95 transition-all shadow-sm"
     >
+      {/* Hidden inner button that PolaroidView wires exportPNG to */}
+      <span id="export-btn-inner" className="hidden" />
       Export
     </button>
   );

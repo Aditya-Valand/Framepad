@@ -2,6 +2,7 @@ import { useCallback, useRef } from 'react';
 import { useStore, POLAROID_TEMPLATES } from '../../store';
 import type { TemplateId } from '../../store';
 import { useImageUpload } from '../../hooks/useImageUpload';
+import { useImageColors } from '../../hooks/useImageColors';
 
 export function FramePanel() {
   const activeFrameId = useStore((s) => s.activeFrameId);
@@ -10,6 +11,7 @@ export function FramePanel() {
   const applyTemplate = useStore((s) => s.applyTemplate);
   const { uploadFile } = useImageUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const photoColors = useImageColors(frame?.imageDataUrl ?? null);
 
   const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -102,6 +104,8 @@ export function FramePanel() {
       {/* Frame Color */}
       <section>
         <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Color</h3>
+
+        {/* Preset swatches + custom picker */}
         <div className="flex gap-2 items-center">
           {['#FFFFFF', '#F5EDD6', '#1A1A1A', '#F0E4D7', '#F2EDE8', '#E4E8F0'].map((color) => (
             <button
@@ -120,6 +124,35 @@ export function FramePanel() {
             className="w-8 h-8 rounded-full cursor-pointer border-0"
           />
         </div>
+
+        {/* Photo-sampled palette */}
+        {photoColors.length > 0 && (
+          <div className="mt-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              {/* eyedropper icon */}
+              <svg className="w-3 h-3 text-[#A39080]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 22l4-4m0 0L14.5 9.5M6 18l8.5-8.5m0 0l2-2a2.828 2.828 0 1 1 4 4l-2 2L6 18z"/>
+                <path d="M19.5 6.5l-2-2"/>
+              </svg>
+              <span className="text-[9px] font-medium text-[#A39080] uppercase tracking-widest">From photo</span>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {photoColors.map((color) => (
+                <button
+                  key={color}
+                  title={color}
+                  onClick={() => updateFrame(activeFrameId, { frameColor: color })}
+                  className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 active:scale-95 ${
+                    frame.frameColor === color
+                      ? 'border-[#8B6F5C] scale-110 ring-2 ring-[#8B6F5C]/20'
+                      : 'border-[#E8DFD6]'
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Caption Area */}

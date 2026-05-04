@@ -49,6 +49,9 @@ export function usePolaroidCanvas() {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('Tap to upload photo', W / 2, imgY + imgH / 2);
+
+      if (frameData.templateId === 'tape-border') drawTapeOnCanvas(ctx, W, H);
+      drawRichTemplateMeta(ctx, frameData);
     } else {
       // Load and draw image only (text/music are HTML overlays in preview)
       const renderImg = new Image();
@@ -82,6 +85,9 @@ export function usePolaroidCanvas() {
 
         ctx.filter = 'none';
         ctx.restore();
+
+        if (frameData.templateId === 'tape-border') drawTapeOnCanvas(ctx, W, H);
+        drawRichTemplateMeta(ctx, frameData);
       };
       renderImg.src = frameData.imageDataUrl;
     }
@@ -178,6 +184,14 @@ function drawOverlaysSync(
   const W = frameData.frameWidth;
   const H = frameData.frameHeight;
 
+  // Tape border decoration
+  if (frameData.templateId === 'tape-border') {
+    drawTapeOnCanvas(ctx, W, H);
+  }
+
+  // Rich template metadata (movie-poster, vintage-color, concert-ticket)
+  drawRichTemplateMeta(ctx, frameData);
+
   // Top label at stored position with scale
   if (frameData.topLabelText) {
     ctx.save();
@@ -198,8 +212,9 @@ function drawOverlaysSync(
     ctx.restore();
   }
 
-  // Bottom caption at stored position with scale
-  if (frameData.bottomCaptionText) {
+  // Bottom caption — skip for rich templates (their canvas draw functions handle it)
+  const RICH_TEMPLATES = ['movie-poster', 'concert-ticket', 'vintage-color'];
+  if (frameData.bottomCaptionText && !RICH_TEMPLATES.includes(frameData.templateId)) {
     ctx.save();
     const px = (frameData.bottomCaptionPos.x / 100) * W;
     const py = (frameData.bottomCaptionPos.y / 100) * H;
@@ -250,6 +265,179 @@ function drawOverlaysSync(
   } else {
     onDone();
   }
+}
+
+/** Dispatcher — calls the right draw function for each rich template */
+function drawRichTemplateMeta(ctx: CanvasRenderingContext2D, frame: FrameData) {
+  if (frame.templateId === 'movie-poster') drawMoviePosterMeta(ctx, frame);
+  else if (frame.templateId === 'vintage-color') drawVintageCaption(ctx, frame);
+  else if (frame.templateId === 'concert-ticket') drawConcertTicketMeta(ctx, frame);
+}
+
+/** Movie Poster: Bebas Neue title + Courier Prime metadata grid in caption area */
+function drawMoviePosterMeta(ctx: CanvasRenderingContext2D, frame: FrameData) {
+  const W = frame.frameWidth;
+  const H = frame.frameHeight;
+  const capY = H - frame.borderBottom;      // y where caption area starts
+  const L = frame.borderLeft + 10;          // left margin
+  const valueX = L + 210;                   // x for values column
+
+  ctx.save();
+  ctx.textBaseline = 'alphabetic';
+
+  // Title (Bebas Neue, large)
+  const title = frame.movieTitle || 'MOVIE TITLE';
+  ctx.font = `70px "Bebas Neue", sans-serif`;
+  ctx.fillStyle = '#1a1814';
+  ctx.textAlign = 'left';
+  ctx.fillText(title, L, capY + 70);
+
+  // Year next to title
+  const titleW = ctx.measureText(title).width;
+  ctx.font = `26px Inter, sans-serif`;
+  ctx.fillStyle = '#888888';
+  ctx.fillText(frame.movieYear || '2026', L + titleW + 14, capY + 64);
+
+  // Separator line
+  ctx.beginPath();
+  ctx.strokeStyle = '#CCCCCC';
+  ctx.lineWidth = 1;
+  ctx.moveTo(L, capY + 102);
+  ctx.lineTo(W - frame.borderRight - 10, capY + 102);
+  ctx.stroke();
+
+  // Metadata rows
+  const rows: { label: string; value: string; color: string }[] = [
+    { label: 'directed by', value: frame.movieDirector || 'YOUR NAME',             color: '#333333' },
+    { label: 'starring',    value: frame.movieCast     || 'ACTOR ONE · ACTOR TWO', color: '#C0392B' },
+    { label: 'produced by', value: frame.captionSubtext || 'PRODUCER NAME',        color: '#333333' },
+  ];
+
+  rows.forEach((row, i) => {
+    const ry = capY + 152 + i * 52;
+    ctx.font = `22px "Courier Prime", monospace`;
+    ctx.fillStyle = '#AAAAAA';
+    ctx.textAlign = 'left';
+    ctx.fillText(row.label, L, ry);
+    ctx.fillStyle = row.color;
+    ctx.fillText(row.value, valueX, ry);
+  });
+
+  ctx.restore();
+}
+
+/** Vintage Color 600: Courier Prime caption + smaller date subtext */
+function drawVintageCaption(ctx: CanvasRenderingContext2D, frame: FrameData) {
+  const W = frame.frameWidth;
+  const H = frame.frameHeight;
+  const capY = H - frame.borderBottom;
+  const caption = frame.bottomCaptionText;
+  const subtext = frame.captionSubtext;
+
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+
+  if (caption) {
+    ctx.font = `50px "Courier Prime", monospace`;
+    ctx.fillStyle = '#5a4a2a';
+    ctx.fillText(caption, W / 2, capY + 100);
+  }
+
+  if (subtext) {
+    ctx.font = `26px "Courier Prime", monospace`;
+    ctx.fillStyle = '#9a8a6a';
+    (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = '4px';
+    ctx.fillText(subtext, W / 2, capY + 158);
+    (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = '0px';
+  }
+
+  ctx.restore();
+}
+
+/** Concert Ticket: dashed perforation + Bebas Neue artist + Courier Prime venue/date */
+function drawConcertTicketMeta(ctx: CanvasRenderingContext2D, frame: FrameData) {
+  const W = frame.frameWidth;
+  const H = frame.frameHeight;
+  const capY = H - frame.borderBottom;   // = 1080
+  const CX = W / 2;
+
+  ctx.save();
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'center';
+
+  // Dashed perforation line
+  ctx.setLineDash([10, 10]);
+  ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(frame.borderLeft, capY + 16);
+  ctx.lineTo(W - frame.borderRight, capY + 16);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Artist name
+  ctx.font = `86px "Bebas Neue", sans-serif`;
+  ctx.fillStyle = '#1a1814';
+  ctx.fillText(frame.movieTitle || 'ARTIST NAME', CX, capY + 138);
+
+  // Venue
+  ctx.font = `28px "Courier Prime", monospace`;
+  ctx.fillStyle = '#666666';
+  ctx.fillText(frame.movieDirector || 'VENUE · CITY', CX, capY + 198);
+
+  // Date / Show info
+  ctx.fillText(frame.movieCast || 'MAY 04 · 2026', CX, capY + 248);
+
+  // Separator
+  ctx.beginPath();
+  ctx.strokeStyle = '#E0DDD5';
+  ctx.lineWidth = 1;
+  ctx.moveTo(frame.borderLeft + 60, capY + 292);
+  ctx.lineTo(W - frame.borderRight - 60, capY + 292);
+  ctx.stroke();
+
+  // Section / Row
+  ctx.font = `38px "Bebas Neue", sans-serif`;
+  ctx.fillStyle = '#AAAAAA';
+  (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = '5px';
+  ctx.fillText(frame.captionSubtext || 'GA · FLOOR', CX, capY + 372);
+  (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = '0px';
+
+  // Admit one
+  ctx.font = `20px "Courier Prime", monospace`;
+  ctx.fillStyle = '#C8C8C8';
+  ctx.fillText('ADMIT ONE', CX, capY + 420);
+
+  ctx.restore();
+}
+
+/** Draws a semi-transparent tape strip at the top of the canvas */
+function drawTapeOnCanvas(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  const tapeW = W * 0.44;
+  const tapeH = H * 0.025;
+  const tapeX = W / 2;
+  const tapeY = tapeH / 2 + 4;
+  ctx.save();
+  ctx.translate(tapeX, tapeY);
+  ctx.rotate((-2 * Math.PI) / 180);
+  ctx.fillStyle = 'rgba(255,220,120,0.60)';
+  const rx = 4;
+  const x = -tapeW / 2;
+  const y = -tapeH / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + rx, y);
+  ctx.lineTo(x + tapeW - rx, y);
+  ctx.quadraticCurveTo(x + tapeW, y, x + tapeW, y + rx);
+  ctx.lineTo(x + tapeW, y + tapeH - rx);
+  ctx.quadraticCurveTo(x + tapeW, y + tapeH, x + tapeW - rx, y + tapeH);
+  ctx.lineTo(x + rx, y + tapeH);
+  ctx.quadraticCurveTo(x, y + tapeH, x, y + tapeH - rx);
+  ctx.lineTo(x, y + rx);
+  ctx.quadraticCurveTo(x, y, x + rx, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 }
 
 function triggerDownload(canvas: HTMLCanvasElement) {

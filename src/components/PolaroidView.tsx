@@ -58,7 +58,7 @@ export function PolaroidView() {
 
   // Wire export button
   useEffect(() => {
-    const exportBtn = document.getElementById('export-btn');
+    const exportBtn = document.getElementById('export-btn-inner');
     if (exportBtn) {
       exportBtn.onclick = exportPNG;
     }
@@ -180,8 +180,11 @@ export function PolaroidView() {
           </DraggableOverlay>
         )}
 
-        {/* Draggable Bottom Caption */}
-        {frame?.bottomCaptionText && (
+        {/* Draggable Bottom Caption — hidden for rich templates (rendered on canvas) */}
+        {frame?.bottomCaptionText &&
+          frame.templateId !== 'movie-poster' &&
+          frame.templateId !== 'concert-ticket' &&
+          frame.templateId !== 'vintage-color' && (
           <DraggableOverlay
             x={frame.bottomCaptionPos.x}
             y={frame.bottomCaptionPos.y}
