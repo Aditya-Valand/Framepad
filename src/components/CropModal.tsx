@@ -29,7 +29,8 @@ export function CropModal({ imageDataUrl, aspectW, aspectH, initialPanX = 0, ini
   // Current position state (% of crop window)
   const [panX, setPanX] = useState(initialPanX);
   const [panY, setPanY] = useState(initialPanY);
-  const [imgScale, setImgScale] = useState(initialScale);
+  // Clamp to minimum 1 so image always covers the frame on open
+  const [imgScale, setImgScale] = useState(Math.max(1, initialScale));
 
   // Gesture baseline refs
   const gesture = useRef({
@@ -121,7 +122,8 @@ export function CropModal({ imageDataUrl, aspectW, aspectH, initialPanX = 0, ini
         const nowDist = Math.hypot(p1.x - p0.x, p1.y - p0.y);
         if (g.initDist > 2) {
           const scaleFactor = nowDist / g.initDist;
-          const next = Math.max(0.5, Math.min(4, g.origScale * scaleFactor));
+          // Minimum 1 = image always covers the frame (no white border behind image)
+          const next = Math.max(1, Math.min(4, g.origScale * scaleFactor));
           setImgScale(next);
 
           // Keep the finger midpoint fixed (zoom-to-cursor)

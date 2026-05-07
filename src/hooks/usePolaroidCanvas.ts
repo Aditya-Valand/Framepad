@@ -459,30 +459,6 @@ function triggerDownload(canvas: HTMLCanvasElement) {
   }, 'image/png');
 }
 
-/** Cover-crop: returns source rect to fill the target exactly */
-function coverCrop(srcW: number, srcH: number, tgtW: number, tgtH: number) {
-  const srcAspect = srcW / srcH;
-  const tgtAspect = tgtW / tgtH;
-
-  let sx: number, sy: number, sw: number, sh: number;
-
-  if (srcAspect > tgtAspect) {
-    // Source is wider — crop sides
-    sh = srcH;
-    sw = srcH * tgtAspect;
-    sx = (srcW - sw) / 2;
-    sy = 0;
-  } else {
-    // Source is taller — crop top/bottom
-    sw = srcW;
-    sh = srcW / tgtAspect;
-    sx = 0;
-    sy = (srcH - sh) / 2;
-  }
-
-  return { sx, sy, sw, sh };
-}
-
 function buildCSSFilter(filters: { brightness: number; contrast: number; saturation: number; warmth: number }): string {
   const parts: string[] = [];
   if (filters.brightness !== 0) parts.push(`brightness(${1 + filters.brightness / 100})`);

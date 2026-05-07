@@ -57,7 +57,13 @@ export function useImageUpload() {
   const uploadFile = useCallback(async (file: File) => {
     const dataUrl = await processFile(file);
     if (dataUrl) {
-      updateFrame(activeFrameId, { imageDataUrl: dataUrl });
+      // Reset pan/scale so new image always starts centered and covering the frame
+      updateFrame(activeFrameId, {
+        imageDataUrl: dataUrl,
+        imagePanX: 0,
+        imagePanY: 0,
+        imageScale: 1,
+      });
     }
   }, [processFile, activeFrameId, updateFrame]);
 

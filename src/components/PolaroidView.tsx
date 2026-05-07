@@ -153,7 +153,7 @@ export function PolaroidView() {
         const nowDist = dist(now0, now1);
         if (initDist > 1) {
           const scaleFactor = nowDist / initDist;
-          const newScale = Math.max(0.5, Math.min(4, g.origScale * scaleFactor));
+          const newScale = Math.max(1, Math.min(4, g.origScale * scaleFactor));
 
           // Keep the finger midpoint fixed on the image (zoom-to-cursor like Canva)
           const areaW = imgAreaW();
