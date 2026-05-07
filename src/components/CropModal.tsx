@@ -22,6 +22,9 @@ export function CropModal({ imageDataUrl, aspectW, aspectH, initialPanX = 0, ini
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [imgNatural, setImgNatural] = useState({ w: 1, h: 1 });
+  // Keep a ref so gesture event handlers (stale closures) always see the latest values
+  const natRef = useRef(imgNatural);
+  useEffect(() => { natRef.current = imgNatural; }, [imgNatural]);
 
   // Current position state (% of crop window)
   const [panX, setPanX] = useState(initialPanX);
@@ -93,13 +96,22 @@ export function CropModal({ imageDataUrl, aspectW, aspectH, initialPanX = 0, ini
       e.preventDefault();
       ptrs.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
       const g = gesture.current;
+      const p = panRef.current;
+
+      // Max pan so the image edge never exposes the void behind it
+      const { w: cw, h: ch } = cropSize;
+      const nat = natRef.current;
+      const baseScaleNow = Math.max(cw / nat.w, ch / nat.h);
+      const dispW = nat.w * baseScaleNow * p.imgScale;
+      const dispH = nat.h * baseScaleNow * p.imgScale;
+      const maxPX = Math.max(0, (dispW - cw) / cw * 50);
+      const maxPY = Math.max(0, (dispH - ch) / ch * 50);
 
       if (g.dragging && e.pointerId === g.dragId) {
         const dx = e.clientX - g.startCX;
         const dy = e.clientY - g.startCY;
-        // convert px offset to % of crop window size
-        setPanX(Math.max(-150, Math.min(150, g.origPX + (dx / cropSize.w) * 100)));
-        setPanY(Math.max(-150, Math.min(150, g.origPY + (dy / cropSize.h) * 100)));
+        setPanX(Math.max(-maxPX, Math.min(maxPX, g.origPX + (dx / cw) * 100)));
+        setPanY(Math.max(-maxPY, Math.min(maxPY, g.origPY + (dy / ch) * 100)));
       }
 
       if (g.pinching) {
@@ -108,8 +120,30 @@ export function CropModal({ imageDataUrl, aspectW, aspectH, initialPanX = 0, ini
         if (!p0 || !p1) return;
         const nowDist = Math.hypot(p1.x - p0.x, p1.y - p0.y);
         if (g.initDist > 2) {
-          const next = Math.max(0.5, Math.min(5, g.origScale * (nowDist / g.initDist)));
+          const scaleFactor = nowDist / g.initDist;
+          const next = Math.max(0.5, Math.min(4, g.origScale * scaleFactor));
           setImgScale(next);
+
+          // Keep the finger midpoint fixed (zoom-to-cursor)
+          const initMidX = (g.initP0.x + g.initP1.x) / 2;
+          const initMidY = (g.initP0.y + g.initP1.y) / 2;
+          const el = containerRef.current;
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            const relMidX = initMidX - rect.left - cw / 2;
+            const relMidY = initMidY - rect.top  - ch / 2;
+            const curPanOffX = (g.origPX / 100) * cw;
+            const curPanOffY = (g.origPY / 100) * ch;
+            const newPanOffX = relMidX - (relMidX - curPanOffX) * scaleFactor;
+            const newPanOffY = relMidY - (relMidY - curPanOffY) * scaleFactor;
+            // Recompute max pan with new scale
+            const dispWNext = nat.w * baseScaleNow * next;
+            const dispHNext = nat.h * baseScaleNow * next;
+            const mxNext = Math.max(0, (dispWNext - cw) / cw * 50);
+            const myNext = Math.max(0, (dispHNext - ch) / ch * 50);
+            setPanX(Math.max(-mxNext, Math.min(mxNext, (newPanOffX / cw) * 100)));
+            setPanY(Math.max(-myNext, Math.min(myNext, (newPanOffY / ch) * 100)));
+          }
         }
       }
     };

@@ -68,11 +68,13 @@ export function usePolaroidCanvas() {
         const filterStr = buildCSSFilter(frameData.filters);
         if (filterStr) ctx.filter = filterStr;
 
-        const { sx, sy, sw, sh } = coverCrop(renderImg.naturalWidth, renderImg.naturalHeight, imgW, imgH);
-
+        const natW = renderImg.naturalWidth;
+        const natH = renderImg.naturalHeight;
         const cx = imgX + imgW / 2;
         const cy = imgY + imgH / 2;
-        const drawScale = frameData.imageScale;
+        // Base scale so image covers the frame area exactly (CSS object-fit: cover)
+        const baseScale = Math.max(imgW / natW, imgH / natH);
+        const finalScale = baseScale * frameData.imageScale;
         const panOffsetX = (frameData.imagePanX / 100) * imgW;
         const panOffsetY = (frameData.imagePanY / 100) * imgH;
 
@@ -80,8 +82,8 @@ export function usePolaroidCanvas() {
         if (frameData.imageRotation !== 0) {
           ctx.rotate((frameData.imageRotation * Math.PI) / 180);
         }
-        ctx.scale(drawScale, drawScale);
-        ctx.drawImage(renderImg, sx, sy, sw, sh, -imgW / 2, -imgH / 2, imgW, imgH);
+        ctx.scale(finalScale, finalScale);
+        ctx.drawImage(renderImg, -natW / 2, -natH / 2, natW, natH);
 
         ctx.filter = 'none';
         ctx.restore();
@@ -142,10 +144,12 @@ export function usePolaroidCanvas() {
         const filterStr = buildCSSFilter(currentFrame.filters);
         if (filterStr) ctx.filter = filterStr;
 
-        const { sx, sy, sw, sh } = coverCrop(img.naturalWidth, img.naturalHeight, imgW, imgH);
-
+        const natW = img.naturalWidth;
+        const natH = img.naturalHeight;
         const cx = imgX + imgW / 2;
         const cy = imgY + imgH / 2;
+        const baseScale = Math.max(imgW / natW, imgH / natH);
+        const finalScale = baseScale * currentFrame.imageScale;
         const panOffsetX = (currentFrame.imagePanX / 100) * imgW;
         const panOffsetY = (currentFrame.imagePanY / 100) * imgH;
 
@@ -153,8 +157,8 @@ export function usePolaroidCanvas() {
         if (currentFrame.imageRotation !== 0) {
           ctx.rotate((currentFrame.imageRotation * Math.PI) / 180);
         }
-        ctx.scale(currentFrame.imageScale, currentFrame.imageScale);
-        ctx.drawImage(img, sx, sy, sw, sh, -imgW / 2, -imgH / 2, imgW, imgH);
+        ctx.scale(finalScale, finalScale);
+        ctx.drawImage(img, -natW / 2, -natH / 2, natW, natH);
 
         ctx.filter = 'none';
         ctx.restore();

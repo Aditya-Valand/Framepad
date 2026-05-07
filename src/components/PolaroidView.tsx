@@ -141,8 +141,8 @@ export function PolaroidView() {
         const newPanX = g.origPanX + (dx / imgAreaW()) * 100;
         const newPanY = g.origPanY + (dy / imgAreaH()) * 100;
         updateFrame(activeFrameId, {
-          imagePanX: Math.max(-100, Math.min(100, newPanX)),
-          imagePanY: Math.max(-100, Math.min(100, newPanY)),
+          imagePanX: Math.max(-300, Math.min(300, newPanX)),
+          imagePanY: Math.max(-300, Math.min(300, newPanY)),
         });
       }
 
@@ -153,9 +153,37 @@ export function PolaroidView() {
         const nowDist = dist(now0, now1);
         if (initDist > 1) {
           const scaleFactor = nowDist / initDist;
-          updateFrame(activeFrameId, {
-            imageScale: Math.max(0.5, Math.min(4, g.origScale * scaleFactor)),
-          });
+          const newScale = Math.max(0.5, Math.min(4, g.origScale * scaleFactor));
+
+          // Keep the finger midpoint fixed on the image (zoom-to-cursor like Canva)
+          const areaW = imgAreaW();
+          const areaH = imgAreaH();
+          const f = frameRef.current;
+          const d = displayRef.current;
+          if (f && areaW > 0 && areaH > 0) {
+            const canvasRect = canvas.getBoundingClientRect();
+            // Initial pinch midpoint relative to canvas element
+            const initMidX = (g.p0.x + g.p1.x) / 2 - canvasRect.left;
+            const initMidY = (g.p0.y + g.p1.y) / 2 - canvasRect.top;
+            // Image area top-left in display coords
+            const areaLeft = d.w * f.borderLeft / f.frameWidth;
+            const areaTop  = d.h * f.borderTop  / f.frameHeight;
+            // Midpoint relative to image area center
+            const relMidX = initMidX - (areaLeft + areaW / 2);
+            const relMidY = initMidY - (areaTop  + areaH / 2);
+            // Adjust pan so the same image point stays under the midpoint
+            const curPanOffX = (g.origPanXp / 100) * areaW;
+            const curPanOffY = (g.origPanYp / 100) * areaH;
+            const newPanOffX = relMidX - (relMidX - curPanOffX) * scaleFactor;
+            const newPanOffY = relMidY - (relMidY - curPanOffY) * scaleFactor;
+            updateFrame(activeFrameId, {
+              imageScale: newScale,
+              imagePanX: Math.max(-300, Math.min(300, (newPanOffX / areaW) * 100)),
+              imagePanY: Math.max(-300, Math.min(300, (newPanOffY / areaH) * 100)),
+            });
+          } else {
+            updateFrame(activeFrameId, { imageScale: newScale });
+          }
         }
       }
     };
