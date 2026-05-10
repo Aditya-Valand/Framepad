@@ -4,6 +4,8 @@ import { useImageUpload } from '../hooks/useImageUpload';
 import { useStore } from '../store';
 import { DraggableOverlay } from './DraggableOverlay';
 import { CropModal } from './CropModal';
+import { useTransparentSpotifyCode } from '../hooks/useTransparentSpotifyCode';
+import { TrashZone } from './TrashZone';
 
 export function PolaroidView() {
   const { canvasRef, exportPNG } = usePolaroidCanvas();
@@ -15,6 +17,11 @@ export function PolaroidView() {
   const updateFrame = useStore((s) => s.updateFrame);
   const [displaySize, setDisplaySize] = useState({ w: 300, h: 400 });
   const [showCrop, setShowCrop] = useState(false);
+
+  // ── Drag-to-trash state ──
+  const [dragActive, setDragActive] = useState(false);
+  const [overTrash, setOverTrash] = useState(false);
+  const trashZoneRef = useRef<HTMLDivElement>(null);
 
   // Calculate scale to fit canvas in container
   useEffect(() => {
@@ -207,11 +214,44 @@ export function PolaroidView() {
     };
   }, [activeFrameId, updateFrame, canvasRef]);
 
+  // ── Drag-to-trash helpers ──
+  const handleDragStart = useCallback(() => {
+    setDragActive(true);
+    setOverTrash(false);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDragActive(false);
+    setOverTrash(false);
+  }, []);
+
+  const handleDragMove = useCallback((cx: number, cy: number) => {
+    const el = trashZoneRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const hit = cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom;
+    setOverTrash(hit);
+  }, []);
+
   // Spotify barcode URL
   const spotifyMatch = frame?.musicUrl?.match(/spotify\.com\/(track|album|playlist|artist)\/([a-zA-Z0-9]+)/);
-  const spotifyCodeUrl = spotifyMatch && frame
-    ? `https://scannables.scdn.co/uri/plain/png/${frame.musicCodeBg.replace('#', '')}/${frame.musicCodeFg === '#FFFFFF' ? 'white' : 'black'}/640/spotify:${spotifyMatch[1]}:${spotifyMatch[2]}`
-    : null;
+  const isTransparentBg = frame?.musicCodeBg === 'transparent';
+  const effectiveSpotifyBg = isTransparentBg ? '#FFFFFF' : frame?.musicCodeBg; // Use white as base for removal
+  const fgColorStr = frame?.musicCodeFg === '#FFFFFF' ? 'white' : 'black';
+  
+  // Get transparent version when needed
+  const transparentCodeUrl = useTransparentSpotifyCode(
+    isTransparentBg ? frame?.musicUrl ?? null : null,
+    '#FFFFFF', // Remove white background
+    fgColorStr as 'white' | 'black'
+  );
+  
+  // Use transparent URL if available, otherwise regular URL
+  const spotifyCodeUrl = isTransparentBg
+    ? transparentCodeUrl
+    : (spotifyMatch && frame && effectiveSpotifyBg
+        ? `https://scannables.scdn.co/uri/plain/png/${effectiveSpotifyBg.replace('#', '')}/${fgColorStr}/640/spotify:${spotifyMatch[1]}:${spotifyMatch[2]}`
+        : null);
 
   return (
     <div
@@ -255,6 +295,11 @@ export function PolaroidView() {
             onMove={(nx, ny) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, x: nx, y: ny } })}
             onRotate={(deg) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, rotation: deg } })}
             onScale={(s) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, scale: s } })}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragMove={handleDragMove}
+            overTrash={overTrash}
+            onDelete={() => updateFrame(activeFrameId, { topLabelText: '' })}
           >
             <span
               className="whitespace-nowrap pointer-events-none"
@@ -286,6 +331,11 @@ export function PolaroidView() {
               onMove={(nx, ny) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, x: nx, y: ny } })}
               onRotate={(deg) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, rotation: deg } })}
               onScale={(s) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, scale: s } })}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDragMove={handleDragMove}
+              overTrash={overTrash}
+              onDelete={() => updateFrame(activeFrameId, { bottomCaptionText: '' })}
             >
               <span
                 className="whitespace-nowrap pointer-events-none"
@@ -313,6 +363,11 @@ export function PolaroidView() {
             onMove={(nx, ny) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, x: nx, y: ny } })}
             onRotate={(deg) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, rotation: deg } })}
             onScale={(s) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, scale: s } })}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragMove={handleDragMove}
+            overTrash={overTrash}
+            onDelete={() => updateFrame(activeFrameId, { musicUrl: '' })}
           >
             <img
               src={spotifyCodeUrl}
@@ -325,6 +380,13 @@ export function PolaroidView() {
           </DraggableOverlay>
         )}
       </div>
+
+      {/* Instagram-style drag-to-trash zone */}
+      <TrashZone
+        visible={dragActive}
+        targeted={overTrash}
+        trashRef={trashZoneRef}
+      />
 
       <input
         ref={fileInputRef}

@@ -308,7 +308,7 @@ function createFrame(id: string): FrameData {
     bottomCaptionPos: { x: 50, y: 86, rotation: 0, scale: 1 },
     musicUrl: '',
     musicPos: { x: 50, y: 92, rotation: 0, scale: 1 },
-    musicCodeBg: '#FFFFFF',
+    musicCodeBg: 'transparent',
     musicCodeFg: 'black',
     movieTitle: '',
     movieYear: '',

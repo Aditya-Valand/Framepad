@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useStore } from '../../store';
 import { useImageColors } from '../../hooks/useImageColors';
+import { useTransparentSpotifyCode } from '../../hooks/useTransparentSpotifyCode';
 
 const CODE_BG_COLORS = [
+  { id: 'transparent', label: 'Transparent' },
   { id: '#FFFFFF', label: 'White' },
   { id: '#000000', label: 'Black' },
   { id: '#1DB954', label: 'Green' },
@@ -26,9 +28,22 @@ export function MusicPanel() {
 
   const spotifyMatch = input.match(/spotify\.com\/(track|album|playlist|artist)\/([a-zA-Z0-9]+)/);
   const fgColor = frame.musicCodeFg === '#FFFFFF' ? 'white' : 'black';
-  const previewUrl = spotifyMatch
-    ? `https://scannables.scdn.co/uri/plain/png/${frame.musicCodeBg.replace('#', '')}/${fgColor}/640/spotify:${spotifyMatch[1]}:${spotifyMatch[2]}`
-    : null;
+  const isTransparentBg = frame.musicCodeBg === 'transparent';
+  // Use white as base for transparent (we'll remove it)
+  const effectiveBg = isTransparentBg ? '#FFFFFF' : frame.musicCodeBg;
+  
+  // Get transparent version when needed
+  const transparentCodeUrl = useTransparentSpotifyCode(
+    isTransparentBg && spotifyMatch ? input : null,
+    '#FFFFFF',
+    fgColor as 'white' | 'black'
+  );
+  
+  const previewUrl = isTransparentBg
+    ? transparentCodeUrl
+    : (spotifyMatch
+        ? `https://scannables.scdn.co/uri/plain/png/${effectiveBg.replace('#', '')}/${fgColor}/640/spotify:${spotifyMatch[1]}:${spotifyMatch[2]}`
+        : null);
 
   return (
     <div className="space-y-5">
@@ -46,7 +61,15 @@ export function MusicPanel() {
       {previewUrl && (
         <section>
           <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Preview</h3>
-          <div className="rounded-xl p-4 flex justify-center border border-[#E8DFD6]" style={{ backgroundColor: frame.musicCodeBg }}>
+          <div 
+            className="rounded-xl p-4 flex justify-center border border-[#E8DFD6]"
+            style={{
+              backgroundColor: isTransparentBg ? frame.frameColor : effectiveBg,
+              backgroundImage: isTransparentBg ? 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%)' : undefined,
+              backgroundSize: isTransparentBg ? '16px 16px' : undefined,
+              backgroundPosition: isTransparentBg ? '0 0, 0 8px, 8px -8px, -8px 0px' : undefined,
+            }}
+          >
             <img
               src={previewUrl}
               alt="Spotify scan code"
@@ -78,13 +101,18 @@ export function MusicPanel() {
                   className={`w-8 h-8 rounded-full border-2 transition-all ${
                     frame.musicCodeBg === c.id ? 'border-[#8B6F5C] scale-110 ring-2 ring-[#8B6F5C]/20' : 'border-[#E8DFD6]'
                   }`}
-                  style={{ backgroundColor: c.id }}
+                  style={{
+                    backgroundColor: c.id === 'transparent' ? frame.frameColor : c.id,
+                    backgroundImage: c.id === 'transparent' ? 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)' : undefined,
+                    backgroundSize: c.id === 'transparent' ? '8px 8px' : undefined,
+                    backgroundPosition: c.id === 'transparent' ? '0 0, 0 4px, 4px -4px, -4px 0px' : undefined,
+                  }}
                   title={c.label}
                 />
               ))}
               <input
                 type="color"
-                value={frame.musicCodeBg}
+                value={frame.musicCodeBg === 'transparent' ? effectiveBg : frame.musicCodeBg}
                 onChange={(e) => updateFrame(activeFrameId, { musicCodeBg: e.target.value })}
                 className="w-8 h-8 rounded-full cursor-pointer border-0"
               />
@@ -158,9 +186,10 @@ export function MusicPanel() {
 
           <button
             onClick={() => { updateFrame(activeFrameId, { musicUrl: '' }); setInput(''); }}
-            className="w-full py-2 text-sm text-[#C07A5A] font-medium"
+            className="w-full py-2.5 rounded-xl border border-red-200 text-red-500 text-sm font-medium flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
           >
-            Remove Music Code
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Remove Spotify Code
           </button>
         </>
       )}

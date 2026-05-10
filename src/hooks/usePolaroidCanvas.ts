@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useStore } from '../store';
 import type { FrameData } from '../store';
+import { getTransparentSpotifyCode } from './useTransparentSpotifyCode';
 
 export function usePolaroidCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -243,10 +244,9 @@ function drawOverlaysSync(
     const spotifyMatch = frameData.musicUrl.match(/spotify\.com\/(track|album|playlist|artist)\/([a-zA-Z0-9]+)/);
     if (spotifyMatch) {
       const fgColor = frameData.musicCodeFg === '#FFFFFF' ? 'white' : 'black';
-      const codeUrl = `https://scannables.scdn.co/uri/plain/png/${frameData.musicCodeBg.replace('#', '')}/${fgColor}/640/spotify:${spotifyMatch[1]}:${spotifyMatch[2]}`;
-      const codeImg = new Image();
-      codeImg.crossOrigin = 'anonymous';
-      codeImg.onload = () => {
+      const isTransparent = frameData.musicCodeBg === 'transparent';
+      
+      const drawCodeImage = (codeImg: HTMLImageElement) => {
         ctx.save();
         const px = (frameData.musicPos.x / 100) * W;
         const py = (frameData.musicPos.y / 100) * H;
@@ -262,8 +262,28 @@ function drawOverlaysSync(
         ctx.restore();
         onDone();
       };
-      codeImg.onerror = () => onDone();
-      codeImg.src = codeUrl;
+      
+      if (isTransparent) {
+        // Use transparent code with background removed
+        getTransparentSpotifyCode(frameData.musicUrl, '#FFFFFF', fgColor as 'white' | 'black')
+          .then((img) => {
+            if (img) {
+              drawCodeImage(img);
+            } else {
+              onDone();
+            }
+          })
+          .catch(() => onDone());
+      } else {
+        // Use regular code with solid background
+        const effectiveBg = frameData.musicCodeBg;
+        const codeUrl = `https://scannables.scdn.co/uri/plain/png/${effectiveBg.replace('#', '')}/${fgColor}/640/spotify:${spotifyMatch[1]}:${spotifyMatch[2]}`;
+        const codeImg = new Image();
+        codeImg.crossOrigin = 'anonymous';
+        codeImg.onload = () => drawCodeImage(codeImg);
+        codeImg.onerror = () => onDone();
+        codeImg.src = codeUrl;
+      }
     } else {
       onDone();
     }

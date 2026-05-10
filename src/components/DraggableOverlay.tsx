@@ -12,11 +12,22 @@ interface DraggableOverlayProps {
   onMove: (x: number, y: number) => void;
   onRotate: (deg: number) => void;
   onScale: (s: number) => void;
+  /** Called when a drag gesture starts/ends so parent can show/hide trash zone */
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
+  /** Called on every pointermove with raw client coords — parent uses this to hit-test trash zone */
+  onDragMove?: (clientX: number, clientY: number) => void;
+  /** When true, the element shrinks + fades to signal it will be deleted on release */
+  overTrash?: boolean;
+  /** Called when the element is released over the trash zone */
+  onDelete?: () => void;
 }
 
 export function DraggableOverlay({
   children, x, y, rotation, scale, containerW, containerH,
   onMove, onRotate, onScale,
+  onDragStart, onDragEnd, onDragMove,
+  overTrash = false, onDelete,
 }: DraggableOverlayProps) {
   const elRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
@@ -24,8 +35,14 @@ export function DraggableOverlay({
   // Always-fresh props for event handlers (no stale closure)
   const stateRef = useRef({ x, y, rotation, scale, containerW, containerH });
   useEffect(() => { stateRef.current = { x, y, rotation, scale, containerW, containerH }; });
-  const cbRef = useRef({ onMove, onRotate, onScale });
-  useEffect(() => { cbRef.current = { onMove, onRotate, onScale }; });
+  const cbRef = useRef({ onMove, onRotate, onScale, onDragStart, onDragEnd, onDragMove });
+  useEffect(() => { cbRef.current = { onMove, onRotate, onScale, onDragStart, onDragEnd, onDragMove }; });
+
+  // Refs for delete logic (must survive inside event handlers without re-registering)
+  const overTrashRef = useRef(overTrash);
+  useEffect(() => { overTrashRef.current = overTrash; }, [overTrash]);
+  const onDeleteRef = useRef(onDelete);
+  useEffect(() => { onDeleteRef.current = onDelete; }, [onDelete]);
 
   useEffect(() => {
     const el = elRef.current;
@@ -88,6 +105,7 @@ export function DraggableOverlay({
         base.startCY = e.clientY;
         base.origX = s.x;
         base.origY = s.y;
+        cbRef.current.onDragStart?.();
       } else if (ptrs.size === 2) {
         startPinch();
       }
@@ -107,6 +125,8 @@ export function DraggableOverlay({
           Math.max(-10, Math.min(110, base.origX + (dx / s.containerW) * 100)),
           Math.max(-10, Math.min(110, base.origY + (dy / s.containerH) * 100)),
         );
+        // Report live pointer position so parent can hit-test trash zone
+        cbRef.current.onDragMove?.(e.clientX, e.clientY);
       }
 
       if (base.pinching) {
@@ -143,7 +163,14 @@ export function DraggableOverlay({
           base.origY = s.y;
         }
       }
-      if (ptrs.size === 0) setActive(false);
+      if (ptrs.size === 0) {
+        setActive(false);
+        // Delete if released over trash
+        if (overTrashRef.current && onDeleteRef.current) {
+          onDeleteRef.current();
+        }
+        cbRef.current.onDragEnd?.();
+      }
     };
 
     el.addEventListener('pointerdown', onDown, { passive: false });
@@ -166,19 +193,34 @@ export function DraggableOverlay({
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`,
+        transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${overTrash ? scale * 0.65 : scale})`,
         transformOrigin: 'center center',
         zIndex: 10,
         cursor: active ? 'grabbing' : 'grab',
         willChange: 'transform',
+        opacity: overTrash ? 0.6 : 1,
+        filter: overTrash ? 'brightness(0.7) saturate(0.5)' : 'none',
+        transition: overTrash
+          ? 'transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease'
+          : 'none',
       }}
     >
-      {active && (
+      {active && !overTrash && (
         <div
           className="absolute inset-0 rounded pointer-events-none"
           style={{
             outline: '1.5px dashed rgba(255,255,255,0.85)',
             boxShadow: '0 0 0 1px rgba(0,0,0,0.25)',
+            margin: '-4px',
+          }}
+        />
+      )}
+      {overTrash && (
+        <div
+          className="absolute inset-0 rounded pointer-events-none"
+          style={{
+            outline: '1.5px solid rgba(239,68,68,0.8)',
+            boxShadow: '0 0 0 1px rgba(239,68,68,0.3)',
             margin: '-4px',
           }}
         />

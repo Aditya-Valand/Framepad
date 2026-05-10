@@ -109,7 +109,19 @@ export function TextPanel() {
 
       {/* ── TOP LABEL (all templates) ── */}
       <section>
-        <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Top Label</h3>
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Top Label</h3>
+          {frame.topLabelText && (
+            <button
+              onClick={() => updateFrame(activeFrameId, { topLabelText: '' })}
+              className="flex items-center gap-1 text-[10px] text-[#C07A5A] hover:text-[#A0523A] transition-colors"
+              title="Clear top label"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              Clear
+            </button>
+          )}
+        </div>
         <input
           type="text"
           value={frame.topLabelText}
@@ -160,7 +172,19 @@ export function TextPanel() {
       {/* ── BOTTOM CAPTION (non-rich templates only) ── */}
       {!isRich && (
         <section>
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Bottom Caption</h3>
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Bottom Caption</h3>
+            {frame.bottomCaptionText && (
+              <button
+                onClick={() => updateFrame(activeFrameId, { bottomCaptionText: '' })}
+                className="flex items-center gap-1 text-[10px] text-[#C07A5A] hover:text-[#A0523A] transition-colors"
+                title="Clear bottom caption"
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                Clear
+              </button>
+            )}
+          </div>
           <input
             type="text"
             value={frame.bottomCaptionText}
