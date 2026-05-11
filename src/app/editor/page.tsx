@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { useStore } from "@/store";
 import { PolaroidView } from "@/components/PolaroidView";
@@ -95,6 +95,25 @@ export default function EditorPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch by showing loader on server
+  if (!mounted) {
+    return (
+      <div className="h-dvh flex items-center justify-center bg-[#FBF8F4]">
+        <div className="animate-pulse text-[#8B6F5C]">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <rect x="6" y="6" width="12" height="9" rx="1" />
+          </svg>
+        </div>
+      </div>
+    );
+  }
 
   if (showPrivacy) {
     return <PrivacyPage onBack={() => setShowPrivacy(false)} />;
