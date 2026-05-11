@@ -52,10 +52,16 @@ body::before {
   position: fixed;
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-  opacity: .025;
+  opacity: .02;
   pointer-events: none;
-  z-index: 1000;
+  z-index: 9999;
   mix-blend-mode: multiply;
+}
+
+/* Disable grain on editor page */
+.editor-page ~ body::before,
+body:has(.editor-page)::before {
+  display: none;
 }
 
 /* ── Scroll reveal ── */
@@ -152,4 +158,91 @@ body::before {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ── Editor Input Styles ── */
+input[type="range"] {
+  height: 4px !important;
+  border-radius: 2px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: #E8DFD6 !important;
+  border: none !important;
+  outline: none !important;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px !important;
+  border-radius: 2px !important;
+  background: #E8DFD6 !important;
+}
+
+input[type="range"]::-moz-range-track {
+  height: 4px !important;
+  border-radius: 2px !important;
+  background: #E8DFD6 !important;
+  border: none !important;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  background: #8B6F5C !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 4px rgba(139,111,92,0.3) !important;
+  margin-top: -6px !important;
+  border: none !important;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  background: #8B6F5C !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 4px rgba(139,111,92,0.3) !important;
+  border: none !important;
+}
+
+input[type="color"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: none !important;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0 !important;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: 2px solid #E8DFD6 !important;
+  border-radius: 999px !important;
+}
+
+/* ── Screen reader only ── */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ── Editor-specific overrides ── */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Editor page specific ── */
+.editor-page input[type="range"] {
+  accent-color: #8B6F5C !important;
 }
