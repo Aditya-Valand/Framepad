@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polamuse — Order</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F2EDE4; --cream-deep:#EDE7DC; --white:#FFFFFF;
+  --brown:#8B6347; --brown-deep:#7a5540; --brown-light:#C4A882;
+  --dark:#1A1714; --text:#1A1714; --text-2:#7A6E65; --text-3:#B5A99E;
+  --border:rgba(26,23,20,0.1); --error:#C0604A; --good-bg:#E1F5EE; --good:#0F6E56;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:1000;mix-blend-mode:multiply}
+
+/* TOP BAR */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(242,237,228,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:.5px solid var(--border);padding:14px 32px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px}
+.back{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);text-decoration:none;transition:color .15s}
+.back:hover{color:var(--text)}
+.brand{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;justify-self:center;display:inline-flex;align-items:baseline;gap:8px;line-height:1;color:var(--text);text-decoration:none}
+.brand em{font-style:italic}
+.brand-mark{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--brown);transform:translateY(-1px)}
+.cart{justify-self:end;position:relative;width:38px;height:38px;border-radius:50%;border:.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;color:var(--text)}
+.cart:hover{border-color:var(--text-3)}
+.cart .badge{position:absolute;top:-4px;right:-4px;background:var(--brown);color:#fff;font-family:'DM Mono',monospace;font-size:10px;min-width:18px;height:18px;border-radius:18px;padding:0 5px;display:flex;align-items:center;justify-content:center;letter-spacing:.02em}
+
+/* LAYOUT */
+.page{max-width:1180px;margin:0 auto;padding:36px 32px 80px;display:grid;grid-template-columns:1.5fr 1fr;gap:48px;align-items:start}
+
+/* LEFT */
+.left h1{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;font-style:italic;line-height:1.1;margin-bottom:6px;letter-spacing:-.005em}
+.left .lead{font-size:14px;color:var(--text-2);margin-bottom:32px;font-weight:300}
+
+.design-card{background:#fff;border:.5px solid var(--border);border-radius:24px;padding:36px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 24px rgba(26,23,20,.04);position:relative}
+.design-meta{position:absolute;top:18px;left:22px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--text-3);text-transform:uppercase}
+.design-meta .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--good);margin-right:6px;transform:translateY(-1px)}
+.design-edit{position:absolute;top:14px;right:18px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--text-2);text-decoration:none;text-transform:uppercase;padding:6px 10px;border:.5px solid var(--border);border-radius:100px;transition:all .15s}
+.design-edit:hover{color:var(--text);border-color:var(--text-3)}
+
+/* polaroid preview */
+.pola{width:300px;background:#fff;box-shadow:0 18px 50px rgba(26,23,20,.16),0 2px 6px rgba(26,23,20,.06);border-radius:3px;transform:rotate(-2deg);transition:transform .35s ease;margin:8px 0}
+.pola:hover{transform:rotate(0deg) scale(1.02)}
+.pola .img{margin:14px 14px 0;height:264px;background:linear-gradient(135deg,#e8d5c0 0%,#c4a882 50%,#8b7060 100%);border-radius:1px;position:relative;overflow:hidden}
+.pola .img::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.2),transparent 60%)}
+.pola .cap{padding:14px 16px 8px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.pola .cap .ttl{font-family:'Dancing Script',cursive;font-size:20px;color:#3a2a1a;line-height:1}
+.pola .cap .sub{font-family:'DM Mono',monospace;font-size:9px;color:#9a8878;letter-spacing:.14em;text-transform:uppercase}
+.pola .spotify{display:flex;align-items:center;gap:8px;margin:10px 14px 6px;padding:8px 12px;background:#1A1714;border-radius:6px}
+.pola .spotify svg{flex-shrink:0}
+.pola .spotify .bars{display:flex;gap:1.5px;align-items:center;flex:1;height:14px}
+.pola .spotify .bars i{flex:1;background:#fff;border-radius:1px}
+
+.byyou{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase;margin-top:18px}
+.byyou::before{content:'✦ ';color:var(--brown-light)}
+
+/* add more */
+.addmore{margin-top:36px}
+.addmore-h{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;margin-bottom:14px;letter-spacing:.005em}
+.addmore-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.add-tile{background:#fff;border:.5px solid var(--border);border-radius:14px;padding:16px 14px;font-size:13px;color:var(--text);cursor:pointer;text-align:left;transition:all .15s;display:flex;flex-direction:column;gap:4px;font-family:'DM Sans',sans-serif}
+.add-tile:hover{border-color:var(--brown);transform:translateY(-1px);box-shadow:0 4px 14px rgba(139,99,71,.08)}
+.add-tile.active{border-color:var(--brown);background:rgba(139,99,71,.04)}
+.add-tile .plus{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--brown);font-weight:300;line-height:1}
+.add-tile .lbl{font-weight:500;font-size:13px;line-height:1.2}
+.add-tile .desc{font-size:11px;color:var(--text-2);font-weight:300;line-height:1.3}
+
+/* bulk panel */
+.bulk{margin-top:18px;background:#fff;border:.5px solid var(--border);border-radius:18px;padding:24px 26px;overflow:hidden;max-height:0;padding-top:0;padding-bottom:0;border-width:0;transition:all .35s ease}
+.bulk.open{max-height:340px;padding:24px 26px;border-width:.5px}
+.bulk h3{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;font-style:italic;margin-bottom:14px}
+.stepper{display:flex;align-items:center;justify-content:center;gap:18px;padding:8px 0 14px}
+.stepper button{width:40px;height:40px;border-radius:50%;border:.5px solid var(--border);background:#fff;font-size:18px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.stepper button:hover{border-color:var(--brown);color:var(--brown)}
+.stepper .num{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;font-style:italic;min-width:80px;text-align:center;color:var(--text)}
+.bulk-price{font-family:'DM Mono',monospace;font-size:13px;color:var(--brown);text-align:center;letter-spacing:.04em}
+.bulk-save{display:inline-block;background:var(--good-bg);color:var(--good);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;padding:4px 10px;border-radius:100px;margin:12px auto 0;text-transform:uppercase}
+.usecases{margin-top:14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.1em;text-align:center;text-transform:uppercase}
+
+/* RIGHT — sticky */
+.right{position:sticky;top:96px}
+.summary{background:#fff;border:.5px solid var(--border);border-radius:20px;padding:28px;box-shadow:0 4px 24px rgba(26,23,20,.04);position:relative;overflow:hidden}
+.summary-h{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;margin-bottom:18px}
+
+.li{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-family:'DM Mono',monospace;font-size:12px;color:var(--text-2);letter-spacing:.02em}
+.li .amt{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text);letter-spacing:0}
+.li.total{padding-top:14px;border-top:.5px solid var(--border);margin-top:6px}
+.li.total .label{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text);letter-spacing:0;text-transform:none}
+.li.total .amt{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;font-style:italic}
+.li hr{border:none;border-top:.5px solid var(--border)}
+
+.section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--text-3);text-transform:uppercase;margin:22px 0 10px}
+
+.pills{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pill{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:400;color:var(--text);background:#fff;border:.5px solid var(--border);border-radius:100px;padding:9px 12px;cursor:pointer;text-align:center;transition:all .15s;line-height:1.2;display:flex;flex-direction:column;align-items:center;gap:1px}
+.pill .price{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.04em}
+.pill:hover{border-color:var(--text-3)}
+.pill.active{background:var(--brown);color:#fff;border-color:var(--brown)}
+.pill.active .price{color:rgba(255,255,255,.7)}
+
+.pills.finish{grid-template-columns:1fr 1fr}
+.pills.finish .pill{padding:10px}
+
+.eta{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.04em;margin:18px 0;display:flex;align-items:center;gap:8px}
+.eta svg{flex-shrink:0}
+
+.btn-primary{width:100%;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;background:var(--brown);color:#fff;border:none;border-radius:100px;height:52px;cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.005em;position:relative}
+.btn-primary:hover{background:var(--brown-deep);transform:translateY(-1px);box-shadow:0 8px 22px rgba(139,99,71,.28)}
+.btn-primary .arr{transition:transform .25s ease}
+.btn-primary:hover .arr{transform:translateX(3px)}
+.btn-primary.loading .label,.btn-primary.loading .arr{opacity:0}
+.btn-primary .spin{position:absolute;width:18px;height:18px;border:1.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;opacity:0;animation:spin .8s linear infinite}
+.btn-primary.loading .spin{opacity:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.download{text-align:center;margin-top:14px}
+.download a{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-2);text-decoration:underline;text-underline-offset:3px}
+.download a:hover{color:var(--text)}
+.download .dl-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.06em;margin-top:5px;text-transform:uppercase}
+
+.trust{margin-top:22px;padding-top:18px;border-top:.5px solid var(--border);display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.04em;gap:10px}
+.trust span{display:inline-flex;align-items:center;gap:5px}
+
+/* CHECKOUT panel (replaces summary) */
+.summary,.checkout{transition:opacity .3s ease,transform .3s ease}
+.checkout{display:none;background:#fff;border:.5px solid var(--border);border-radius:20px;padding:28px;box-shadow:0 4px 24px rgba(26,23,20,.04)}
+.right.is-checkout .summary{display:none}
+.right.is-checkout .checkout{display:block;animation:slideIn .35s cubic-bezier(.6,.05,.2,1) both}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.checkout-back{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-2);background:transparent;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:0;margin-bottom:14px}
+.checkout-back:hover{color:var(--text)}
+.checkout-h{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;font-style:italic;line-height:1.1;margin-bottom:24px;letter-spacing:-.005em}
+
+.field{position:relative;margin-bottom:20px}
+.field input,.field textarea{width:100%;background:transparent;border:none;border-bottom:.5px solid var(--text-3);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);padding:18px 0 8px;outline:none;transition:border-color .25s ease;resize:none}
+.field input:focus,.field textarea:focus{border-bottom-color:var(--brown)}
+.field label{position:absolute;left:0;top:18px;font-size:14px;color:var(--text-3);pointer-events:none;transition:top .22s,font-size .22s,color .22s}
+.field input:focus + label,.field input:not(:placeholder-shown) + label,
+.field textarea:focus + label,.field textarea:not(:placeholder-shown) + label{top:0;font-size:11px;color:var(--text-2);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.phone-prefix{position:absolute;left:0;top:18px;font-size:14px;color:var(--text)}
+.phone-input input{padding-left:40px}
+.add-line{display:inline-block;font-family:'DM Mono',monospace;font-size:11px;color:var(--brown);text-decoration:none;letter-spacing:.06em;cursor:pointer;margin-bottom:14px}
+.add-line:hover{text-decoration:underline}
+#addr2Field{display:none}
+
+/* gift toggle */
+.gift{margin:18px 0;padding:14px 0;border-top:.5px solid var(--border);border-bottom:.5px solid var(--border)}
+.gift-row{display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.gift-row span{font-size:13px;color:var(--text)}
+.gift-toggle{width:36px;height:20px;background:#e0d8cc;border-radius:100px;position:relative;transition:background .25s}
+.gift-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left .25s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.gift.on .gift-toggle{background:var(--brown)}
+.gift.on .gift-toggle::after{left:18px}
+.gift-msg{display:none;margin-top:14px}
+.gift.on .gift-msg{display:block;animation:fadeUp .3s ease}
+.gift-msg textarea{font-family:'Dancing Script',cursive;font-size:18px;line-height:1.4;min-height:90px;color:#3a2a1a}
+.gift-note{font-family:'DM Mono',monospace;font-size:10px;color:var(--brown);letter-spacing:.06em;margin-top:6px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.payment-row{display:flex;align-items:center;justify-content:space-between;margin:18px 0 22px}
+.payment-icons{display:flex;gap:8px;align-items:center}
+.payicon{height:24px;padding:4px 10px;border:.5px solid var(--border);border-radius:6px;display:flex;align-items:center;font-family:'DM Mono',monospace;font-size:9px;color:var(--text-2);letter-spacing:.08em;background:#fff}
+.razorpay{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-3);letter-spacing:.08em}
+
+.terms{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);text-align:center;letter-spacing:.04em;margin-top:14px;line-height:1.6}
+.terms a{color:var(--text-2);text-decoration:underline;text-underline-offset:2px}
+
+/* SUCCESS overlay */
+.success{position:fixed;inset:0;background:var(--cream);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px}
+.success.show{display:flex;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.success .pola{transform:rotate(0);animation:drop 1s cubic-bezier(.4,1.4,.5,1) both}
+@keyframes drop{0%{opacity:0;transform:translateY(-40px) rotate(-8deg)}60%{transform:translateY(6px) rotate(2deg)}100%{opacity:1;transform:translateY(0) rotate(-2deg)}}
+.success h2{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;font-style:italic;margin:36px 0 12px;letter-spacing:-.005em}
+.success p{font-size:15px;color:var(--text-2);font-weight:300;max-width:420px;margin-bottom:32px}
+.confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.confetti span{position:absolute;color:var(--brown-light);font-size:14px;animation:fall 4s linear infinite;opacity:0}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:0}10%{opacity:.7}100%{transform:translateY(100vh) rotate(360deg);opacity:0}}
+
+/* MOBILE */
+@media(max-width:880px){
+  .topbar{padding:12px 18px}
+  .page{grid-template-columns:1fr;gap:24px;padding:24px 18px 120px}
+  .right{position:static}
+  .summary,.checkout{position:fixed;left:0;right:0;bottom:0;border-radius:24px 24px 0 0;border-bottom:0;padding:18px 18px 22px;z-index:40;box-shadow:0 -10px 30px rgba(26,23,20,.1);max-height:none}
+  .summary .pills,.summary .section-title:not(:first-of-type),.summary .li:not(.total),.summary .trust,.summary .download{display:none}
+  .summary .summary-h{display:none}
+  .summary .eta{margin:0 0 10px}
+  .summary .li.total{border:none;padding:0;margin-bottom:10px}
+  .checkout{max-height:88vh;overflow-y:auto}
+  .design-card{padding:24px 18px}
+  .pola{width:240px}
+  .pola .img{height:212px}
+  .left h1{font-size:30px}
+  .addmore-row{grid-template-columns:1fr}
+  .field-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <a class="back" href="Polamuse Landing.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 18l-6-6 6-6"/></svg> Back to Editor</a>
+  <a class="brand" href="Polamuse Landing.html"><span class="brand-mark"></span>Pola<em>muse</em></a>
+  <button class="cart" aria-label="Cart">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span class="badge" id="cartBadge">1</span>
+  </button>
+</header>
+
+<main class="page">
+
+  <!-- LEFT -->
+  <section class="left">
+    <h1>Almost yours.</h1>
+    <p class="lead">Review your design — then choose the format that fits the moment.</p>
+
+    <div class="design-card">
+      <div class="design-meta"><span class="dot"></span>Ready to print</div>
+      <a href="Polamuse Landing.html" class="design-edit">Edit ↗</a>
+
+      <div class="pola">
+        <div class="img"></div>
+        <div class="spotify">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+          <div class="bars" id="bars"></div>
+        </div>
+        <div class="cap">
+          <div class="ttl">always you</div>
+          <div class="sub">26 · 04 · 2025</div>
+        </div>
+      </div>
+
+      <div class="byyou">Designed by you</div>
+    </div>
+
+    <div class="addmore">
+      <div class="addmore-h">Add more to your order</div>
+      <div class="addmore-row">
+        <div class="add-tile" data-add="another">
+          <span class="plus">+</span>
+          <span class="lbl">Another design</span>
+          <span class="desc">A second unique polaroid</span>
+        </div>
+        <div class="add-tile" data-add="duplicate">
+          <span class="plus">+</span>
+          <span class="lbl">Same design ×2</span>
+          <span class="desc">Quick for gifting</span>
+        </div>
+        <div class="add-tile" id="bulkTile" data-add="bulk">
+          <span class="plus">+</span>
+          <span class="lbl">Bulk order</span>
+          <span class="desc">5, 10, 20 or more</span>
+        </div>
+      </div>
+
+      <div class="bulk" id="bulkPanel">
+        <h3>How many do you need?</h3>
+        <div class="stepper">
+          <button id="qMinus" aria-label="Decrease">−</button>
+          <div class="num" id="qNum">10</div>
+          <button id="qPlus" aria-label="Increase">+</button>
+        </div>
+        <div class="bulk-price"><span id="bulkCount">10</span> prints · ₹<span id="bulkPrice">590</span></div>
+        <div style="text-align:center"><span class="bulk-save">Save 25% on orders of 10+</span></div>
+        <div class="usecases">Weddings · Birthdays · Corporate · Events</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT -->
+  <aside class="right" id="right">
+
+    <!-- SUMMARY -->
+    <div class="summary" id="summary">
+      <div class="summary-h">Your order</div>
+
+      <div id="lineItems">
+        <div class="li"><span id="liLabel">1 × Classic polaroid print</span><span class="amt" id="liAmt">₹79</span></div>
+      </div>
+      <div class="li"><span>Subtotal</span><span class="amt" id="subtotal">₹79</span></div>
+      <div class="li"><span>Shipping</span><span class="amt" style="color:var(--good)">Free</span></div>
+      <div class="li total"><span class="label">Total</span><span class="amt" id="total">₹79</span></div>
+
+      <div class="section-title">Format</div>
+      <div class="pills" data-key="format">
+        <div class="pill active" data-value="single" data-price="79"><span>Single print</span><span class="price">₹79</span></div>
+        <div class="pill" data-value="pack5" data-price="349"><span>Pack of 5</span><span class="price">₹349</span></div>
+        <div class="pill" data-value="pack10" data-price="590"><span>Pack of 10</span><span class="price">₹590</span></div>
+        <div class="pill" data-value="pack20" data-price="999"><span>Pack of 20</span><span class="price">₹999</span></div>
+      </div>
+
+      <div class="section-title">Finish</div>
+      <div class="pills finish" data-key="finish">
+        <div class="pill active" data-value="glossy">Glossy</div>
+        <div class="pill" data-value="matte">Matte</div>
+      </div>
+
+      <div class="eta">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="13" rx="1"/><path d="M2 7l3-4h14l3 4M12 7v13"/></svg>
+        Delivered in 3–5 days
+      </div>
+
+      <button class="btn-primary" id="goCheckout">
+        <span class="label">Proceed to checkout</span>
+        <span class="arr">→</span>
+        <span class="spin"></span>
+      </button>
+
+      <div class="download">
+        <a href="#">Download PNG instead</a>
+        <div class="dl-meta">Free · High-res · Instant</div>
+      </div>
+
+      <div class="trust">
+        <span>🔒 Secure checkout</span>
+        <span>✦ Premium quality</span>
+        <span>↩ Easy returns</span>
+      </div>
+    </div>
+
+    <!-- CHECKOUT -->
+    <div class="checkout" id="checkout">
+      <button class="checkout-back" id="backToSummary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 18l-6-6 6-6"/></svg> Order summary</button>
+      <h2 class="checkout-h">Where should we<br>send it?</h2>
+
+      <form id="shipForm" novalidate>
+        <div class="field">
+          <input type="text" id="fName" placeholder=" " required>
+          <label for="fName">Full name</label>
+        </div>
+        <div class="field phone-input">
+          <span class="phone-prefix" id="phonePrefix" style="display:none">+91</span>
+          <input type="tel" id="fPhone" placeholder=" " required>
+          <label for="fPhone">Phone number</label>
+        </div>
+        <div class="field">
+          <input type="text" id="fAddr" placeholder=" " required>
+          <label for="fAddr">Address line 1</label>
+        </div>
+        <a class="add-line" id="addr2Toggle">+ Add apartment, floor, etc.</a>
+        <div class="field" id="addr2Field">
+          <input type="text" id="fAddr2" placeholder=" ">
+          <label for="fAddr2">Address line 2</label>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <input type="text" id="fCity" placeholder=" " required>
+            <label for="fCity">City</label>
+          </div>
+          <div class="field">
+            <input type="text" id="fPin" placeholder=" " maxlength="6" required>
+            <label for="fPin">Pincode</label>
+          </div>
+        </div>
+        <div class="field">
+          <input type="text" id="fState" placeholder=" " required>
+          <label for="fState">State</label>
+        </div>
+
+        <div class="gift" id="gift">
+          <label class="gift-row">
+            <span>Sending this as a gift?</span>
+            <span class="gift-toggle"></span>
+          </label>
+          <div class="gift-msg">
+            <textarea id="giftMsg" placeholder="Add a handwritten-style note (printed on a small card inside the package)" rows="3"></textarea>
+            <div class="gift-note">✦ We'll add a personal touch.</div>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top:0">Payment</div>
+        <div class="payment-row">
+          <div class="payment-icons">
+            <span class="payicon">UPI</span>
+            <span class="payicon">CARD</span>
+            <span class="payicon">NETBANKING</span>
+          </div>
+          <span class="razorpay">Powered by Razorpay</span>
+        </div>
+
+        <button class="btn-primary" type="submit">
+          <span class="label">Place order · ₹<span id="placeTotal">79</span></span>
+          <span class="arr">→</span>
+          <span class="spin"></span>
+        </button>
+
+        <p class="terms">By placing this order you agree to our <a href="#">Terms</a> · <a href="#">Privacy Policy</a></p>
+      </form>
+    </div>
+  </aside>
+</main>
+
+<!-- SUCCESS -->
+<div class="success" id="success">
+  <div class="confetti" id="confetti"></div>
+  <div class="pola">
+    <div class="img"></div>
+    <div class="cap">
+      <div class="ttl">always you</div>
+      <div class="sub">26 · 04 · 2025</div>
+    </div>
+  </div>
+  <h2>It's on its way.</h2>
+  <p>We'll send you a tracking link on WhatsApp.</p>
+  <a href="Polamuse Landing.html" class="btn-primary" style="max-width:240px;text-decoration:none"><span class="label">Back to Polamuse</span><span class="arr">→</span></a>
+</div>
+
+<script>
+// Spotify bars (random heights)
+const bars = document.getElementById('bars');
+for(let i=0;i<22;i++){
+  const b = document.createElement('i');
+  b.style.height = (3 + Math.abs(Math.sin(i*.7))*11) + 'px';
+  bars.appendChild(b);
+}
+
+// State
+const state = { format:'single', finish:'glossy', qty:1, addMode:null, bulkQty:10 };
+const PRICES = { single:79, pack5:349, pack10:590, pack20:999 };
+const LABELS = { single:'Classic polaroid print', pack5:'Pack of 5 polaroids', pack10:'Pack of 10 polaroids', pack20:'Pack of 20 polaroids' };
+
+function recalc(){
+  let unit = PRICES[state.format];
+  let qty = 1;
+  let label = `1 × ${LABELS[state.format]}`;
+  if(state.addMode === 'duplicate'){ qty = 2; label = `2 × ${LABELS[state.format]}`; }
+  if(state.addMode === 'bulk'){
+    unit = state.bulkQty * 79;
+    if(state.bulkQty >= 10) unit = Math.round(unit * 0.75);
+    label = `${state.bulkQty} × Classic polaroid print`;
+  }
+  const subtotal = unit * qty;
+  document.getElementById('liLabel').textContent = label;
+  document.getElementById('liAmt').textContent = '₹' + subtotal;
+  document.getElementById('subtotal').textContent = '₹' + subtotal;
+  document.getElementById('total').textContent = '₹' + subtotal;
+  document.getElementById('placeTotal').textContent = subtotal;
+  document.getElementById('cartBadge').textContent = state.addMode === 'duplicate' ? '2' : (state.addMode === 'bulk' ? state.bulkQty : '1');
+}
+
+// Pill toggles
+document.querySelectorAll('.pills').forEach(group => {
+  const key = group.dataset.key;
+  group.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      group.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      state[key] = p.dataset.value;
+      // if user picks a pack format, clear bulk mode
+      if(key === 'format' && state.addMode === 'bulk' && p.dataset.value !== 'single'){
+        state.addMode = null;
+        document.getElementById('bulkPanel').classList.remove('open');
+        document.querySelectorAll('.add-tile').forEach(t => t.classList.remove('active'));
+      }
+      recalc();
+    });
+  });
+});
+
+// Add tiles
+document.querySelectorAll('.add-tile').forEach(t => {
+  t.addEventListener('click', () => {
+    const v = t.dataset.add;
+    if(state.addMode === v){
+      state.addMode = null;
+      t.classList.remove('active');
+    } else {
+      document.querySelectorAll('.add-tile').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      state.addMode = v;
+    }
+    document.getElementById('bulkPanel').classList.toggle('open', state.addMode === 'bulk');
+    recalc();
+  });
+});
+
+// Bulk stepper
+const qNum = document.getElementById('qNum');
+function setBulk(n){
+  state.bulkQty = Math.max(2, Math.min(200, n));
+  qNum.textContent = state.bulkQty;
+  let p = state.bulkQty * 79;
+  if(state.bulkQty >= 10) p = Math.round(p * 0.75);
+  document.getElementById('bulkCount').textContent = state.bulkQty;
+  document.getElementById('bulkPrice').textContent = p;
+  recalc();
+}
+document.getElementById('qPlus').addEventListener('click', () => setBulk(state.bulkQty + 1));
+document.getElementById('qMinus').addEventListener('click', () => setBulk(state.bulkQty - 1));
+
+// Checkout flow
+const right = document.getElementById('right');
+document.getElementById('goCheckout').addEventListener('click', () => {
+  right.classList.add('is-checkout');
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+document.getElementById('backToSummary').addEventListener('click', () => right.classList.remove('is-checkout'));
+
+// Addr2 toggle
+document.getElementById('addr2Toggle').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('addr2Field').style.display = 'block';
+  e.target.style.display = 'none';
+});
+
+// Phone prefix
+const phoneInp = document.getElementById('fPhone');
+const prefix = document.getElementById('phonePrefix');
+phoneInp.addEventListener('focus', () => { prefix.style.display = 'block'; phoneInp.style.paddingLeft = '40px'; });
+phoneInp.addEventListener('blur', () => { if(!phoneInp.value){ prefix.style.display = 'none'; phoneInp.style.paddingLeft = '0'; } });
+
+// Pincode → State (mock)
+const PIN_STATE = {'4':'Maharashtra','5':'Karnataka','1':'Delhi','7':'West Bengal','6':'Tamil Nadu','3':'Gujarat','2':'Uttar Pradesh','8':'Andhra Pradesh'};
+document.getElementById('fPin').addEventListener('input', e => {
+  if(e.target.value.length === 6){
+    const s = PIN_STATE[e.target.value[0]] || 'India';
+    document.getElementById('fState').value = s;
+    document.getElementById('fState').dispatchEvent(new Event('input'));
+  }
+});
+
+// Gift toggle
+const gift = document.getElementById('gift');
+gift.querySelector('.gift-row').addEventListener('click', () => gift.classList.toggle('on'));
+
+// Submit
+document.getElementById('shipForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('.btn-primary');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  setTimeout(showSuccess, 1100);
+});
+
+// Success
+function showSuccess(){
+  document.getElementById('success').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  // confetti
+  const c = document.getElementById('confetti');
+  for(let i=0;i<24;i++){
+    const s = document.createElement('span');
+    s.textContent = '✦';
+    s.style.left = Math.random()*100 + '%';
+    s.style.fontSize = (10 + Math.random()*14) + 'px';
+    s.style.animationDelay = (Math.random()*3) + 's';
+    s.style.animationDuration = (3 + Math.random()*3) + 's';
+    c.appendChild(s);
+  }
+}
+
+recalc();
+</script>
+</body>
+</html>

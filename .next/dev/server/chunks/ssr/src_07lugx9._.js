@@ -1,0 +1,3135 @@
+module.exports = [
+"[project]/src/components/ui/Logo.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>Logo
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-ssr] (ecmascript)");
+;
+;
+function Logo({ size = "md", href = "/" }) {
+    const fontSize = size === "sm" ? 22 : 24;
+    const dotSize = size === "sm" ? 7 : 8;
+    const dotY = size === "sm" ? -1 : -2;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+        href: href,
+        style: {
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize,
+            fontWeight: 300,
+            color: "var(--text)",
+            letterSpacing: ".005em",
+            textDecoration: "none",
+            display: "inline-flex",
+            alignItems: "baseline",
+            gap: 8,
+            lineHeight: 1
+        },
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                style: {
+                    display: "inline-block",
+                    width: dotSize,
+                    height: dotSize,
+                    borderRadius: "50%",
+                    background: "var(--brown)",
+                    transform: `translateY(${dotY}px)`
+                }
+            }, void 0, false, {
+                fileName: "[project]/src/components/ui/Logo.tsx",
+                lineNumber: 30,
+                columnNumber: 7
+            }, this),
+            "Pola",
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("em", {
+                style: {
+                    fontStyle: "italic",
+                    fontWeight: 300
+                },
+                children: "muse"
+            }, void 0, false, {
+                fileName: "[project]/src/components/ui/Logo.tsx",
+                lineNumber: 40,
+                columnNumber: 11
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/ui/Logo.tsx",
+        lineNumber: 15,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/src/components/landing/Navbar.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>Navbar
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$Logo$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/Logo.tsx [app-ssr] (ecmascript)");
+"use client";
+;
+;
+;
+;
+;
+function Navbar() {
+    const [scrolled, setScrolled] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [menuOpen, setMenuOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [activeSection, setActiveSection] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        const sections = [
+            "templates",
+            "moments",
+            "how",
+            "pricing"
+        ].map((id)=>document.getElementById(id)).filter(Boolean);
+        function onScroll() {
+            setScrolled(window.scrollY > 24);
+            const y = window.scrollY + 140;
+            let active = "";
+            for (const s of sections){
+                if (s.offsetTop <= y) active = s.id;
+            }
+            setActiveSection(active);
+        }
+        window.addEventListener("scroll", onScroll, {
+            passive: true
+        });
+        onScroll();
+        return ()=>window.removeEventListener("scroll", onScroll);
+    }, []);
+    const closeMenu = ()=>{
+        setMenuOpen(false);
+        document.body.style.overflow = "";
+    };
+    const toggleMenu = ()=>{
+        const next = !menuOpen;
+        setMenuOpen(next);
+        document.body.style.overflow = next ? "hidden" : "";
+    };
+    const links = [
+        {
+            href: "#templates",
+            label: "Templates",
+            target: "templates"
+        },
+        {
+            href: "#moments",
+            label: "Moments",
+            target: "moments"
+        },
+        {
+            href: "#how",
+            label: "How it works",
+            target: "how"
+        },
+        {
+            href: "#pricing",
+            label: "Pricing",
+            target: "pricing"
+        }
+    ];
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
+                style: {
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 100,
+                    padding: scrolled ? "10px 32px" : "14px 32px",
+                    display: "grid",
+                    gridTemplateColumns: "1fr auto 1fr",
+                    alignItems: "center",
+                    gap: 24,
+                    background: scrolled ? "rgba(242,237,228,0.92)" : "rgba(242,237,228,0.72)",
+                    backdropFilter: "blur(14px) saturate(1.05)",
+                    WebkitBackdropFilter: "blur(14px) saturate(1.05)",
+                    borderBottom: scrolled ? ".5px solid rgba(26,23,20,0.08)" : ".5px solid transparent",
+                    boxShadow: scrolled ? "0 1px 0 rgba(255,255,255,.4) inset" : "none",
+                    transition: "padding .25s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease"
+                },
+                className: "jsx-bc4b26f20a20dfff",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10
+                        },
+                        className: "jsx-bc4b26f20a20dfff",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$Logo$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+                            fileName: "[project]/src/components/landing/Navbar.tsx",
+                            lineNumber: 81,
+                            columnNumber: 11
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/Navbar.tsx",
+                        lineNumber: 80,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            justifySelf: "center",
+                            background: "rgba(255,255,255,0.35)",
+                            border: ".5px solid rgba(26,23,20,0.06)",
+                            borderRadius: 100,
+                            padding: 5
+                        },
+                        className: "jsx-bc4b26f20a20dfff" + " " + "nav-links-desktop",
+                        children: links.map((l)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                href: l.href,
+                                style: {
+                                    position: "relative",
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 13.5,
+                                    fontWeight: 400,
+                                    color: activeSection === l.target ? "var(--text)" : "var(--text-2)",
+                                    textDecoration: "none",
+                                    padding: "8px 16px",
+                                    borderRadius: 100,
+                                    transition: "color .18s ease, background .18s ease",
+                                    letterSpacing: ".005em",
+                                    background: activeSection === l.target ? "#fff" : "transparent",
+                                    boxShadow: activeSection === l.target ? "0 1px 2px rgba(26,23,20,.05), 0 4px 12px rgba(26,23,20,.04)" : "none"
+                                },
+                                className: "jsx-bc4b26f20a20dfff",
+                                children: l.label
+                            }, l.target, false, {
+                                fileName: "[project]/src/components/landing/Navbar.tsx",
+                                lineNumber: 99,
+                                columnNumber: 13
+                            }, this))
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/Navbar.tsx",
+                        lineNumber: 85,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 14,
+                            justifySelf: "end"
+                        },
+                        className: "jsx-bc4b26f20a20dfff",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                href: "/auth",
+                                className: "nav-signin-desktop",
+                                style: {
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 13.5,
+                                    fontWeight: 400,
+                                    color: "var(--text-2)",
+                                    textDecoration: "none",
+                                    padding: "8px 4px",
+                                    transition: "color .18s ease"
+                                },
+                                children: "Sign in"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/Navbar.tsx",
+                                lineNumber: 138,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                href: "/editor",
+                                className: "nav-btn-desktop group",
+                                style: {
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 13.5,
+                                    fontWeight: 500,
+                                    background: "var(--brown)",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: 100,
+                                    padding: "10px 20px 10px 22px",
+                                    cursor: "pointer",
+                                    transition: "all .2s ease",
+                                    textDecoration: "none",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    letterSpacing: ".005em",
+                                    whiteSpace: "nowrap"
+                                },
+                                children: [
+                                    "Open Editor",
+                                    " ",
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        style: {
+                                            display: "inline-block",
+                                            transition: "transform .25s ease"
+                                        },
+                                        className: "jsx-bc4b26f20a20dfff",
+                                        children: "→"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/Navbar.tsx",
+                                        lineNumber: 176,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/landing/Navbar.tsx",
+                                lineNumber: 153,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                onClick: toggleMenu,
+                                "aria-label": "Menu",
+                                style: {
+                                    display: "none",
+                                    width: 38,
+                                    height: 38,
+                                    border: ".5px solid rgba(26,23,20,0.12)",
+                                    background: "rgba(255,255,255,0.4)",
+                                    borderRadius: 100,
+                                    cursor: "pointer",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    padding: 0
+                                },
+                                className: "jsx-bc4b26f20a20dfff" + " " + "nav-toggle-mobile",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    style: {
+                                        display: "block",
+                                        width: 16,
+                                        height: 1.2,
+                                        background: menuOpen ? "transparent" : "var(--text)",
+                                        position: "relative",
+                                        transition: "transform .25s ease, background .25s ease"
+                                    },
+                                    className: "jsx-bc4b26f20a20dfff",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            style: {
+                                                content: "''",
+                                                position: "absolute",
+                                                left: 0,
+                                                width: 16,
+                                                height: 1.2,
+                                                background: "var(--text)",
+                                                transition: "transform .25s ease, top .25s ease",
+                                                top: menuOpen ? 0 : -5,
+                                                transform: menuOpen ? "rotate(45deg)" : "none"
+                                            },
+                                            className: "jsx-bc4b26f20a20dfff"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/Navbar.tsx",
+                                            lineNumber: 207,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            style: {
+                                                content: "''",
+                                                position: "absolute",
+                                                left: 0,
+                                                width: 16,
+                                                height: 1.2,
+                                                background: "var(--text)",
+                                                transition: "transform .25s ease, top .25s ease",
+                                                top: menuOpen ? 0 : 5,
+                                                transform: menuOpen ? "rotate(-45deg)" : "none"
+                                            },
+                                            className: "jsx-bc4b26f20a20dfff"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/Navbar.tsx",
+                                            lineNumber: 220,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/components/landing/Navbar.tsx",
+                                    lineNumber: 197,
+                                    columnNumber: 13
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/Navbar.tsx",
+                                lineNumber: 180,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/landing/Navbar.tsx",
+                        lineNumber: 130,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/Navbar.tsx",
+                lineNumber: 52,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("aside", {
+                style: {
+                    position: "fixed",
+                    top: 0,
+                    right: 0,
+                    height: "100vh",
+                    width: "min(86vw, 340px)",
+                    background: "var(--cream)",
+                    borderLeft: ".5px solid var(--border)",
+                    padding: "88px 28px 32px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 4,
+                    transform: menuOpen ? "translateX(0)" : "translateX(100%)",
+                    transition: "transform .35s cubic-bezier(.6,.05,.2,1)",
+                    zIndex: 99,
+                    boxShadow: "-20px 0 60px rgba(26,23,20,.06)"
+                },
+                className: "jsx-bc4b26f20a20dfff",
+                children: [
+                    links.map((l)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                            href: l.href,
+                            onClick: closeMenu,
+                            style: {
+                                fontFamily: "'Cormorant Garamond', serif",
+                                fontSize: 28,
+                                fontWeight: 300,
+                                color: "var(--text)",
+                                textDecoration: "none",
+                                padding: "14px 0",
+                                borderBottom: ".5px solid var(--border)"
+                            },
+                            className: "jsx-bc4b26f20a20dfff",
+                            children: l.label
+                        }, l.target, false, {
+                            fileName: "[project]/src/components/landing/Navbar.tsx",
+                            lineNumber: 259,
+                            columnNumber: 11
+                        }, this)),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                        href: "/auth",
+                        onClick: closeMenu,
+                        style: {
+                            fontFamily: "'Cormorant Garamond', serif",
+                            fontSize: 28,
+                            fontWeight: 300,
+                            color: "var(--text)",
+                            textDecoration: "none",
+                            padding: "14px 0",
+                            borderBottom: ".5px solid var(--border)"
+                        },
+                        children: "Sign in"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/Navbar.tsx",
+                        lineNumber: 276,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                        href: "/editor",
+                        onClick: closeMenu,
+                        style: {
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 15,
+                            fontWeight: 500,
+                            background: "var(--brown)",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 100,
+                            padding: "14px 24px",
+                            textAlign: "center",
+                            textDecoration: "none",
+                            marginTop: 24,
+                            display: "flex",
+                            justifyContent: "center"
+                        },
+                        children: "Open Editor →"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/Navbar.tsx",
+                        lineNumber: 291,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/Navbar.tsx",
+                lineNumber: 239,
+                columnNumber: 7
+            }, this),
+            menuOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                onClick: closeMenu,
+                style: {
+                    position: "fixed",
+                    inset: 0,
+                    background: "rgba(26,23,20,.3)",
+                    opacity: 1,
+                    zIndex: 98,
+                    transition: "opacity .3s ease"
+                },
+                className: "jsx-bc4b26f20a20dfff"
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/Navbar.tsx",
+                lineNumber: 316,
+                columnNumber: 9
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                id: "bc4b26f20a20dfff",
+                children: "@media (width<=900px){.nav-links-desktop.jsx-bc4b26f20a20dfff,.nav-signin-desktop.jsx-bc4b26f20a20dfff,.nav-btn-desktop.jsx-bc4b26f20a20dfff{display:none!important}.nav-toggle-mobile.jsx-bc4b26f20a20dfff{display:inline-flex!important}}"
+            }, void 0, false, void 0, this)
+        ]
+    }, void 0, true);
+}
+}),
+"[project]/src/components/landing/HeroSection.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>HeroSection
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-ssr] (ecmascript)");
+;
+;
+;
+function HeroSection() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+        style: {
+            minHeight: "100vh",
+            padding: "120px 48px 80px",
+            position: "relative",
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+        },
+        className: "jsx-75e068eb543e9d84",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 64,
+                    alignItems: "center",
+                    maxWidth: 1440,
+                    width: "100%",
+                    margin: "0 auto"
+                },
+                className: "jsx-75e068eb543e9d84",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-75e068eb543e9d84",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontFamily: "'DM Mono', monospace",
+                                    fontSize: 11,
+                                    letterSpacing: ".14em",
+                                    color: "var(--text-3)",
+                                    textTransform: "uppercase",
+                                    marginBottom: 20,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 8
+                                },
+                                className: "jsx-75e068eb543e9d84",
+                                children: "✦ design it yourself"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                lineNumber: 28,
+                                columnNumber: 9
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                                style: {
+                                    fontFamily: "'Cormorant Garamond', serif",
+                                    fontSize: 78,
+                                    fontWeight: 300,
+                                    lineHeight: 1.08,
+                                    letterSpacing: "-.01em",
+                                    marginBottom: 28,
+                                    opacity: 0,
+                                    animation: "fadeUp .8s ease forwards .1s"
+                                },
+                                className: "jsx-75e068eb543e9d84",
+                                children: [
+                                    "Some gifts",
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {
+                                        className: "jsx-75e068eb543e9d84"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                        lineNumber: 56,
+                                        columnNumber: 11
+                                    }, this),
+                                    "are bought.",
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {
+                                        className: "jsx-75e068eb543e9d84"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                        lineNumber: 58,
+                                        columnNumber: 11
+                                    }, this),
+                                    "This one is",
+                                    " ",
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("em", {
+                                        style: {
+                                            fontStyle: "italic",
+                                            color: "var(--brown)"
+                                        },
+                                        className: "jsx-75e068eb543e9d84",
+                                        children: "made."
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                        lineNumber: 60,
+                                        columnNumber: 11
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                lineNumber: 43,
+                                columnNumber: 9
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                style: {
+                                    fontSize: 18,
+                                    fontWeight: 300,
+                                    color: "var(--text-2)",
+                                    lineHeight: 1.75,
+                                    maxWidth: 480,
+                                    marginBottom: 40,
+                                    opacity: 0,
+                                    animation: "fadeUp .8s ease forwards .3s"
+                                },
+                                className: "jsx-75e068eb543e9d84",
+                                children: "Design your own Polaroid. Add a caption only you would write, a song only you two know. Then hold it in your hands — or send it to theirs."
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                lineNumber: 62,
+                                columnNumber: 9
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    display: "flex",
+                                    gap: 12,
+                                    alignItems: "center",
+                                    opacity: 0,
+                                    animation: "fadeUp .8s ease forwards .45s"
+                                },
+                                className: "jsx-75e068eb543e9d84",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                        href: "/editor",
+                                        style: {
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontSize: 15,
+                                            fontWeight: 500,
+                                            background: "var(--brown)",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: 100,
+                                            padding: "14px 32px",
+                                            cursor: "pointer",
+                                            transition: "all .22s ease",
+                                            textDecoration: "none",
+                                            display: "inline-block"
+                                        },
+                                        children: "Make Your First Polaroid →"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                        lineNumber: 86,
+                                        columnNumber: 11
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        style: {
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontSize: 14,
+                                            fontWeight: 400,
+                                            color: "var(--text-2)",
+                                            background: "transparent",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            textDecoration: "underline",
+                                            textUnderlineOffset: 3
+                                        },
+                                        onClick: ()=>document.getElementById("templates")?.scrollIntoView({
+                                                behavior: "smooth"
+                                            }),
+                                        className: "jsx-75e068eb543e9d84",
+                                        children: "See templates"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                        lineNumber: 105,
+                                        columnNumber: 11
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                lineNumber: 77,
+                                columnNumber: 9
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/landing/HeroSection.tsx",
+                        lineNumber: 27,
+                        columnNumber: 7
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            position: "relative",
+                            height: 580,
+                            opacity: 0,
+                            animation: "fadeIn .9s ease forwards .5s",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        },
+                        className: "jsx-75e068eb543e9d84" + " " + "hero-visual",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            style: {
+                                position: "relative",
+                                width: "100%",
+                                maxWidth: 620,
+                                height: "100%"
+                            },
+                            className: "jsx-75e068eb543e9d84",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: {
+                                        position: "absolute",
+                                        background: "#fff",
+                                        boxShadow: "0 12px 40px rgba(0,0,0,.12)",
+                                        borderRadius: 3,
+                                        width: 195,
+                                        top: 10,
+                                        left: "2%",
+                                        transform: "rotate(-4deg)",
+                                        animation: "float1 6s ease-in-out infinite",
+                                        transition: "transform .3s ease"
+                                    },
+                                    className: "jsx-75e068eb543e9d84",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                height: 168,
+                                                margin: "11px 11px 0",
+                                                background: "linear-gradient(135deg, #e8d5c0, #c4a882)",
+                                                overflow: "hidden"
+                                            },
+                                            className: "jsx-75e068eb543e9d84"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                            lineNumber: 157,
+                                            columnNumber: 11
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                height: 42,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center"
+                                            },
+                                            className: "jsx-75e068eb543e9d84",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                style: {
+                                                    fontFamily: "'Dancing Script', cursive",
+                                                    fontSize: 15,
+                                                    color: "#5a4a3a"
+                                                },
+                                                className: "jsx-75e068eb543e9d84",
+                                                children: "always you"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                                lineNumber: 173,
+                                                columnNumber: 13
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                            lineNumber: 165,
+                                            columnNumber: 11
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                    lineNumber: 143,
+                                    columnNumber: 9
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: {
+                                        position: "absolute",
+                                        background: "#fff",
+                                        boxShadow: "0 12px 40px rgba(0,0,0,.12)",
+                                        borderRadius: 3,
+                                        width: 185,
+                                        top: 50,
+                                        left: "32%",
+                                        transform: "rotate(3deg)",
+                                        animation: "float2 7s ease-in-out infinite .8s",
+                                        transition: "transform .3s ease"
+                                    },
+                                    className: "jsx-75e068eb543e9d84",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                height: 160,
+                                                margin: "10px 10px 0",
+                                                background: "linear-gradient(135deg, #d4c5b0, #a89080)"
+                                            },
+                                            className: "jsx-75e068eb543e9d84"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                            lineNumber: 200,
+                                            columnNumber: 11
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                height: 36,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center"
+                                            },
+                                            className: "jsx-75e068eb543e9d84",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                style: {
+                                                    fontFamily: "'DM Mono', monospace",
+                                                    fontSize: 10,
+                                                    color: "#7a6e65",
+                                                    letterSpacing: ".08em"
+                                                },
+                                                className: "jsx-75e068eb543e9d84",
+                                                children: "26 · 04 · 2025"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                                lineNumber: 215,
+                                                columnNumber: 13
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                            lineNumber: 207,
+                                            columnNumber: 11
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                    lineNumber: 186,
+                                    columnNumber: 9
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: {
+                                        position: "absolute",
+                                        background: "#fff",
+                                        boxShadow: "0 12px 40px rgba(0,0,0,.12)",
+                                        borderRadius: 3,
+                                        width: 210,
+                                        top: 250,
+                                        left: "5%",
+                                        transform: "rotate(-2deg)",
+                                        animation: "float3 5.5s ease-in-out infinite 1.2s",
+                                        transition: "transform .3s ease"
+                                    },
+                                    className: "jsx-75e068eb543e9d84",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                height: 182,
+                                                margin: "11px 11px 0",
+                                                background: "linear-gradient(160deg, #c8b8a0, #8b7060)"
+                                            },
+                                            className: "jsx-75e068eb543e9d84"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                            lineNumber: 243,
+                                            columnNumber: 11
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                height: 38,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                gap: 6
+                                            },
+                                            className: "jsx-75e068eb543e9d84",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    style: {
+                                                        width: 20,
+                                                        height: 20,
+                                                        background: "#1a1714",
+                                                        borderRadius: "50%",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center"
+                                                    },
+                                                    className: "jsx-75e068eb543e9d84",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                                                        width: "12",
+                                                        height: "12",
+                                                        viewBox: "0 0 24 24",
+                                                        fill: "white",
+                                                        className: "jsx-75e068eb543e9d84",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
+                                                            d: "M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z",
+                                                            className: "jsx-75e068eb543e9d84"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                                            lineNumber: 271,
+                                                            columnNumber: 17
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                                        lineNumber: 270,
+                                                        columnNumber: 15
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                                    lineNumber: 259,
+                                                    columnNumber: 13
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    style: {
+                                                        display: "flex",
+                                                        gap: 1.5,
+                                                        alignItems: "center"
+                                                    },
+                                                    className: "jsx-75e068eb543e9d84",
+                                                    children: Array.from({
+                                                        length: 18
+                                                    }, (_, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            style: {
+                                                                width: 2.5,
+                                                                background: "#1a1714",
+                                                                borderRadius: 1,
+                                                                height: 6 + Math.sin(i * 0.8) * 5
+                                                            },
+                                                            className: "jsx-75e068eb543e9d84"
+                                                        }, i, false, {
+                                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                                            lineNumber: 276,
+                                                            columnNumber: 17
+                                                        }, this))
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                                    lineNumber: 274,
+                                                    columnNumber: 13
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                            lineNumber: 250,
+                                            columnNumber: 11
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                    lineNumber: 229,
+                                    columnNumber: 9
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: {
+                                        position: "absolute",
+                                        background: "#fff",
+                                        boxShadow: "0 12px 40px rgba(0,0,0,.12)",
+                                        borderRadius: 3,
+                                        width: 180,
+                                        top: 20,
+                                        left: "60%",
+                                        transform: "rotate(5deg)",
+                                        animation: "float4 8s ease-in-out infinite .4s",
+                                        transition: "transform .3s ease"
+                                    },
+                                    className: "jsx-75e068eb543e9d84",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                position: "absolute",
+                                                top: -8,
+                                                left: "50%",
+                                                transform: "translateX(-50%) rotate(-2deg)",
+                                                width: 55,
+                                                height: 16,
+                                                background: "rgba(255,210,100,.55)",
+                                                borderRadius: 2,
+                                                zIndex: 2
+                                            },
+                                            className: "jsx-75e068eb543e9d84"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                            lineNumber: 305,
+                                            columnNumber: 11
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                height: 152,
+                                                margin: "10px 10px 0",
+                                                background: "linear-gradient(135deg, #e0ceb8, #b89878)"
+                                            },
+                                            className: "jsx-75e068eb543e9d84"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                            lineNumber: 318,
+                                            columnNumber: 11
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                height: 34,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center"
+                                            },
+                                            className: "jsx-75e068eb543e9d84",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                style: {
+                                                    fontFamily: "'Dancing Script', cursive",
+                                                    fontSize: 13,
+                                                    color: "#7a6e65"
+                                                },
+                                                className: "jsx-75e068eb543e9d84",
+                                                children: "besties forever"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                                lineNumber: 333,
+                                                columnNumber: 13
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                            lineNumber: 325,
+                                            columnNumber: 11
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/components/landing/HeroSection.tsx",
+                                    lineNumber: 291,
+                                    columnNumber: 9
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/components/landing/HeroSection.tsx",
+                            lineNumber: 141,
+                            columnNumber: 9
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/HeroSection.tsx",
+                        lineNumber: 129,
+                        columnNumber: 7
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/HeroSection.tsx",
+                lineNumber: 16,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                id: "75e068eb543e9d84",
+                children: "@media (width<=768px){section.jsx-75e068eb543e9d84{padding:100px 24px 60px!important}section.jsx-75e068eb543e9d84>div.jsx-75e068eb543e9d84{grid-template-columns:1fr!important;gap:40px!important}h1.jsx-75e068eb543e9d84{font-size:44px!important}.hero-visual.jsx-75e068eb543e9d84{height:320px!important}}"
+            }, void 0, false, void 0, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/landing/HeroSection.tsx",
+        lineNumber: 5,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/src/components/landing/DarkSection.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>DarkSection
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
+;
+;
+function DarkSection() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+        style: {
+            background: "var(--dark)",
+            padding: "100px 48px",
+            textAlign: "center"
+        },
+        className: "jsx-f48db75752b9c663" + " " + "reveal",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 11,
+                    letterSpacing: ".15em",
+                    color: "rgba(242,237,228,.4)",
+                    textTransform: "uppercase",
+                    marginBottom: 32
+                },
+                className: "jsx-f48db75752b9c663",
+                children: "the difference"
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/DarkSection.tsx",
+                lineNumber: 11,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: 50,
+                    fontWeight: 300,
+                    lineHeight: 1.2,
+                    color: "var(--cream)",
+                    maxWidth: 760,
+                    margin: "0 auto 40px"
+                },
+                className: "jsx-f48db75752b9c663",
+                children: [
+                    "“A polaroid they bought takes two seconds to forget.",
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {
+                        className: "jsx-f48db75752b9c663"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/DarkSection.tsx",
+                        lineNumber: 35,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {
+                        className: "jsx-f48db75752b9c663"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/DarkSection.tsx",
+                        lineNumber: 36,
+                        columnNumber: 9
+                    }, this),
+                    "A polaroid",
+                    " ",
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("em", {
+                        style: {
+                            fontStyle: "italic",
+                            color: "var(--brown-light)"
+                        },
+                        className: "jsx-f48db75752b9c663",
+                        children: "they made for you"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/DarkSection.tsx",
+                        lineNumber: 37,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {
+                        className: "jsx-f48db75752b9c663"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/DarkSection.tsx",
+                        lineNumber: 40,
+                        columnNumber: 9
+                    }, this),
+                    "stays on the wall for years.”"
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/DarkSection.tsx",
+                lineNumber: 23,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    display: "flex",
+                    gap: 12,
+                    justifyContent: "center",
+                    flexWrap: "wrap"
+                },
+                className: "jsx-f48db75752b9c663",
+                children: [
+                    "✦ made by you",
+                    "✦ felt by them",
+                    "✦ kept forever"
+                ].map((tag)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        style: {
+                            fontFamily: "'DM Mono', monospace",
+                            fontSize: 11,
+                            letterSpacing: ".08em",
+                            color: "rgba(242,237,228,.5)",
+                            border: ".5px solid rgba(242,237,228,.2)",
+                            borderRadius: 100,
+                            padding: "6px 16px"
+                        },
+                        className: "jsx-f48db75752b9c663",
+                        children: tag
+                    }, tag, false, {
+                        fileName: "[project]/src/components/landing/DarkSection.tsx",
+                        lineNumber: 45,
+                        columnNumber: 11
+                    }, this))
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/DarkSection.tsx",
+                lineNumber: 43,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                id: "f48db75752b9c663",
+                children: "@media (width<=768px){section.jsx-f48db75752b9c663{padding:80px 24px!important}section.jsx-f48db75752b9c663>div.jsx-f48db75752b9c663:nth-child(2){font-size:32px!important}}"
+            }, void 0, false, void 0, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/landing/DarkSection.tsx",
+        lineNumber: 3,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/src/components/landing/TemplatesSection.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>TemplatesSection
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
+;
+;
+const templates = [
+    {
+        name: "Classic Polaroid",
+        vibe: "timeless",
+        content: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 145,
+                        margin: "8px 8px 0",
+                        background: "linear-gradient(135deg,#d4c5b0,#b09080)"
+                    }
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 17,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 38,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                    },
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        style: {
+                            fontFamily: "'Dancing Script',cursive",
+                            fontSize: 14,
+                            color: "#5a4a3a"
+                        },
+                        children: "memories"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                        lineNumber: 19,
+                        columnNumber: 11
+                    }, ("TURBOPACK compile-time value", void 0))
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 18,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0))
+            ]
+        }, void 0, true)
+    },
+    {
+        name: "Instax Mini",
+        vibe: "trending",
+        content: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 155,
+                        margin: "7px 7px 0",
+                        background: "linear-gradient(135deg,#c8b0d4,#a090c4)"
+                    }
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 29,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 30,
+                        background: "#1a1714",
+                        margin: "0 7px 7px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                    },
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        style: {
+                            fontFamily: "'DM Mono',monospace",
+                            fontSize: 9,
+                            color: "#e8e2d0",
+                            letterSpacing: ".12em"
+                        },
+                        children: "BESTIES"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                        lineNumber: 31,
+                        columnNumber: 11
+                    }, ("TURBOPACK compile-time value", void 0))
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 30,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0))
+            ]
+        }, void 0, true)
+    },
+    {
+        name: "Movie Poster",
+        vibe: "cinematic",
+        cardBg: "#F5F2EC",
+        cardBorder: ".5px solid #ddd",
+        content: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 120,
+                        margin: "8px 8px 0",
+                        background: "linear-gradient(135deg,#2c3e50,#4a4a4a)"
+                    }
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 43,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        padding: "6px 8px 10px"
+                    },
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            style: {
+                                fontFamily: "'DM Mono',monospace",
+                                fontSize: 11,
+                                fontWeight: 500,
+                                color: "#1a1a1a",
+                                letterSpacing: ".04em",
+                                lineHeight: 1.1
+                            },
+                            children: "MOVIE TITLE"
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                            lineNumber: 45,
+                            columnNumber: 11
+                        }, ("TURBOPACK compile-time value", void 0)),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            style: {
+                                fontFamily: "'DM Mono',monospace",
+                                fontSize: 7,
+                                color: "#999",
+                                marginTop: 3,
+                                lineHeight: 1.7
+                            },
+                            children: [
+                                "directed by AUTHOR",
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
+                                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                                    lineNumber: 46,
+                                    columnNumber: 139
+                                }, ("TURBOPACK compile-time value", void 0)),
+                                "starring CAST · CAST"
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                            lineNumber: 46,
+                            columnNumber: 11
+                        }, ("TURBOPACK compile-time value", void 0))
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 44,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0))
+            ]
+        }, void 0, true)
+    },
+    {
+        name: "Instax Square",
+        vibe: "minimal",
+        content: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            style: {
+                margin: 9,
+                height: 155,
+                background: "linear-gradient(135deg,#f8d7a4,#e07a50)",
+                borderRadius: 1,
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "center",
+                paddingBottom: 8
+            },
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                style: {
+                    fontFamily: "'Dancing Script',cursive",
+                    fontSize: 12,
+                    color: "rgba(255,255,255,.8)"
+                },
+                children: "golden hour"
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                lineNumber: 56,
+                columnNumber: 9
+            }, ("TURBOPACK compile-time value", void 0))
+        }, void 0, false, {
+            fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+            lineNumber: 55,
+            columnNumber: 7
+        }, ("TURBOPACK compile-time value", void 0))
+    },
+    {
+        name: "Vintage Color 600",
+        vibe: "nostalgic",
+        cardBg: "#F0EBD8",
+        cardBorder: ".5px solid #d4c9a8",
+        content: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 138,
+                        margin: "8px 8px 0",
+                        background: "linear-gradient(135deg,#c8a878,#987058)",
+                        filter: "sepia(.3)"
+                    }
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 67,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 40,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexDirection: "column",
+                        gap: 2
+                    },
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            style: {
+                                fontFamily: "'DM Mono',monospace",
+                                fontSize: 10,
+                                color: "#5a4a2a"
+                            },
+                            children: "summer '24"
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                            lineNumber: 69,
+                            columnNumber: 11
+                        }, ("TURBOPACK compile-time value", void 0)),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            style: {
+                                fontFamily: "'DM Mono',monospace",
+                                fontSize: 8,
+                                color: "#9a8a6a"
+                            },
+                            children: "JUNE · 2024"
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                            lineNumber: 70,
+                            columnNumber: 11
+                        }, ("TURBOPACK compile-time value", void 0))
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 68,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0))
+            ]
+        }, void 0, true)
+    },
+    {
+        name: "Polaroid B&W",
+        vibe: "film",
+        content: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 148,
+                        margin: "8px 8px 0",
+                        background: "linear-gradient(135deg,#1a1a1a,#888)",
+                        filter: "grayscale(1)"
+                    }
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 80,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 36,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                    },
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        style: {
+                            fontFamily: "'Dancing Script',cursive",
+                            fontSize: 14,
+                            color: "#1a1a1a"
+                        },
+                        children: "moments"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                        lineNumber: 82,
+                        columnNumber: 11
+                    }, ("TURBOPACK compile-time value", void 0))
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 81,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0))
+            ]
+        }, void 0, true)
+    },
+    {
+        name: "Instax Wide 300",
+        vibe: "landscape",
+        width: 240,
+        content: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 120,
+                        margin: "7px 7px 0",
+                        background: "linear-gradient(135deg,#a8c8e8,#d4e8f8)"
+                    }
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 93,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 34,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                    },
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        style: {
+                            fontFamily: "'Dancing Script',cursive",
+                            fontSize: 14,
+                            color: "#5a5a6a"
+                        },
+                        children: "wide shot"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                        lineNumber: 95,
+                        columnNumber: 11
+                    }, ("TURBOPACK compile-time value", void 0))
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 94,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0))
+            ]
+        }, void 0, true)
+    },
+    {
+        name: "Dark Minimal",
+        vibe: "editorial",
+        cardBg: "#1a1714",
+        content: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 145,
+                        margin: "9px 9px 0",
+                        background: "linear-gradient(135deg,#c9d6df,#e0e8f0)"
+                    }
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 106,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 40,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexDirection: "column",
+                        gap: 3
+                    },
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            style: {
+                                fontFamily: "'DM Mono',monospace",
+                                fontSize: 8,
+                                color: "#e8e2d0",
+                                letterSpacing: ".18em"
+                            },
+                            children: "MEMORY"
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                            lineNumber: 108,
+                            columnNumber: 11
+                        }, ("TURBOPACK compile-time value", void 0)),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            style: {
+                                fontFamily: "'DM Mono',monospace",
+                                fontSize: 7,
+                                color: "#6a6458",
+                                letterSpacing: ".1em"
+                            },
+                            children: "04 · 05 · 2026"
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                            lineNumber: 109,
+                            columnNumber: 11
+                        }, ("TURBOPACK compile-time value", void 0))
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 107,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0))
+            ]
+        }, void 0, true)
+    },
+    {
+        name: "Tape Border",
+        vibe: "scrapbook",
+        showTape: true,
+        content: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 142,
+                        margin: "9px 9px 0",
+                        background: "linear-gradient(135deg,#f0c0d8,#a0b4e0)"
+                    }
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 120,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        height: 36,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                    },
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        style: {
+                            fontFamily: "'Dancing Script',cursive",
+                            fontSize: 14,
+                            color: "#5a4a6a"
+                        },
+                        children: "taped up"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                        lineNumber: 122,
+                        columnNumber: 11
+                    }, ("TURBOPACK compile-time value", void 0))
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                    lineNumber: 121,
+                    columnNumber: 9
+                }, ("TURBOPACK compile-time value", void 0))
+            ]
+        }, void 0, true)
+    }
+];
+function TemplatesSection() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+        style: {
+            padding: "100px 0 80px",
+            background: "var(--cream)"
+        },
+        id: "templates",
+        className: "jsx-5c5261b3faeca7d1",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    textAlign: "center",
+                    padding: "0 48px",
+                    marginBottom: 48
+                },
+                className: "jsx-5c5261b3faeca7d1" + " " + "reveal",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                        style: {
+                            fontFamily: "'Cormorant Garamond', serif",
+                            fontSize: 46,
+                            fontWeight: 300,
+                            fontStyle: "italic",
+                            marginBottom: 12
+                        },
+                        className: "jsx-5c5261b3faeca7d1",
+                        children: "Every moment has its frame."
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                        lineNumber: 133,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        style: {
+                            fontSize: 15,
+                            fontWeight: 300,
+                            color: "var(--text-2)"
+                        },
+                        className: "jsx-5c5261b3faeca7d1",
+                        children: "Nine templates. Infinite versions. All yours."
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                        lineNumber: 136,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                lineNumber: 132,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    display: "flex",
+                    gap: 20,
+                    overflowX: "auto",
+                    padding: "20px 48px 32px",
+                    scrollSnapType: "x mandatory",
+                    WebkitOverflowScrolling: "touch"
+                },
+                className: "jsx-5c5261b3faeca7d1" + " " + "scrollbar-hide",
+                children: templates.map((t)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            flex: "0 0 auto",
+                            width: t.width || 190,
+                            scrollSnapAlign: "start",
+                            cursor: "pointer",
+                            transition: "transform .2s ease"
+                        },
+                        className: "jsx-5c5261b3faeca7d1",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    background: t.cardBg || "#fff",
+                                    boxShadow: "0 6px 24px rgba(0,0,0,.1)",
+                                    borderRadius: 3,
+                                    marginBottom: 12,
+                                    overflow: "hidden",
+                                    position: "relative",
+                                    border: t.cardBorder || "none"
+                                },
+                                className: "jsx-5c5261b3faeca7d1",
+                                children: [
+                                    t.showTape && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            position: "absolute",
+                                            top: -7,
+                                            left: "50%",
+                                            transform: "translateX(-50%) rotate(-2deg)",
+                                            width: 55,
+                                            height: 14,
+                                            background: "rgba(255,210,90,.6)",
+                                            borderRadius: 2,
+                                            zIndex: 2
+                                        },
+                                        className: "jsx-5c5261b3faeca7d1"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                                        lineNumber: 175,
+                                        columnNumber: 17
+                                    }, this),
+                                    t.content
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                                lineNumber: 163,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontSize: 13,
+                                    fontWeight: 500,
+                                    color: "var(--text)",
+                                    marginBottom: 3
+                                },
+                                className: "jsx-5c5261b3faeca7d1",
+                                children: t.name
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                                lineNumber: 191,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontFamily: "'DM Mono', monospace",
+                                    fontSize: 10,
+                                    color: "var(--text-3)",
+                                    letterSpacing: ".06em"
+                                },
+                                className: "jsx-5c5261b3faeca7d1",
+                                children: t.vibe
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                                lineNumber: 194,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, t.name, true, {
+                        fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                        lineNumber: 153,
+                        columnNumber: 11
+                    }, this))
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+                lineNumber: 141,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                id: "5c5261b3faeca7d1",
+                children: "@media (width<=768px){section.jsx-5c5261b3faeca7d1>div.jsx-5c5261b3faeca7d1:first-child{padding:0 24px!important}section.jsx-5c5261b3faeca7d1>div.jsx-5c5261b3faeca7d1:nth-child(2){padding:20px 24px 32px!important}}"
+            }, void 0, false, void 0, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/landing/TemplatesSection.tsx",
+        lineNumber: 131,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/src/components/landing/MomentsSection.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>MomentsSection
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
+;
+;
+const moments = [
+    {
+        title: "Date Night Memory",
+        desc: "A Polaroid from the night you want to never end.",
+        font: "'Dancing Script', cursive",
+        text: "that night under the lights",
+        gradient: "linear-gradient(135deg,#d4a574,#c08060)"
+    },
+    {
+        title: "Best Friend's Birthday",
+        desc: "Inside jokes and the song that always makes you both scream-sing.",
+        font: "'DM Mono', monospace",
+        text: "HAPPY B-DAY BESTIE",
+        gradient: "linear-gradient(135deg,#b4a0d4,#8888cc)"
+    },
+    {
+        title: "Anniversary",
+        desc: "The Polaroid that captures not just the photo, but the years behind it.",
+        font: "'Caveat', cursive",
+        text: "3 years of us",
+        gradient: "linear-gradient(135deg,#d4b8a0,#c09878)"
+    },
+    {
+        title: "Graduation Gift",
+        desc: "From dorm rooms to real life — a Polaroid they'll pin to their first apartment wall.",
+        font: "'DM Mono', monospace",
+        text: "CLASS OF '25",
+        gradient: "linear-gradient(135deg,#a8c4b4,#78a088)"
+    },
+    {
+        title: "Just Because",
+        desc: "No event. No excuse. Just 'I saw this and thought of you.'",
+        font: "'Dancing Script', cursive",
+        text: "just because",
+        gradient: "linear-gradient(135deg,#e0c8b0,#c4a882)"
+    },
+    {
+        title: "Long Distance",
+        desc: "A Polaroid that crosses the miles. Same song, different cities.",
+        font: "'Caveat', cursive",
+        text: "wish you were here",
+        gradient: "linear-gradient(135deg,#a0b8d4,#7890b0)"
+    }
+];
+function MomentsSection() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+        id: "moments",
+        style: {
+            background: "var(--cream-deep)",
+            borderTop: ".5px solid var(--border)",
+            borderBottom: ".5px solid var(--border)",
+            padding: "100px 48px"
+        },
+        className: "jsx-332fa0c1297c66b2",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    textAlign: "center",
+                    marginBottom: 56
+                },
+                className: "jsx-332fa0c1297c66b2" + " " + "reveal",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                        style: {
+                            fontFamily: "'Cormorant Garamond', serif",
+                            fontSize: 46,
+                            fontWeight: 300,
+                            fontStyle: "italic",
+                            marginBottom: 12
+                        },
+                        className: "jsx-332fa0c1297c66b2",
+                        children: "Made for moments like these."
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                        lineNumber: 58,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        style: {
+                            fontSize: 15,
+                            fontWeight: 300,
+                            color: "var(--text-2)"
+                        },
+                        className: "jsx-332fa0c1297c66b2",
+                        children: "Whatever the occasion, there's a Polaroid waiting to be made."
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                        lineNumber: 61,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                lineNumber: 57,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                    gap: 20,
+                    maxWidth: 1000,
+                    margin: "0 auto"
+                },
+                className: "jsx-332fa0c1297c66b2" + " " + "reveal",
+                children: moments.map((m)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            background: "rgba(255,255,255,.5)",
+                            border: ".5px solid rgba(26,23,20,.06)",
+                            borderRadius: 16,
+                            padding: 24,
+                            display: "flex",
+                            gap: 18,
+                            alignItems: "flex-start",
+                            transition: "transform .2s ease, box-shadow .2s ease",
+                            cursor: "pointer"
+                        },
+                        className: "jsx-332fa0c1297c66b2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    flexShrink: 0,
+                                    width: 65,
+                                    background: "#fff",
+                                    boxShadow: "0 2px 8px rgba(0,0,0,.1)",
+                                    borderRadius: 2
+                                },
+                                className: "jsx-332fa0c1297c66b2",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            height: 56,
+                                            margin: "5px 5px 0",
+                                            background: m.gradient
+                                        },
+                                        className: "jsx-332fa0c1297c66b2"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                                        lineNumber: 101,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            height: 22,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center"
+                                        },
+                                        className: "jsx-332fa0c1297c66b2",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            style: {
+                                                fontFamily: m.font,
+                                                fontSize: 7,
+                                                color: "#7a6e65"
+                                            },
+                                            className: "jsx-332fa0c1297c66b2",
+                                            children: m.text
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                                            lineNumber: 110,
+                                            columnNumber: 17
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                                        lineNumber: 102,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                                lineNumber: 92,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "jsx-332fa0c1297c66b2",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontSize: 15,
+                                            fontWeight: 500,
+                                            color: "var(--text)",
+                                            marginBottom: 6
+                                        },
+                                        className: "jsx-332fa0c1297c66b2",
+                                        children: m.title
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                                        lineNumber: 117,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            fontSize: 13,
+                                            fontWeight: 300,
+                                            color: "var(--text-2)",
+                                            lineHeight: 1.5
+                                        },
+                                        className: "jsx-332fa0c1297c66b2",
+                                        children: m.desc
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                                        lineNumber: 128,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                                lineNumber: 116,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, m.title, true, {
+                        fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                        lineNumber: 77,
+                        columnNumber: 11
+                    }, this))
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/MomentsSection.tsx",
+                lineNumber: 66,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                id: "332fa0c1297c66b2",
+                children: "@media (width<=768px){section.jsx-332fa0c1297c66b2{padding:80px 24px!important}}"
+            }, void 0, false, void 0, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/landing/MomentsSection.tsx",
+        lineNumber: 48,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/src/components/landing/StepsSection.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>StepsSection
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-ssr] (ecmascript)");
+;
+;
+;
+const steps = [
+    {
+        num: "01",
+        title: "Upload Your Photo",
+        desc: "Drop any image. We'll crop it into the perfect Polaroid ratio. No photography skills required.",
+        detail: "Supports JPG, PNG, WebP"
+    },
+    {
+        num: "02",
+        title: "Write Your Caption",
+        desc: "Type what you'd write on the back of a photo if you still carried one in your wallet.",
+        detail: "Handwriting & typewriter fonts"
+    },
+    {
+        num: "03",
+        title: "Add a Spotify Code",
+        desc: "Paste a song link — we'll generate a scannable Spotify code. Now the photo has a soundtrack.",
+        detail: "Any Spotify track or playlist"
+    },
+    {
+        num: "04",
+        title: "Print or Share",
+        desc: "Download as a high-res PNG. Send it digitally, or better yet — print it. Some things are meant to be held.",
+        detail: "300 DPI print-ready"
+    }
+];
+function StepsSection() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+        id: "how",
+        style: {
+            padding: "100px 48px",
+            background: "var(--cream)"
+        },
+        className: "jsx-d3c15a282cf15c3f",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    textAlign: "center",
+                    marginBottom: 72
+                },
+                className: "jsx-d3c15a282cf15c3f" + " " + "reveal",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                        style: {
+                            fontFamily: "'Cormorant Garamond', serif",
+                            fontSize: 46,
+                            fontWeight: 300,
+                            fontStyle: "italic",
+                            marginBottom: 12
+                        },
+                        className: "jsx-d3c15a282cf15c3f",
+                        children: "Four steps, one keepsake."
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/StepsSection.tsx",
+                        lineNumber: 34,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        style: {
+                            fontSize: 15,
+                            fontWeight: 300,
+                            color: "var(--text-2)"
+                        },
+                        className: "jsx-d3c15a282cf15c3f",
+                        children: "No account needed. No watermark. Free forever."
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/StepsSection.tsx",
+                        lineNumber: 37,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/StepsSection.tsx",
+                lineNumber: 33,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    display: "grid",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gap: 28,
+                    maxWidth: 1050,
+                    margin: "0 auto"
+                },
+                className: "jsx-d3c15a282cf15c3f" + " " + "reveal",
+                children: steps.map((s)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            borderTop: ".5px solid var(--border)",
+                            paddingTop: 28
+                        },
+                        className: "jsx-d3c15a282cf15c3f",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontFamily: "'DM Mono', monospace",
+                                    fontSize: 12,
+                                    color: "var(--text-3)",
+                                    marginBottom: 14,
+                                    letterSpacing: ".06em"
+                                },
+                                className: "jsx-d3c15a282cf15c3f",
+                                children: s.num
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/StepsSection.tsx",
+                                lineNumber: 60,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 16,
+                                    fontWeight: 600,
+                                    color: "var(--text)",
+                                    marginBottom: 10
+                                },
+                                className: "jsx-d3c15a282cf15c3f",
+                                children: s.title
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/StepsSection.tsx",
+                                lineNumber: 71,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontSize: 13.5,
+                                    fontWeight: 300,
+                                    color: "var(--text-2)",
+                                    lineHeight: 1.7,
+                                    marginBottom: 14
+                                },
+                                className: "jsx-d3c15a282cf15c3f",
+                                children: s.desc
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/StepsSection.tsx",
+                                lineNumber: 82,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontFamily: "'DM Mono', monospace",
+                                    fontSize: 10,
+                                    color: "var(--text-3)",
+                                    letterSpacing: ".06em"
+                                },
+                                className: "jsx-d3c15a282cf15c3f",
+                                children: s.detail
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/StepsSection.tsx",
+                                lineNumber: 93,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, s.num, true, {
+                        fileName: "[project]/src/components/landing/StepsSection.tsx",
+                        lineNumber: 53,
+                        columnNumber: 11
+                    }, this))
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/StepsSection.tsx",
+                lineNumber: 42,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    textAlign: "center",
+                    marginTop: 60
+                },
+                className: "jsx-d3c15a282cf15c3f" + " " + "reveal",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                    href: "/editor",
+                    style: {
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 15,
+                        fontWeight: 500,
+                        background: "var(--brown)",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 100,
+                        padding: "14px 32px",
+                        cursor: "pointer",
+                        textDecoration: "none",
+                        display: "inline-block",
+                        transition: "all .22s ease"
+                    },
+                    children: "Try it free — no sign up →"
+                }, void 0, false, {
+                    fileName: "[project]/src/components/landing/StepsSection.tsx",
+                    lineNumber: 109,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/StepsSection.tsx",
+                lineNumber: 108,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                id: "d3c15a282cf15c3f",
+                children: "@media (width<=768px){section.jsx-d3c15a282cf15c3f{padding:80px 24px!important}section.jsx-d3c15a282cf15c3f>div.jsx-d3c15a282cf15c3f:nth-child(2){grid-template-columns:1fr 1fr!important}}@media (width<=500px){section.jsx-d3c15a282cf15c3f>div.jsx-d3c15a282cf15c3f:nth-child(2){grid-template-columns:1fr!important}}"
+            }, void 0, false, void 0, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/landing/StepsSection.tsx",
+        lineNumber: 32,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/src/components/landing/PricingSection.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>PricingSection
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-ssr] (ecmascript)");
+;
+;
+;
+const plans = [
+    {
+        name: "Free",
+        price: "$0",
+        period: "forever",
+        desc: "Everything you need to make your first Polaroid.",
+        features: [
+            "Unlimited designs",
+            "All 9 templates",
+            "Custom captions",
+            "Spotify code integration",
+            "High-res PNG download",
+            "No watermark"
+        ],
+        cta: "Start Creating",
+        ctaLink: "/editor",
+        highlight: false
+    },
+    {
+        name: "Pro",
+        price: "$4.99",
+        period: "one-time",
+        desc: "For the person who makes Polaroids for everyone.",
+        features: [
+            "Everything in Free",
+            "Print-ready 300 DPI export",
+            "Custom QR codes",
+            "Priority templates",
+            "Batch export (up to 5)",
+            "Early access to new features"
+        ],
+        cta: "Get Pro — $4.99",
+        ctaLink: "/order",
+        highlight: true,
+        badge: "Most Popular"
+    },
+    {
+        name: "Gift Pack",
+        price: "$9.99",
+        period: "one-time",
+        desc: "Send a printed Polaroid. We print, we ship, they smile.",
+        features: [
+            "Everything in Pro",
+            "1× printed Polaroid (glossy)",
+            "Premium cardstock",
+            "Gift-ready envelope",
+            "Handwritten note option",
+            "Shipped within 3 days"
+        ],
+        cta: "Order Gift Pack",
+        ctaLink: "/order",
+        highlight: false,
+        icon: "🎁"
+    }
+];
+function PricingSection() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+        id: "pricing",
+        style: {
+            background: "var(--cream-deep)",
+            borderTop: ".5px solid var(--border)",
+            padding: "100px 48px"
+        },
+        className: "jsx-b87e724ec756b7c8",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    textAlign: "center",
+                    marginBottom: 56
+                },
+                className: "jsx-b87e724ec756b7c8" + " " + "reveal",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                        style: {
+                            fontFamily: "'Cormorant Garamond', serif",
+                            fontSize: 46,
+                            fontWeight: 300,
+                            fontStyle: "italic",
+                            marginBottom: 12
+                        },
+                        className: "jsx-b87e724ec756b7c8",
+                        children: "Simple, honest pricing."
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/PricingSection.tsx",
+                        lineNumber: 70,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        style: {
+                            fontSize: 15,
+                            fontWeight: 300,
+                            color: "var(--text-2)"
+                        },
+                        className: "jsx-b87e724ec756b7c8",
+                        children: "No subscriptions. No hidden fees. Pay once, keep forever."
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/PricingSection.tsx",
+                        lineNumber: 81,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/PricingSection.tsx",
+                lineNumber: 69,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: 20,
+                    maxWidth: 960,
+                    margin: "0 auto",
+                    alignItems: "start"
+                },
+                className: "jsx-b87e724ec756b7c8" + " " + "reveal",
+                children: plans.map((p)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            background: p.highlight ? "var(--dark)" : "rgba(255,255,255,.5)",
+                            border: p.highlight ? "none" : ".5px solid rgba(26,23,20,.06)",
+                            borderRadius: 20,
+                            padding: 32,
+                            position: "relative",
+                            color: p.highlight ? "var(--cream)" : "var(--text)",
+                            transition: "transform .2s ease, box-shadow .2s ease"
+                        },
+                        className: "jsx-b87e724ec756b7c8",
+                        children: [
+                            p.badge && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    position: "absolute",
+                                    top: -12,
+                                    right: 20,
+                                    background: "var(--brown)",
+                                    color: "#fff",
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 11,
+                                    fontWeight: 500,
+                                    padding: "5px 14px",
+                                    borderRadius: 100,
+                                    letterSpacing: ".02em"
+                                },
+                                className: "jsx-b87e724ec756b7c8",
+                                children: p.badge
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                lineNumber: 111,
+                                columnNumber: 15
+                            }, this),
+                            p.icon && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontSize: 28,
+                                    marginBottom: 8
+                                },
+                                className: "jsx-b87e724ec756b7c8",
+                                children: p.icon
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                lineNumber: 130,
+                                columnNumber: 15
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontFamily: "'DM Mono', monospace",
+                                    fontSize: 11,
+                                    letterSpacing: ".12em",
+                                    color: p.highlight ? "rgba(242,237,228,.5)" : "var(--text-3)",
+                                    textTransform: "uppercase",
+                                    marginBottom: 16
+                                },
+                                className: "jsx-b87e724ec756b7c8",
+                                children: p.name
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                lineNumber: 132,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "baseline",
+                                    gap: 6,
+                                    marginBottom: 8
+                                },
+                                className: "jsx-b87e724ec756b7c8",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        style: {
+                                            fontFamily: "'Cormorant Garamond', serif",
+                                            fontSize: 42,
+                                            fontWeight: 300
+                                        },
+                                        className: "jsx-b87e724ec756b7c8",
+                                        children: p.price
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                        lineNumber: 145,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        style: {
+                                            fontFamily: "'DM Mono', monospace",
+                                            fontSize: 12,
+                                            color: p.highlight ? "rgba(242,237,228,.5)" : "var(--text-3)"
+                                        },
+                                        className: "jsx-b87e724ec756b7c8",
+                                        children: p.period
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                        lineNumber: 154,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                lineNumber: 144,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                style: {
+                                    fontSize: 13.5,
+                                    fontWeight: 300,
+                                    color: p.highlight ? "rgba(242,237,228,.7)" : "var(--text-2)",
+                                    marginBottom: 24,
+                                    lineHeight: 1.5
+                                },
+                                className: "jsx-b87e724ec756b7c8",
+                                children: p.desc
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                lineNumber: 164,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
+                                style: {
+                                    listStyle: "none",
+                                    padding: 0,
+                                    margin: "0 0 28px"
+                                },
+                                className: "jsx-b87e724ec756b7c8",
+                                children: p.features.map((f)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
+                                        style: {
+                                            fontSize: 13,
+                                            fontWeight: 300,
+                                            color: p.highlight ? "rgba(242,237,228,.8)" : "var(--text-2)",
+                                            padding: "7px 0",
+                                            borderBottom: p.highlight ? ".5px solid rgba(242,237,228,.1)" : ".5px solid rgba(26,23,20,.06)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 10
+                                        },
+                                        className: "jsx-b87e724ec756b7c8",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                style: {
+                                                    width: 18,
+                                                    height: 18,
+                                                    borderRadius: "50%",
+                                                    background: p.highlight ? "rgba(242,237,228,.1)" : "rgba(26,23,20,.04)",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    fontSize: 10,
+                                                    flexShrink: 0
+                                                },
+                                                className: "jsx-b87e724ec756b7c8",
+                                                children: "✓"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                                lineNumber: 192,
+                                                columnNumber: 19
+                                            }, this),
+                                            f
+                                        ]
+                                    }, f, true, {
+                                        fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                        lineNumber: 177,
+                                        columnNumber: 17
+                                    }, this))
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                lineNumber: 175,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                href: p.ctaLink,
+                                style: {
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 13.5,
+                                    fontWeight: 500,
+                                    display: "block",
+                                    textAlign: "center",
+                                    padding: "12px 24px",
+                                    borderRadius: 100,
+                                    textDecoration: "none",
+                                    transition: "all .2s ease",
+                                    ...p.highlight ? {
+                                        background: "#fff",
+                                        color: "var(--dark)",
+                                        border: "none"
+                                    } : {
+                                        background: "transparent",
+                                        color: "var(--text)",
+                                        border: ".5px solid rgba(26,23,20,.15)"
+                                    }
+                                },
+                                children: p.cta
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/PricingSection.tsx",
+                                lineNumber: 213,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, p.name, true, {
+                        fileName: "[project]/src/components/landing/PricingSection.tsx",
+                        lineNumber: 98,
+                        columnNumber: 11
+                    }, this))
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/PricingSection.tsx",
+                lineNumber: 86,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                id: "b87e724ec756b7c8",
+                children: "@media (width<=768px){section.jsx-b87e724ec756b7c8{padding:80px 24px!important}section.jsx-b87e724ec756b7c8>div.jsx-b87e724ec756b7c8:nth-child(2){grid-template-columns:1fr!important;max-width:400px!important}}"
+            }, void 0, false, void 0, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/landing/PricingSection.tsx",
+        lineNumber: 61,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/src/components/landing/FinalCTA.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>FinalCTA
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-ssr] (ecmascript)");
+;
+;
+;
+function FinalCTA() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+        style: {
+            padding: "100px 48px 80px",
+            textAlign: "center",
+            background: "var(--cream)"
+        },
+        className: "jsx-9033714892273bac" + " " + "reveal",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                style: {
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: 52,
+                    fontWeight: 300,
+                    fontStyle: "italic",
+                    lineHeight: 1.15,
+                    marginBottom: 20,
+                    maxWidth: 600,
+                    margin: "0 auto 20px"
+                },
+                className: "jsx-9033714892273bac",
+                children: [
+                    "The best gifts aren't bought.",
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {
+                        className: "jsx-9033714892273bac"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/FinalCTA.tsx",
+                        lineNumber: 26,
+                        columnNumber: 9
+                    }, this),
+                    "They're",
+                    " ",
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        style: {
+                            color: "var(--brown)"
+                        },
+                        className: "jsx-9033714892273bac",
+                        children: "made"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/FinalCTA.tsx",
+                        lineNumber: 28,
+                        columnNumber: 9
+                    }, this),
+                    "."
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/FinalCTA.tsx",
+                lineNumber: 13,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                style: {
+                    fontSize: 16,
+                    fontWeight: 300,
+                    color: "var(--text-2)",
+                    marginBottom: 36,
+                    maxWidth: 440,
+                    margin: "0 auto 36px"
+                },
+                className: "jsx-9033714892273bac",
+                children: "It takes three minutes. It lasts forever."
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/FinalCTA.tsx",
+                lineNumber: 30,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                href: "/editor",
+                style: {
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 16,
+                    fontWeight: 500,
+                    background: "var(--brown)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 100,
+                    padding: "16px 40px",
+                    cursor: "pointer",
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 10,
+                    transition: "all .22s ease"
+                },
+                children: [
+                    "Make Your Polaroid",
+                    " ",
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        style: {
+                            fontSize: 20,
+                            transition: "transform .25s ease"
+                        },
+                        className: "jsx-9033714892273bac",
+                        children: "→"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/FinalCTA.tsx",
+                        lineNumber: 62,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/FinalCTA.tsx",
+                lineNumber: 42,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 11,
+                    color: "var(--text-3)",
+                    marginTop: 20,
+                    letterSpacing: ".06em"
+                },
+                className: "jsx-9033714892273bac",
+                children: "free · no sign up · no watermark"
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/FinalCTA.tsx",
+                lineNumber: 64,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                id: "9033714892273bac",
+                children: "@media (width<=768px){section.jsx-9033714892273bac{padding:80px 24px 60px!important}h2.jsx-9033714892273bac{font-size:38px!important}}"
+            }, void 0, false, void 0, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/landing/FinalCTA.tsx",
+        lineNumber: 5,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/src/components/landing/Footer.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>Footer
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-ssr] (ecmascript)");
+;
+;
+;
+function Footer() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
+        style: {
+            background: "var(--dark)",
+            color: "var(--cream)",
+            padding: "60px 48px 40px"
+        },
+        className: "jsx-1e498c1b73b24c21",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    display: "grid",
+                    gridTemplateColumns: "2fr 1fr 1fr 1fr",
+                    gap: 48,
+                    maxWidth: 1100,
+                    margin: "0 auto"
+                },
+                className: "jsx-1e498c1b73b24c21",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-1e498c1b73b24c21",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontFamily: "'Cormorant Garamond', serif",
+                                    fontSize: 24,
+                                    fontWeight: 300,
+                                    fontStyle: "italic",
+                                    marginBottom: 16
+                                },
+                                className: "jsx-1e498c1b73b24c21",
+                                children: "Polamuse"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/Footer.tsx",
+                                lineNumber: 23,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                style: {
+                                    fontSize: 13,
+                                    fontWeight: 300,
+                                    color: "rgba(242,237,228,.5)",
+                                    lineHeight: 1.7,
+                                    maxWidth: 260
+                                },
+                                className: "jsx-1e498c1b73b24c21",
+                                children: "Design Polaroids with your own photos, captions, and Spotify codes. Made with love for people who give gifts that actually mean something."
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/Footer.tsx",
+                                lineNumber: 34,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/landing/Footer.tsx",
+                        lineNumber: 22,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-1e498c1b73b24c21",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontFamily: "'DM Mono', monospace",
+                                    fontSize: 10,
+                                    letterSpacing: ".15em",
+                                    color: "rgba(242,237,228,.4)",
+                                    textTransform: "uppercase",
+                                    marginBottom: 18
+                                },
+                                className: "jsx-1e498c1b73b24c21",
+                                children: "Product"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/Footer.tsx",
+                                lineNumber: 50,
+                                columnNumber: 11
+                            }, this),
+                            [
+                                "Editor",
+                                "Templates",
+                                "Pricing"
+                            ].map((l)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                    href: l === "Editor" ? "/editor" : `#${l.toLowerCase()}`,
+                                    style: {
+                                        display: "block",
+                                        fontSize: 13,
+                                        fontWeight: 300,
+                                        color: "rgba(242,237,228,.6)",
+                                        textDecoration: "none",
+                                        padding: "6px 0",
+                                        transition: "color .15s ease"
+                                    },
+                                    className: "jsx-1e498c1b73b24c21",
+                                    children: l
+                                }, l, false, {
+                                    fileName: "[project]/src/components/landing/Footer.tsx",
+                                    lineNumber: 63,
+                                    columnNumber: 13
+                                }, this))
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/landing/Footer.tsx",
+                        lineNumber: 49,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-1e498c1b73b24c21",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontFamily: "'DM Mono', monospace",
+                                    fontSize: 10,
+                                    letterSpacing: ".15em",
+                                    color: "rgba(242,237,228,.4)",
+                                    textTransform: "uppercase",
+                                    marginBottom: 18
+                                },
+                                className: "jsx-1e498c1b73b24c21",
+                                children: "Company"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/Footer.tsx",
+                                lineNumber: 83,
+                                columnNumber: 11
+                            }, this),
+                            [
+                                {
+                                    label: "About",
+                                    href: "#"
+                                },
+                                {
+                                    label: "Privacy",
+                                    href: "/privacy"
+                                },
+                                {
+                                    label: "Terms",
+                                    href: "#"
+                                }
+                            ].map((l)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                    href: l.href,
+                                    style: {
+                                        display: "block",
+                                        fontSize: 13,
+                                        fontWeight: 300,
+                                        color: "rgba(242,237,228,.6)",
+                                        textDecoration: "none",
+                                        padding: "6px 0",
+                                        transition: "color .15s ease"
+                                    },
+                                    children: l.label
+                                }, l.label, false, {
+                                    fileName: "[project]/src/components/landing/Footer.tsx",
+                                    lineNumber: 100,
+                                    columnNumber: 13
+                                }, this))
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/landing/Footer.tsx",
+                        lineNumber: 82,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "jsx-1e498c1b73b24c21",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontFamily: "'DM Mono', monospace",
+                                    fontSize: 10,
+                                    letterSpacing: ".15em",
+                                    color: "rgba(242,237,228,.4)",
+                                    textTransform: "uppercase",
+                                    marginBottom: 18
+                                },
+                                className: "jsx-1e498c1b73b24c21",
+                                children: "Connect"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/Footer.tsx",
+                                lineNumber: 120,
+                                columnNumber: 11
+                            }, this),
+                            [
+                                "Instagram",
+                                "Twitter",
+                                "Email"
+                            ].map((l)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                    href: "#",
+                                    style: {
+                                        display: "block",
+                                        fontSize: 13,
+                                        fontWeight: 300,
+                                        color: "rgba(242,237,228,.6)",
+                                        textDecoration: "none",
+                                        padding: "6px 0",
+                                        transition: "color .15s ease"
+                                    },
+                                    className: "jsx-1e498c1b73b24c21",
+                                    children: l
+                                }, l, false, {
+                                    fileName: "[project]/src/components/landing/Footer.tsx",
+                                    lineNumber: 133,
+                                    columnNumber: 13
+                                }, this))
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/landing/Footer.tsx",
+                        lineNumber: 119,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/Footer.tsx",
+                lineNumber: 12,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    borderTop: ".5px solid rgba(242,237,228,.1)",
+                    marginTop: 48,
+                    paddingTop: 24,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    maxWidth: 1100,
+                    margin: "48px auto 0"
+                },
+                className: "jsx-1e498c1b73b24c21",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            fontSize: 12,
+                            fontWeight: 300,
+                            color: "rgba(242,237,228,.4)"
+                        },
+                        className: "jsx-1e498c1b73b24c21",
+                        children: "© 2025 Polamuse. Made with ♥ for people who give real gifts."
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/Footer.tsx",
+                        lineNumber: 165,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            fontFamily: "'DM Mono', monospace",
+                            fontSize: 10,
+                            color: "rgba(242,237,228,.3)",
+                            letterSpacing: ".08em"
+                        },
+                        className: "jsx-1e498c1b73b24c21",
+                        children: "v1.0"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/Footer.tsx",
+                        lineNumber: 168,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/Footer.tsx",
+                lineNumber: 153,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                id: "1e498c1b73b24c21",
+                children: "@media (width<=768px){footer.jsx-1e498c1b73b24c21{padding:48px 24px 32px!important}footer.jsx-1e498c1b73b24c21>div.jsx-1e498c1b73b24c21:first-child{grid-template-columns:1fr 1fr!important;gap:32px!important}}@media (width<=500px){footer.jsx-1e498c1b73b24c21>div.jsx-1e498c1b73b24c21:first-child{grid-template-columns:1fr!important}}"
+            }, void 0, false, void 0, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/components/landing/Footer.tsx",
+        lineNumber: 5,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/src/app/page.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>LandingPage
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$Navbar$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/landing/Navbar.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$HeroSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/landing/HeroSection.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$DarkSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/landing/DarkSection.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$TemplatesSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/landing/TemplatesSection.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$MomentsSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/landing/MomentsSection.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$StepsSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/landing/StepsSection.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$PricingSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/landing/PricingSection.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$FinalCTA$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/landing/FinalCTA.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$Footer$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/landing/Footer.tsx [app-ssr] (ecmascript)");
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+function LandingPage() {
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        const els = document.querySelectorAll(".reveal");
+        const obs = new IntersectionObserver((entries)=>entries.forEach((e)=>e.isIntersecting && e.target.classList.add("visible")), {
+            threshold: 0.15
+        });
+        els.forEach((el)=>obs.observe(el));
+        return ()=>obs.disconnect();
+    }, []);
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
+        style: {
+            background: "var(--cream)",
+            color: "var(--text)",
+            fontFamily: "'DM Sans', sans-serif"
+        },
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$Navbar$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 27,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$HeroSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 28,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$DarkSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 29,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$TemplatesSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 30,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$MomentsSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 31,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$StepsSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 32,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$PricingSection$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 33,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$FinalCTA$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 34,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$landing$2f$Footer$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 35,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/app/page.tsx",
+        lineNumber: 26,
+        columnNumber: 5
+    }, this);
+}
+}),
+];
+
+//# sourceMappingURL=src_07lugx9._.js.map
