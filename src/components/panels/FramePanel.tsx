@@ -3,6 +3,7 @@ import { useStore, POLAROID_TEMPLATES } from '../../store';
 import type { TemplateId } from '../../store';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { useImageColors } from '../../hooks/useImageColors';
+import { UploadButton, ColorPicker, Slider, SectionLabel } from '../ui';
 
 export function FramePanel() {
   const activeFrameId = useStore((s) => s.activeFrameId);
@@ -13,10 +14,8 @@ export function FramePanel() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const photoColors = useImageColors(frame?.imageDataUrl ?? null);
 
-  const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadFile(file);
-    e.target.value = '';
+  const handleFile = useCallback((file: File) => {
+    uploadFile(file);
   }, [uploadFile]);
 
   if (!frame) return null;
@@ -24,26 +23,17 @@ export function FramePanel() {
   return (
     <div className="space-y-5">
       {/* Upload */}
-      <section>
-        <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Photo</h3>
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="w-full py-3 rounded-xl border-2 border-dashed border-[#E0D5C9] text-sm text-[#8B7B6B] font-medium hover:border-[#C4B5A6] active:bg-[#F8F3EE] transition-colors"
-        >
-          {frame.imageDataUrl ? 'Change Photo' : 'Upload Photo'}
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={handleFile}
-        />
-      </section>
+      <UploadButton
+        label="Photo"
+        onUpload={handleFile}
+        hasFile={!!frame.imageDataUrl}
+        buttonText="Upload Photo"
+        replaceText="Change Photo"
+      />
 
       {/* Template Picker */}
       <section>
-        <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-3">Template</h3>
+        <SectionLabel>Template</SectionLabel>
         <div className="grid grid-cols-4 gap-2">
           {POLAROID_TEMPLATES.map((tmpl) => {
             const isActive = frame.templateId === tmpl.id;
@@ -102,109 +92,44 @@ export function FramePanel() {
       </section>
 
       {/* Frame Color */}
-      <section>
-        <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Color</h3>
-
-        {/* Preset swatches + custom picker */}
-        <div className="flex gap-2 items-center">
-          {['#FFFFFF', '#F5EDD6', '#1A1A1A', '#F0E4D7', '#F2EDE8', '#E4E8F0'].map((color) => (
-            <button
-              key={color}
-              onClick={() => updateFrame(activeFrameId, { frameColor: color })}
-              className={`w-8 h-8 rounded-full border-2 transition-all ${
-                frame.frameColor === color ? 'border-[#8B6F5C] scale-110 ring-2 ring-[#8B6F5C]/20' : 'border-[#E8DFD6]'
-              }`}
-              style={{ backgroundColor: color }}
-            />
-          ))}
-          <input
-            type="color"
-            value={frame.frameColor}
-            onChange={(e) => updateFrame(activeFrameId, { frameColor: e.target.value })}
-            className="w-8 h-8 rounded-full cursor-pointer border-0"
-          />
-        </div>
-
-        {/* Photo-sampled palette */}
-        {photoColors.length > 0 && (
-          <div className="mt-3">
-            <div className="flex items-center gap-1.5 mb-2">
-              {/* eyedropper icon */}
-              <svg className="w-3 h-3 text-[#A39080]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2 22l4-4m0 0L14.5 9.5M6 18l8.5-8.5m0 0l2-2a2.828 2.828 0 1 1 4 4l-2 2L6 18z"/>
-                <path d="M19.5 6.5l-2-2"/>
-              </svg>
-              <span className="text-[9px] font-medium text-[#A39080] uppercase tracking-widest">From photo</span>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {photoColors.map((color) => (
-                <button
-                  key={color}
-                  title={color}
-                  onClick={() => updateFrame(activeFrameId, { frameColor: color })}
-                  className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 active:scale-95 ${
-                    frame.frameColor === color
-                      ? 'border-[#8B6F5C] scale-110 ring-2 ring-[#8B6F5C]/20'
-                      : 'border-[#E8DFD6]'
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
+      <ColorPicker
+        label="Color"
+        value={frame.frameColor}
+        onChange={(color) => updateFrame(activeFrameId, { frameColor: color })}
+        presets={['#FFFFFF', '#F5EDD6', '#1A1A1A', '#F0E4D7', '#F2EDE8', '#E4E8F0']}
+        customColors={photoColors}
+        customColorsLabel="From photo"
+      />
 
       {/* Caption Area */}
-      <section>
-        <div className="flex justify-between items-center mb-1">
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Caption Area</h3>
-          <span className="text-[10px] text-[#C4B5A6]">{frame.borderBottom}px</span>
-        </div>
-        <input
-          type="range"
-          min="0"
-          max="450"
-          value={frame.borderBottom}
-          onChange={(e) => updateFrame(activeFrameId, { borderBottom: Number(e.target.value), templateId: 'custom' })}
-          className="w-full"
-        />
-      </section>
+      <Slider
+        label="Caption Area"
+        value={frame.borderBottom}
+        min={0}
+        max={450}
+        onChange={(e) => updateFrame(activeFrameId, { borderBottom: Number(e.target.value), templateId: 'custom' })}
+      />
 
       {/* Side Borders */}
-      <section>
-        <div className="flex justify-between items-center mb-1">
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Borders</h3>
-          <span className="text-[10px] text-[#C4B5A6]">{frame.borderLeft}px</span>
-        </div>
-        <input
-          type="range"
-          min="0"
-          max="150"
-          value={frame.borderLeft}
-          onChange={(e) => {
-            const v = Number(e.target.value);
-            updateFrame(activeFrameId, { borderLeft: v, borderRight: v, borderTop: v, templateId: 'custom' });
-          }}
-          className="w-full"
-        />
-      </section>
+      <Slider
+        label="Borders"
+        value={frame.borderLeft}
+        min={0}
+        max={150}
+        onChange={(e) => {
+          const v = Number(e.target.value);
+          updateFrame(activeFrameId, { borderLeft: v, borderRight: v, borderTop: v, templateId: 'custom' });
+        }}
+      />
 
       {/* Border Radius */}
-      <section>
-        <div className="flex justify-between items-center mb-1">
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Rounded Corners</h3>
-          <span className="text-[10px] text-[#C4B5A6]">{frame.borderRadius}px</span>
-        </div>
-        <input
-          type="range"
-          min="0"
-          max="30"
-          value={frame.borderRadius}
-          onChange={(e) => updateFrame(activeFrameId, { borderRadius: Number(e.target.value) })}
-          className="w-full"
-        />
-      </section>
+      <Slider
+        label="Rounded Corners"
+        value={frame.borderRadius}
+        min={0}
+        max={30}
+        onChange={(e) => updateFrame(activeFrameId, { borderRadius: Number(e.target.value) })}
+      />
     </div>
   );
 }

@@ -67,27 +67,6 @@ function Logo() {
   );
 }
 
-function SeoHint() {
-  return (
-    <span
-      aria-hidden="true"
-      style={{
-        position: 'absolute',
-        width: 1,
-        height: 1,
-        padding: 0,
-        margin: -1,
-        overflow: 'hidden',
-        clip: 'rect(0, 0, 0, 0)',
-        whiteSpace: 'nowrap',
-        border: 0,
-      }}
-    >
-      Polamuse is a free online polaroid photo frame maker. Create beautiful instant film frames, add Spotify barcodes, vintage filters, captions, and download high-quality PNG images. Supports Polaroid 600, Instax Mini, Instax Square, Instax Wide, concert ticket, and movie poster templates.
-    </span>
-  );
-}
-
 function ExportButton({ onSuccess }: { onSuccess: () => void }) {
   const handleClick = () => {
     const btn = document.getElementById("export-btn-inner");
@@ -145,6 +124,62 @@ export default function EditorPage() {
 
   return (
     <div className="editor-page">
+      <style>{`
+        body::before { display: none !important; }
+        .editor-page input[type="range"] {
+          -webkit-appearance: none;
+          appearance: none;
+          height: 4px;
+          border-radius: 2px;
+          background: #E8DFD6;
+          outline: none;
+          accent-color: #8B6F5C;
+        }
+        .editor-page input[type="range"]::-webkit-slider-runnable-track {
+          height: 4px;
+          border-radius: 2px;
+          background: #E8DFD6;
+        }
+        .editor-page input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #8B6F5C;
+          cursor: pointer;
+          box-shadow: 0 1px 4px rgba(139,111,92,0.3);
+          margin-top: -6px;
+          border: none;
+        }
+        .editor-page input[type="range"]::-moz-range-track {
+          height: 4px;
+          border-radius: 2px;
+          background: #E8DFD6;
+          border: none;
+        }
+        .editor-page input[type="range"]::-moz-range-thumb {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #8B6F5C;
+          cursor: pointer;
+          box-shadow: 0 1px 4px rgba(139,111,92,0.3);
+          border: none;
+        }
+        .editor-page input[type="color"] {
+          -webkit-appearance: none;
+          appearance: none;
+          border: none;
+          padding: 0;
+          background: none;
+        }
+        .editor-page input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        .editor-page input[type="color"]::-webkit-color-swatch {
+          border: 2px solid #E8DFD6;
+          border-radius: 999px;
+        }
+      `}</style>
       {/* ═══════════════════════════════════════════════
           MOBILE LAYOUT (hidden on lg+)
       ═══════════════════════════════════════════════ */}
@@ -155,7 +190,6 @@ export default function EditorPage() {
         </header>
 
         <main className="flex-1 overflow-hidden relative" aria-label="Polaroid frame editor">
-          <SeoHint />
           <PolaroidView />
         </main>
 
@@ -271,8 +305,6 @@ export default function EditorPage() {
           aria-label="Polaroid frame editor"
           style={{ background: "linear-gradient(135deg, #F5F0EA 0%, #EDE5DA 100%)" }}
         >
-          <SeoHint />
-
           {/* Subtle grid background */}
           <div
             className="absolute inset-0 pointer-events-none"

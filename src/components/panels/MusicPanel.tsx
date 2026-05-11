@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../../store';
 import { useImageColors } from '../../hooks/useImageColors';
 import { useTransparentSpotifyCode } from '../../hooks/useTransparentSpotifyCode';
+import { Input, Button, ColorPicker, Chip, ChipGroup, Slider, SectionLabel, Card } from '../ui';
 
 const CODE_BG_COLORS = [
   { id: 'transparent', label: 'Transparent' },
@@ -47,22 +48,21 @@ export function MusicPanel() {
 
   return (
     <div className="space-y-5">
-      <section>
-        <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Spotify Link</h3>
-        <input
-          type="url"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste Spotify track/album/playlist URL"
-          className="w-full px-3 py-2.5 rounded-xl border border-[#E8DFD6] text-sm text-[#5C4A3A] focus:outline-none focus:border-[#C4B5A6] transition-colors bg-[#F8F3EE] placeholder:text-[#C4B5A6]"
-        />
-      </section>
+      <Input
+        label="Spotify Link"
+        type="url"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Paste Spotify track/album/playlist URL"
+      />
 
       {previewUrl && (
         <section>
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Preview</h3>
-          <div 
-            className="rounded-xl p-4 flex justify-center border border-[#E8DFD6]"
+          <SectionLabel>Preview</SectionLabel>
+          <Card 
+            variant="outlined"
+            padding="md"
+            className="flex justify-center"
             style={{
               backgroundColor: isTransparentBg ? frame.frameColor : effectiveBg,
               backgroundImage: isTransparentBg ? 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%)' : undefined,
@@ -76,29 +76,29 @@ export function MusicPanel() {
               className="h-10 object-contain"
               crossOrigin="anonymous"
             />
-          </div>
+          </Card>
         </section>
       )}
 
-      <button
+      <Button
         onClick={handleApply}
         disabled={!input.trim()}
-        className="w-full py-3 rounded-xl bg-[#8B6F5C] text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] transition-all shadow-sm"
+        fullWidth
       >
         {frame.musicUrl ? 'Update Code' : 'Add to Polaroid'}
-      </button>
+      </Button>
 
       {/* Customization */}
       {frame.musicUrl && (
         <>
           <section>
-            <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Code Background</h3>
+            <SectionLabel>Code Background</SectionLabel>
             <div className="flex gap-2 flex-wrap">
               {CODE_BG_COLORS.map((c) => (
                 <button
                   key={c.id}
                   onClick={() => updateFrame(activeFrameId, { musicCodeBg: c.id })}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                  className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 active:scale-95 ${
                     frame.musicCodeBg === c.id ? 'border-[#8B6F5C] scale-110 ring-2 ring-[#8B6F5C]/20' : 'border-[#E8DFD6]'
                   }`}
                   style={{
@@ -110,12 +110,17 @@ export function MusicPanel() {
                   title={c.label}
                 />
               ))}
-              <input
-                type="color"
-                value={frame.musicCodeBg === 'transparent' ? effectiveBg : frame.musicCodeBg}
-                onChange={(e) => updateFrame(activeFrameId, { musicCodeBg: e.target.value })}
-                className="w-8 h-8 rounded-full cursor-pointer border-0"
-              />
+              <label className="relative w-8 h-8 rounded-full cursor-pointer border-2 border-dashed border-[#D4C8BC] hover:border-[#C4B5A6] hover:scale-110 flex items-center justify-center bg-gradient-to-br from-red-400 via-yellow-300 via-green-400 via-blue-400 to-purple-400 opacity-80 overflow-hidden transition-all" title="Custom color">
+                <input
+                  type="color"
+                  value={frame.musicCodeBg === 'transparent' ? effectiveBg : frame.musicCodeBg}
+                  onChange={(e) => updateFrame(activeFrameId, { musicCodeBg: e.target.value })}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+                <svg className="relative w-4 h-4 text-white drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M12 5v14m-7-7h14" strokeLinecap="round" />
+                </svg>
+              </label>
             </div>
 
             {/* Photo-sampled palette */}
@@ -147,50 +152,46 @@ export function MusicPanel() {
             )}
           </section>
 
-          <section>
-            <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Code Color</h3>
-            <div className="flex gap-2">
-              <button
-                onClick={() => updateFrame(activeFrameId, { musicCodeFg: 'black' })}
-                className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${
-                  frame.musicCodeFg !== '#FFFFFF' ? 'bg-[#8B6F5C] text-white' : 'bg-[#F5EDE5] text-[#8B7B6B]'
-                }`}
-              >
-                Black
-              </button>
-              <button
-                onClick={() => updateFrame(activeFrameId, { musicCodeFg: '#FFFFFF' })}
-                className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${
-                  frame.musicCodeFg === '#FFFFFF' ? 'bg-[#8B6F5C] text-white' : 'bg-[#F5EDE5] text-[#8B7B6B]'
-                }`}
-              >
-                White
-              </button>
-            </div>
-          </section>
+          <ChipGroup label="Code Color">
+            <Chip
+              selected={frame.musicCodeFg !== '#FFFFFF'}
+              onClick={() => updateFrame(activeFrameId, { musicCodeFg: 'black' })}
+            >
+              Black
+            </Chip>
+            <Chip
+              selected={frame.musicCodeFg === '#FFFFFF'}
+              onClick={() => updateFrame(activeFrameId, { musicCodeFg: '#FFFFFF' })}
+            >
+              White
+            </Chip>
+          </ChipGroup>
 
-          <section>
-            <div className="flex justify-between items-center mb-1">
-              <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Size</h3>
-              <span className="text-[10px] text-[#C4B5A6]">{Math.round(frame.musicPos.scale * 100)}%</span>
-            </div>
-            <input
-              type="range"
-              min="50"
-              max="250"
-              value={Math.round(frame.musicPos.scale * 100)}
-              onChange={(e) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, scale: Number(e.target.value) / 100 } })}
-              className="w-full"
-            />
-          </section>
+          <Slider
+            label="Size"
+            value={Math.round(frame.musicPos.scale * 100)}
+            min={50}
+            max={250}
+            onChange={(e) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, scale: Number(e.target.value) / 100 } })}
+            valueFormatter={(v) => `${v}%`}
+          />
 
-          <button
+          <Button
+            variant="danger"
+            fullWidth
             onClick={() => { updateFrame(activeFrameId, { musicUrl: '' }); setInput(''); }}
-            className="w-full py-2.5 rounded-xl border border-red-200 text-red-500 text-sm font-medium flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+            icon={
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14H6L5 6"/>
+                <path d="M10 11v6"/>
+                <path d="M14 11v6"/>
+                <path d="M9 6V4h6v2"/>
+              </svg>
+            }
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             Remove Spotify Code
-          </button>
+          </Button>
         </>
       )}
     </div>

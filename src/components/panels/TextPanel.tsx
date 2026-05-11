@@ -1,4 +1,5 @@
 import { useStore } from '../../store';
+import { Input, Slider, SectionLabel, Chip, Button, Card } from '../ui';
 
 const FONTS = [
   { id: 'Dancing Script', label: 'Script', category: 'cursive' },
@@ -15,36 +16,6 @@ const FONTS = [
   { id: 'Courier Prime', label: 'Type', category: 'monospace' },
   { id: 'Special Elite', label: 'Vintage', category: 'monospace' },
 ];
-
-function FieldInput({
-  label,
-  value,
-  onChange,
-  placeholder,
-  hint,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  hint?: string;
-}) {
-  return (
-    <div>
-      <div className="flex justify-between items-baseline mb-1">
-        <span className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">{label}</span>
-        {hint && <span className="text-[9px] text-[#C4B5A6]">{hint}</span>}
-      </div>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-xl border border-[#E8DFD6] text-sm text-[#5C4A3A] focus:outline-none focus:border-[#C4B5A6] transition-colors bg-[#F8F3EE] placeholder:text-[#C4B5A6]"
-      />
-    </div>
-  );
-}
 
 export function TextPanel() {
   const activeFrameId = useStore((s) => s.activeFrameId);
@@ -63,182 +34,188 @@ export function TextPanel() {
 
       {/* ── MOVIE POSTER fields ── */}
       {isMoviePoster && (
-        <section className="space-y-3">
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest border-b border-[#EDE5DC] pb-1.5">
-            Movie Poster
-          </h3>
+        <Card variant="filled" padding="md">
+          <SectionLabel className="border-b border-[#EDE5DC] pb-1.5 mb-3">Movie Poster</SectionLabel>
           <div className="space-y-2.5">
-            <FieldInput label="Title" value={frame.movieTitle} onChange={(v) => updateFrame(activeFrameId, { movieTitle: v })} placeholder="MOVIE TITLE" hint="Bebas Neue" />
-            <FieldInput label="Year" value={frame.movieYear} onChange={(v) => updateFrame(activeFrameId, { movieYear: v })} placeholder="2026" />
-            <FieldInput label="Directed by" value={frame.movieDirector} onChange={(v) => updateFrame(activeFrameId, { movieDirector: v })} placeholder="Your Name" hint="Courier Prime" />
-            <FieldInput label="Starring" value={frame.movieCast} onChange={(v) => updateFrame(activeFrameId, { movieCast: v })} placeholder="Actor One · Actor Two" hint="red accent" />
-            <FieldInput label="Produced by" value={frame.captionSubtext} onChange={(v) => updateFrame(activeFrameId, { captionSubtext: v })} placeholder="Producer Name" />
+            <Input label="Title" value={frame.movieTitle} onChange={(e) => updateFrame(activeFrameId, { movieTitle: e.target.value })} placeholder="MOVIE TITLE" hint="Bebas Neue" />
+            <Input label="Year" value={frame.movieYear} onChange={(e) => updateFrame(activeFrameId, { movieYear: e.target.value })} placeholder="2026" />
+            <Input label="Directed by" value={frame.movieDirector} onChange={(e) => updateFrame(activeFrameId, { movieDirector: e.target.value })} placeholder="Your Name" hint="Courier Prime" />
+            <Input label="Starring" value={frame.movieCast} onChange={(e) => updateFrame(activeFrameId, { movieCast: e.target.value })} placeholder="Actor One · Actor Two" hint="red accent" />
+            <Input label="Produced by" value={frame.captionSubtext} onChange={(e) => updateFrame(activeFrameId, { captionSubtext: e.target.value })} placeholder="Producer Name" />
           </div>
-          <p className="text-[9px] text-[#C4B5A6] pt-1">Layout is fixed. Fonts: Bebas Neue + Courier Prime.</p>
-        </section>
+          <p className="text-[9px] text-[#C4B5A6] pt-2">Layout is fixed. Fonts: Bebas Neue + Courier Prime.</p>
+        </Card>
       )}
 
       {/* ── CONCERT TICKET fields ── */}
       {isConcertTicket && (
-        <section className="space-y-3">
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest border-b border-[#EDE5DC] pb-1.5">
-            Concert Ticket
-          </h3>
+        <Card variant="filled" padding="md">
+          <SectionLabel className="border-b border-[#EDE5DC] pb-1.5 mb-3">Concert Ticket</SectionLabel>
           <div className="space-y-2.5">
-            <FieldInput label="Artist" value={frame.movieTitle} onChange={(v) => updateFrame(activeFrameId, { movieTitle: v })} placeholder="ARTIST NAME" hint="Bebas Neue" />
-            <FieldInput label="Venue" value={frame.movieDirector} onChange={(v) => updateFrame(activeFrameId, { movieDirector: v })} placeholder="VENUE · CITY" hint="Courier Prime" />
-            <FieldInput label="Date / Show" value={frame.movieCast} onChange={(v) => updateFrame(activeFrameId, { movieCast: v })} placeholder="MAY 04 · 2026" />
-            <FieldInput label="Section / Row" value={frame.captionSubtext} onChange={(v) => updateFrame(activeFrameId, { captionSubtext: v })} placeholder="GA · FLOOR" hint="Bebas Neue" />
+            <Input label="Artist" value={frame.movieTitle} onChange={(e) => updateFrame(activeFrameId, { movieTitle: e.target.value })} placeholder="ARTIST NAME" hint="Bebas Neue" />
+            <Input label="Venue" value={frame.movieDirector} onChange={(e) => updateFrame(activeFrameId, { movieDirector: e.target.value })} placeholder="VENUE · CITY" hint="Courier Prime" />
+            <Input label="Date / Show" value={frame.movieCast} onChange={(e) => updateFrame(activeFrameId, { movieCast: e.target.value })} placeholder="MAY 04 · 2026" />
+            <Input label="Section / Row" value={frame.captionSubtext} onChange={(e) => updateFrame(activeFrameId, { captionSubtext: e.target.value })} placeholder="GA · FLOOR" hint="Bebas Neue" />
           </div>
-          <p className="text-[9px] text-[#C4B5A6] pt-1">Ticket stub layout — fixed positions.</p>
-        </section>
+          <p className="text-[9px] text-[#C4B5A6] pt-2">Ticket stub layout — fixed positions.</p>
+        </Card>
       )}
 
       {/* ── VINTAGE caption fields ── */}
       {isVintage && (
-        <section className="space-y-3">
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest border-b border-[#EDE5DC] pb-1.5">
-            Vintage Caption
-          </h3>
+        <Card variant="filled" padding="md">
+          <SectionLabel className="border-b border-[#EDE5DC] pb-1.5 mb-3">Vintage Caption</SectionLabel>
           <div className="space-y-2.5">
-            <FieldInput label="Caption" value={frame.bottomCaptionText} onChange={(v) => updateFrame(activeFrameId, { bottomCaptionText: v })} placeholder="summer '24" hint="Courier Prime" />
-            <FieldInput label="Date line" value={frame.captionSubtext} onChange={(v) => updateFrame(activeFrameId, { captionSubtext: v })} placeholder="JUNE · 2026" hint="smaller" />
+            <Input label="Caption" value={frame.bottomCaptionText} onChange={(e) => updateFrame(activeFrameId, { bottomCaptionText: e.target.value })} placeholder="summer '24" hint="Courier Prime" />
+            <Input label="Date line" value={frame.captionSubtext} onChange={(e) => updateFrame(activeFrameId, { captionSubtext: e.target.value })} placeholder="JUNE · 2026" hint="smaller" />
           </div>
-        </section>
+        </Card>
       )}
 
       {/* ── TOP LABEL (all templates) ── */}
       <section>
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Top Label</h3>
-          {frame.topLabelText && (
-            <button
-              onClick={() => updateFrame(activeFrameId, { topLabelText: '' })}
-              className="flex items-center gap-1 text-[10px] text-[#C07A5A] hover:text-[#A0523A] transition-colors"
-              title="Clear top label"
-            >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-              Clear
-            </button>
-          )}
-        </div>
-        <input
-          type="text"
+        <SectionLabel
+          action={
+            frame.topLabelText ? (
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => updateFrame(activeFrameId, { topLabelText: '' })}
+                icon={
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14H6L5 6"/>
+                    <path d="M10 11v6"/>
+                    <path d="M14 11v6"/>
+                    <path d="M9 6V4h6v2"/>
+                  </svg>
+                }
+              >
+                Clear
+              </Button>
+            ) : null
+          }
+        >
+          Top Label
+        </SectionLabel>
+        <Input
           value={frame.topLabelText}
           onChange={(e) => updateFrame(activeFrameId, { topLabelText: e.target.value })}
           placeholder="e.g. Your name, location, date"
-          className="w-full px-3 py-2.5 rounded-xl border border-[#E8DFD6] text-sm text-[#5C4A3A] focus:outline-none focus:border-[#C4B5A6] transition-colors bg-[#F8F3EE] placeholder:text-[#C4B5A6]"
         />
         <div className="flex gap-1.5 mt-3 overflow-x-auto pb-1 scrollbar-hide">
           {FONTS.map((font) => (
-            <button
+            <Chip
               key={font.id}
+              selected={frame.topLabelFont === font.id}
               onClick={() => updateFrame(activeFrameId, { topLabelFont: font.id })}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all ${
-                frame.topLabelFont === font.id
-                  ? 'bg-[#8B6F5C] text-white shadow-sm'
-                  : 'bg-[#F5EDE5] text-[#8B7B6B] active:bg-[#EDE3D9]'
-              }`}
+              size="sm"
               style={{ fontFamily: `"${font.id}", ${font.category}` }}
             >
               {font.label}
-            </button>
+            </Chip>
           ))}
         </div>
         <div className="flex items-center gap-3 mt-3">
           <div className="flex-1">
-            <div className="flex justify-between mb-0.5">
-              <span className="text-[10px] text-[#C4B5A6]">Size</span>
-              <span className="text-[10px] text-[#C4B5A6]">{frame.topLabelSize}px</span>
-            </div>
-            <input
-              type="range"
-              min="24"
-              max="96"
+            <Slider
+              label="Size"
               value={frame.topLabelSize}
+              min={24}
+              max={96}
               onChange={(e) => updateFrame(activeFrameId, { topLabelSize: Number(e.target.value) })}
-              className="w-full"
             />
           </div>
-          <input
-            type="color"
-            value={frame.topLabelColor}
-            onChange={(e) => updateFrame(activeFrameId, { topLabelColor: e.target.value })}
-            className="w-8 h-8 rounded-full border-2 border-[#E8DFD6] cursor-pointer"
-          />
+          <div className="pt-5">
+            <label className="relative w-8 h-8 rounded-full cursor-pointer border-2 border-[#E8DFD6] flex items-center justify-center overflow-hidden transition-all hover:scale-110" style={{ backgroundColor: frame.topLabelColor }}>
+              <input
+                type="color"
+                value={frame.topLabelColor}
+                onChange={(e) => updateFrame(activeFrameId, { topLabelColor: e.target.value })}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+            </label>
+          </div>
         </div>
       </section>
 
       {/* ── BOTTOM CAPTION (non-rich templates only) ── */}
       {!isRich && (
         <section>
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Bottom Caption</h3>
-            {frame.bottomCaptionText && (
-              <button
-                onClick={() => updateFrame(activeFrameId, { bottomCaptionText: '' })}
-                className="flex items-center gap-1 text-[10px] text-[#C07A5A] hover:text-[#A0523A] transition-colors"
-                title="Clear bottom caption"
-              >
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                Clear
-              </button>
-            )}
-          </div>
-          <input
-            type="text"
+          <SectionLabel
+            action={
+              frame.bottomCaptionText ? (
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => updateFrame(activeFrameId, { bottomCaptionText: '' })}
+                  icon={
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6l-1 14H6L5 6"/>
+                      <path d="M10 11v6"/>
+                      <path d="M14 11v6"/>
+                      <path d="M9 6V4h6v2"/>
+                    </svg>
+                  }
+                >
+                  Clear
+                </Button>
+              ) : null
+            }
+          >
+            Bottom Caption
+          </SectionLabel>
+          <Input
             value={frame.bottomCaptionText}
             onChange={(e) => updateFrame(activeFrameId, { bottomCaptionText: e.target.value })}
             placeholder="e.g. Song title, quote, memory"
-            className="w-full px-3 py-2.5 rounded-xl border border-[#E8DFD6] text-sm text-[#5C4A3A] focus:outline-none focus:border-[#C4B5A6] transition-colors bg-[#F8F3EE] placeholder:text-[#C4B5A6]"
           />
           <div className="flex gap-1.5 mt-3 overflow-x-auto pb-1 scrollbar-hide">
             {FONTS.map((font) => (
-              <button
+              <Chip
                 key={font.id}
+                selected={frame.bottomCaptionFont === font.id}
                 onClick={() => updateFrame(activeFrameId, { bottomCaptionFont: font.id })}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all ${
-                  frame.bottomCaptionFont === font.id
-                    ? 'bg-[#8B6F5C] text-white shadow-sm'
-                    : 'bg-[#F5EDE5] text-[#8B7B6B] active:bg-[#EDE3D9]'
-                }`}
+                size="sm"
                 style={{ fontFamily: `"${font.id}", ${font.category}` }}
               >
                 {font.label}
-              </button>
+              </Chip>
             ))}
           </div>
           <div className="flex items-center gap-3 mt-3">
             <div className="flex-1">
-              <div className="flex justify-between mb-0.5">
-                <span className="text-[10px] text-[#C4B5A6]">Size</span>
-                <span className="text-[10px] text-[#C4B5A6]">{frame.bottomCaptionSize}px</span>
-              </div>
-              <input
-                type="range"
-                min="20"
-                max="72"
+              <Slider
+                label="Size"
                 value={frame.bottomCaptionSize}
+                min={20}
+                max={72}
                 onChange={(e) => updateFrame(activeFrameId, { bottomCaptionSize: Number(e.target.value) })}
-                className="w-full"
               />
             </div>
-            <input
-              type="color"
-              value={frame.bottomCaptionColor}
-              onChange={(e) => updateFrame(activeFrameId, { bottomCaptionColor: e.target.value })}
-              className="w-8 h-8 rounded-full border-2 border-[#E8DFD6] cursor-pointer"
-            />
+            <div className="pt-5">
+              <label className="relative w-8 h-8 rounded-full cursor-pointer border-2 border-[#E8DFD6] flex items-center justify-center overflow-hidden transition-all hover:scale-110" style={{ backgroundColor: frame.bottomCaptionColor }}>
+                <input
+                  type="color"
+                  value={frame.bottomCaptionColor}
+                  onChange={(e) => updateFrame(activeFrameId, { bottomCaptionColor: e.target.value })}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+              </label>
+            </div>
           </div>
         </section>
       )}
 
       {/* Tip */}
-      <p className="text-[10px] text-[#C4B5A6] text-center pt-1">
-        {isRich
-          ? 'Tap the text fields above to edit. Top label is draggable on the canvas.'
-          : 'Drag text on the polaroid to reposition. Pinch with two fingers to rotate & resize.'}
-      </p>
+      <Card variant="default" padding="sm">
+        <p className="text-[10px] text-[#A39080] text-center">
+          {isRich
+            ? 'Tap the text fields above to edit. Top label is draggable on the canvas.'
+            : 'Drag text on the polaroid to reposition. Pinch with two fingers to rotate & resize.'}
+        </p>
+      </Card>
     </div>
   );
 }

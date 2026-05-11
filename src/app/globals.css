@@ -58,12 +58,6 @@ body::before {
   mix-blend-mode: multiply;
 }
 
-/* Disable grain on editor page */
-.editor-page ~ body::before,
-body:has(.editor-page)::before {
-  display: none;
-}
-
 /* ── Scroll reveal ── */
 .reveal {
   opacity: 0;
@@ -160,89 +154,7 @@ body:has(.editor-page)::before {
   scrollbar-width: none;
 }
 
-/* ── Editor Input Styles ── */
-input[type="range"] {
-  height: 4px !important;
-  border-radius: 2px !important;
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  background: #E8DFD6 !important;
-  border: none !important;
-  outline: none !important;
-}
-
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 4px !important;
-  border-radius: 2px !important;
-  background: #E8DFD6 !important;
-}
-
-input[type="range"]::-moz-range-track {
-  height: 4px !important;
-  border-radius: 2px !important;
-  background: #E8DFD6 !important;
-  border: none !important;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  width: 16px !important;
-  height: 16px !important;
-  border-radius: 50% !important;
-  background: #8B6F5C !important;
-  cursor: pointer !important;
-  box-shadow: 0 1px 4px rgba(139,111,92,0.3) !important;
-  margin-top: -6px !important;
-  border: none !important;
-}
-
-input[type="range"]::-moz-range-thumb {
-  width: 16px !important;
-  height: 16px !important;
-  border-radius: 50% !important;
-  background: #8B6F5C !important;
-  cursor: pointer !important;
-  box-shadow: 0 1px 4px rgba(139,111,92,0.3) !important;
-  border: none !important;
-}
-
-input[type="color"] {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  border: none !important;
-  padding: 0 !important;
-  background: none !important;
-}
-
-input[type="color"]::-webkit-color-swatch-wrapper {
-  padding: 0 !important;
-}
-
-input[type="color"]::-webkit-color-swatch {
-  border: 2px solid #E8DFD6 !important;
-  border-radius: 999px !important;
-}
-
-/* ── Screen reader only ── */
-.sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-/* ── Editor-specific overrides ── */
-* {
+/* ── Editor-specific tap highlight ── */
+.editor-page * {
   -webkit-tap-highlight-color: transparent;
-}
-
-/* ── Editor page specific ── */
-.editor-page input[type="range"] {
-  accent-color: #8B6F5C !important;
 }
