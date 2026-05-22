@@ -22,31 +22,54 @@ export function ColorPicker({
   return (
     <section>
       {label && (
-        <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">
+        <h3 style={{
+          fontFamily: '"DM Sans", sans-serif',
+          fontSize: 10,
+          fontWeight: 600,
+          color: '#B5A49A',
+          textTransform: 'uppercase',
+          letterSpacing: '.1em',
+          marginBottom: 8,
+        }}>
           {label}
         </h3>
       )}
 
-      {/* Preset swatches + plain color picker */}
+      {/* Preset swatches */}
       <div className="flex gap-2 items-center flex-wrap">
         {presets.map((color) => (
           <button
             key={color}
             type="button"
             onClick={() => onChange(color)}
-            className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 active:scale-95 ${
-              value === color
-                ? 'border-[#8B6F5C] scale-110 ring-2 ring-[#8B6F5C]/20'
-                : 'border-[#E8DFD6]'
-            }`}
-            style={{ backgroundColor: color }}
+            className="transition-all hover:scale-110 active:scale-95"
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: '50%',
+              backgroundColor: color,
+              border: value === color
+                ? '2px solid #8B6F5C'
+                : '1.5px solid rgba(26,23,20,0.12)',
+              boxShadow: value === color ? '0 0 0 2px rgba(139,111,92,0.2)' : undefined,
+              transform: value === color ? 'scale(1.1)' : undefined,
+              cursor: 'pointer',
+            }}
             title={color}
           />
         ))}
-        {/* Custom color — styled circle shows current value */}
+        {/* Custom color input */}
         <label
-          className="relative w-8 h-8 rounded-full cursor-pointer border-2 border-dashed border-[#D4C8BC] overflow-hidden hover:border-[#C4B5A6] hover:scale-110 active:scale-95 transition-all flex-shrink-0"
-          style={{ backgroundColor: value }}
+          className="relative cursor-pointer transition-all hover:scale-110 active:scale-95"
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: '50%',
+            backgroundColor: value,
+            border: '1.5px dashed rgba(139,111,92,0.35)',
+            overflow: 'hidden',
+            flexShrink: 0,
+          }}
           title="Custom color"
         >
           <input
@@ -58,15 +81,15 @@ export function ColorPicker({
         </label>
       </div>
 
-      {/* Photo-sampled palette */}
+      {/* Photo palette */}
       {customColors && customColors.length > 0 && (
         <div className="mt-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <svg className="w-3 h-3 text-[#A39080]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-3 h-3" style={{ color: '#C4B5A6' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M2 22l4-4m0 0L14.5 9.5M6 18l8.5-8.5m0 0l2-2a2.828 2.828 0 1 1 4 4l-2 2L6 18z"/>
               <path d="M19.5 6.5l-2-2"/>
             </svg>
-            <span className="text-[9px] font-medium text-[#A39080] uppercase tracking-widest">
+            <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 9, fontWeight: 600, color: '#C4B5A6', textTransform: 'uppercase', letterSpacing: '.1em' }}>
               {customColorsLabel}
             </span>
           </div>
@@ -77,12 +100,19 @@ export function ColorPicker({
                 type="button"
                 title={color}
                 onClick={() => onChange(color)}
-                className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 active:scale-95 ${
-                  value === color
-                    ? 'border-[#8B6F5C] scale-110 ring-2 ring-[#8B6F5C]/20'
-                    : 'border-[#E8DFD6]'
-                }`}
-                style={{ backgroundColor: color }}
+                className="transition-all hover:scale-110 active:scale-95"
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '50%',
+                  backgroundColor: color,
+                  border: value === color
+                    ? '2px solid #8B6F5C'
+                    : '1.5px solid rgba(26,23,20,0.12)',
+                  boxShadow: value === color ? '0 0 0 2px rgba(139,111,92,0.2)' : undefined,
+                  transform: value === color ? 'scale(1.1)' : undefined,
+                  cursor: 'pointer',
+                }}
               />
             ))}
           </div>

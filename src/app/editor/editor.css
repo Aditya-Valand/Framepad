@@ -1,13 +1,13 @@
 /* ── Editor route styles ── */
 /* Imported by editor/layout.tsx — scoped to the /editor segment */
 
-/* Override landing-page body styles */
 body {
-  font-family: Inter, system-ui, -apple-system, sans-serif !important;
-  background: #FBF8F4!important;
+  font-family: 'DM Sans', Inter, system-ui, -apple-system, sans-serif !important;
+  background: #EDE6DC !important;
   overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Suppress landing-page grain overlay */
@@ -15,7 +15,7 @@ body::before {
   display: none !important;
 }
 
-/* Disable tap highlight on all editor elements */
+/* Disable tap highlight */
 * {
   -webkit-tap-highlight-color: transparent;
 }
@@ -24,7 +24,7 @@ body::before {
 input[type="range"] {
   --fill: 50%;
   height: 4px;
-  border-radius: 2px;
+  border-radius: 100px;
   appearance: none;
   -webkit-appearance: none;
   background: transparent;
@@ -35,13 +35,13 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
-  border-radius: 2px;
+  border-radius: 100px;
   background: linear-gradient(
     to right,
-    #C4B5A6 0%,
-    #C4B5A6 var(--fill, 50%),
-    #E8DFD6 var(--fill, 50%),
-    #E8DFD6 100%
+    #8B6F5C 0%,
+    #8B6F5C var(--fill, 50%),
+    rgba(26, 23, 20, 0.1) var(--fill, 50%),
+    rgba(26, 23, 20, 0.1) 100%
   );
 }
 
@@ -51,33 +51,42 @@ input[type="range"]::-webkit-slider-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #8B6F5C;
+  background: #ffffff;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(139, 111, 92, 0.3);
+  box-shadow: 0 0 0 2px #8B6F5C, 0 2px 6px rgba(139, 111, 92, 0.28);
   margin-top: -6px;
   border: none;
+  transition: box-shadow .15s ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2px #7A6050, 0 2px 8px rgba(139, 111, 92, 0.38);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(139, 111, 92, 0.25), 0 0 0 2px #8B6F5C;
 }
 
 input[type="range"]::-moz-range-track {
   height: 4px;
-  border-radius: 2px;
-  background: #E8DFD6;
+  border-radius: 100px;
+  background: rgba(26, 23, 20, 0.1);
   border: none;
 }
 
 input[type="range"]::-moz-range-progress {
   height: 4px;
-  border-radius: 2px;
-  background: #C4B5A6;
+  border-radius: 100px;
+  background: #8B6F5C;
 }
 
 input[type="range"]::-moz-range-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #8B6F5C;
+  background: #ffffff;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(139, 111, 92, 0.3);
+  box-shadow: 0 0 0 2px #8B6F5C, 0 2px 6px rgba(139, 111, 92, 0.28);
   border: none;
 }
 
@@ -100,11 +109,12 @@ input[type="color"]::-webkit-color-swatch {
   border-radius: 0;
 }
 
-/* ── Focus ring suppression for touch controls ── */
+/* ── Focus rings ── */
 button:focus-visible,
 input[type="range"]:focus-visible {
-  outline: 2px solid #C4B5A6;
+  outline: 2px solid rgba(139, 111, 92, 0.45);
   outline-offset: 2px;
+  border-radius: 4px;
 }
 
 button:focus:not(:focus-visible),
@@ -112,12 +122,21 @@ input[type="range"]:focus:not(:focus-visible) {
   outline: none;
 }
 
-/* ── Scrollbar hide utility ── */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
+/* ── Scrollbar hide ── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* ── Right panel — thin scrollbar ── */
+aside ::-webkit-scrollbar {
+  width: 3px;
+}
+aside ::-webkit-scrollbar-track {
+  background: transparent;
+}
+aside ::-webkit-scrollbar-thumb {
+  background: rgba(139, 111, 92, 0.18);
+  border-radius: 10px;
+}
+aside ::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 111, 92, 0.35);
 }

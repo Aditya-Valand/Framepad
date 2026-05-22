@@ -13,9 +13,10 @@ export function BottomSheet({ open, onClose, children }: BottomSheetProps) {
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bottom-[52px] z-25 bg-[#5C4A3A]/20 backdrop-blur-[2px] transition-opacity duration-300 ${
+        className={`fixed inset-0 bottom-[52px] z-25 transition-opacity duration-250 ${
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
+        style={{ background: 'rgba(26,23,20,0.22)', backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' }}
         onClick={onClose}
       />
 
@@ -25,18 +26,49 @@ export function BottomSheet({ open, onClose, children }: BottomSheetProps) {
           open ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-full opacity-0 pointer-events-none'
         }`}
       >
-        <div className="bg-[#FFFCF8] rounded-t-2xl shadow-[0_-8px_40px_rgba(92,74,58,0.12)] border-t border-[#F0E6DA] max-h-[65vh] flex flex-col">
-          {/* Handle */}
-          <div className="flex justify-center pt-2.5 pb-1.5">
+        <div
+          style={{
+            background: 'rgba(252,249,246,0.98)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            borderRadius: '20px 20px 0 0',
+            borderTop: '0.5px solid rgba(26,23,20,0.08)',
+            boxShadow: '0 -8px 48px rgba(26,23,20,0.14), 0 -1px 0 rgba(255,255,255,0.55) inset',
+            maxHeight: '65vh',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Drag handle */}
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 8px' }}>
             <button
               onClick={onClose}
-              className="w-9 h-1 bg-[#E0D5C9] rounded-full active:bg-[#D4C5B5] transition-colors"
               aria-label="Close panel"
+              style={{
+                width: 36,
+                height: 4,
+                background: 'rgba(26,23,20,0.13)',
+                borderRadius: 100,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'background .18s ease',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(26,23,20,0.22)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(26,23,20,0.13)')}
             />
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto px-5 pb-5 overscroll-contain text-[#5C4A3A]">
+          {/* Scrollable content */}
+          <div
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '2px 20px 24px',
+              overscrollBehavior: 'contain',
+              color: '#5C4A3A',
+            }}
+            className="scrollbar-hide"
+          >
             {children}
           </div>
         </div>

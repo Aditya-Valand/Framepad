@@ -18,33 +18,53 @@ export function Input({
   return (
     <div>
       {(label || hint) && (
-        <div className="flex justify-between items-baseline mb-1">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
           {label && (
-            <span className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">
+            <span style={{
+              fontFamily: '"DM Sans", sans-serif',
+              fontSize: 10,
+              fontWeight: 600,
+              color: '#A39080',
+              letterSpacing: '.08em',
+              textTransform: 'uppercase',
+            }}>
               {label}
             </span>
           )}
           {hint && (
-            <span className="text-[9px] text-[#C4B5A6]">{hint}</span>
+            <span style={{
+              fontFamily: '"DM Sans", sans-serif',
+              fontSize: 9,
+              color: '#C4B5A6',
+              letterSpacing: '.03em',
+            }}>
+              {hint}
+            </span>
           )}
         </div>
       )}
       <input
-        className={`
-          w-full px-3 py-2.5 rounded-xl
-          border border-[#E8DFD6]
-          text-sm text-[#5C4A3A]
-          bg-[#F8F3EE]
-          placeholder:text-[#C4B5A6]
-          focus:outline-none focus:border-[#C4B5A6]
-          transition-colors
-          ${error ? 'border-red-300' : ''}
-          ${className}
-        `.trim().replace(/\s+/g, ' ')}
+        style={{
+          width: '100%',
+          padding: '10px 12px',
+          borderRadius: 10,
+          border: '0.5px solid rgba(26,23,20,0.14)',
+          background: '#FFFFFF',
+          fontFamily: '"DM Sans", sans-serif',
+          fontSize: 13,
+          color: '#3A2E28',
+          outline: 'none',
+          boxSizing: 'border-box' as const,
+          transition: 'border-color .15s ease, box-shadow .15s ease',
+          boxShadow: '0 1px 2px rgba(26,23,20,0.04)',
+        }}
+        className={`placeholder:text-[#C4B5A6] focus:border-[#8B6F5C] focus:shadow-[0_0_0_3px_rgba(139,111,92,0.1)] ${error ? 'border-red-300' : ''} ${className}`}
         {...props}
       />
       {error && (
-        <span className="text-[10px] text-red-400 mt-0.5 block">{error}</span>
+        <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 10, color: '#C07A5A', marginTop: 3, display: 'block' }}>
+          {error}
+        </span>
       )}
     </div>
   );

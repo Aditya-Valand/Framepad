@@ -28,12 +28,28 @@ export function Slider({
     <section>
       <div className="flex justify-between items-center mb-2">
         {label && (
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">
+          <h3 style={{
+            fontFamily: '"DM Sans", sans-serif',
+            fontSize: 10,
+            fontWeight: 600,
+            color: '#B5A49A',
+            textTransform: 'uppercase',
+            letterSpacing: '.1em',
+            margin: 0,
+          }}>
             {label}
           </h3>
         )}
         {showValue && (
-          <span className="text-[10px] tabular-nums text-[#C4B5A6]">{display}</span>
+          <span style={{
+            fontFamily: '"DM Sans", sans-serif',
+            fontSize: 10,
+            color: '#C4B5A6',
+            fontVariantNumeric: 'tabular-nums',
+            letterSpacing: '.02em',
+          }}>
+            {display}
+          </span>
         )}
       </div>
       <input
