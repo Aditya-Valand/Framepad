@@ -158,11 +158,12 @@ export default function Navbar() {
   return (
     <>
       <nav
+        className="flex justify-between items-center lg:grid"
         style={{
           position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-          padding: scrolled ? "10px 32px" : "14px 32px",
-          display: "grid", gridTemplateColumns: "1fr auto 1fr",
-          alignItems: "center", gap: 24,
+          padding: scrolled ? "10px 16px" : "14px 16px",
+          gridTemplateColumns: "1fr auto 1fr",
+          gap: 24,
           background: scrolled ? "rgba(242,237,228,0.92)" : "rgba(242,237,228,0.72)",
           backdropFilter: "blur(14px) saturate(1.05)",
           WebkitBackdropFilter: "blur(14px) saturate(1.05)",
@@ -178,9 +179,9 @@ export default function Navbar() {
 
         {/* Center nav links */}
         <div
-          className="nav-links-desktop"
+          className="hidden lg:flex"
           style={{
-            display: "flex", alignItems: "center", gap: 4,
+            alignItems: "center", gap: 4,
             justifySelf: "center",
             background: "rgba(255,255,255,0.35)",
             border: ".5px solid rgba(26,23,20,0.06)",
@@ -209,7 +210,7 @@ export default function Navbar() {
         <div style={{ display: "flex", alignItems: "center", gap: 12, justifySelf: "end" }}>
 
           {/* Desktop auth area */}
-          <div className="nav-auth-desktop" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="hidden lg:flex" style={{ alignItems: "center", gap: 12 }}>
             {loading ? (
               /* Skeleton placeholder — prevents layout shift */
               <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(139,111,92,0.12)" }} />
@@ -269,14 +270,14 @@ export default function Navbar() {
 
           {/* Mobile toggle */}
           <button
-            className="nav-toggle-mobile"
+            className="flex lg:hidden items-center justify-center"
             onClick={toggleMenu}
             aria-label="Menu"
             style={{
-              display: "none", width: 38, height: 38,
+              width: 38, height: 38,
               border: ".5px solid rgba(26,23,20,0.12)",
               background: "rgba(255,255,255,0.4)", borderRadius: 100,
-              cursor: "pointer", alignItems: "center", justifyContent: "center", padding: 0,
+              cursor: "pointer", padding: 0,
             }}
           >
             <span style={{ display: "block", width: 16, height: 1.2, background: menuOpen ? "transparent" : "var(--text)", position: "relative", transition: "transform .25s ease, background .25s ease" }}>
@@ -358,10 +359,8 @@ export default function Navbar() {
           from { opacity: 0; transform: translateY(-6px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        @media (max-width: 900px) {
-          .nav-links-desktop { display: none !important; }
-          .nav-auth-desktop  { display: none !important; }
-          .nav-toggle-mobile { display: inline-flex !important; }
+        @media (min-width: 1024px) {
+          nav { padding-left: 32px !important; padding-right: 32px !important; }
         }
       `}</style>
     </>

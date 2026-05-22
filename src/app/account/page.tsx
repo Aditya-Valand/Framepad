@@ -101,21 +101,33 @@ export default function AccountPage() {
   const [stateVal, setStateVal] = useState('');
 
   useEffect(() => {
-    fetch('/api/account/profile', { credentials: 'include' })
-      .then((r) => {
-        if (r.status === 401) { router.push('/auth?redirect=/account'); return null; }
-        return r.ok ? r.json() : null;
-      })
-      .then((data: Profile | null) => {
-        if (!data) return;
+    async function load() {
+      try {
+        let r = await fetch('/api/account/profile', { credentials: 'include' });
+
+        if (r.status === 401) {
+          // Try silent token refresh
+          const refresh = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+          if (!refresh.ok) { router.push('/auth?redirect=/account'); return; }
+          r = await fetch('/api/account/profile', { credentials: 'include' });
+        }
+
+        if (r.status === 401) { router.push('/auth?redirect=/account'); return; }
+        if (!r.ok) return;
+
+        const data: Profile = await r.json();
         setProfile(data);
         setFullName(data.fullName ?? '');
         setPhone(data.phone ?? '');
         setCity(data.city ?? '');
         setStateVal(data.state ?? '');
-      })
-      .catch(() => router.push('/auth?redirect=/account'))
-      .finally(() => setLoading(false));
+      } catch {
+        router.push('/auth?redirect=/account');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
   }, [router]);
 
   async function handleSave(e: FormEvent) {
