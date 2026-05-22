@@ -1,3 +1,5 @@
+'use client';
+
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 interface ChipProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -14,31 +16,26 @@ export function Chip({
   children,
   ...props
 }: ChipProps) {
-  const sizeClasses = size === 'sm' 
-    ? 'px-2.5 py-1 text-[10px] gap-1' 
-    : 'px-3 py-1.5 text-xs gap-1.5';
+  const sizeClasses = size === 'sm'
+    ? 'flex-shrink-0 px-3 py-1.5 text-[11px]'
+    : 'flex-shrink-0 px-4 py-2 text-xs';
 
   return (
     <button
       type="button"
       className={`
-        inline-flex items-center justify-center
-        font-medium
-        rounded-full
-        border
-        transition-all duration-150
-        active:scale-95
         ${sizeClasses}
-        ${selected 
-          ? 'bg-[#8B6F5C] text-white border-[#8B6F5C] shadow-sm' 
-          : 'bg-[#F8F3EE] text-[#8B7B6B] border-transparent hover:bg-[#F0E8E0]'
+        rounded-full font-medium capitalize transition-all
+        ${selected
+          ? 'bg-[#8B6F5C] text-white shadow-sm'
+          : 'bg-[#F5EDE5] text-[#8B7B6B] active:bg-[#EDE3D9]'
         }
         ${className}
       `.trim().replace(/\s+/g, ' ')}
       {...props}
     >
       {icon}
-      {children && <span>{children}</span>}
+      {children}
     </button>
   );
 }
@@ -47,17 +44,21 @@ interface ChipGroupProps {
   children: ReactNode;
   label?: string;
   className?: string;
+  scroll?: boolean;
 }
 
-export function ChipGroup({ children, label, className = '' }: ChipGroupProps) {
+export function ChipGroup({ children, label, className = '', scroll = false }: ChipGroupProps) {
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       {label && (
-        <label className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">
+        <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">
           {label}
-        </label>
+        </h3>
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className={scroll
+        ? 'flex gap-2 overflow-x-auto pb-1 scrollbar-hide'
+        : 'flex gap-2 flex-wrap'
+      }>
         {children}
       </div>
     </div>

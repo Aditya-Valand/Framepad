@@ -1,11 +1,13 @@
+'use client';
+
 import { useRef, useCallback, useState, useEffect } from 'react';
-import { usePolaroidCanvas } from '../hooks/usePolaroidCanvas';
-import { useImageUpload } from '../hooks/useImageUpload';
-import { useStore } from '../store';
-import { DraggableOverlay } from './DraggableOverlay';
-import { CropModal } from './CropModal';
-import { useTransparentSpotifyCode } from '../hooks/useTransparentSpotifyCode';
-import { TrashZone } from './TrashZone';
+import { usePolaroidCanvas } from '@/hooks/usePolaroidCanvas';
+import { useImageUpload } from '@/hooks/useImageUpload';
+import { useStore } from '@/store';
+import { DraggableOverlay } from '@/components/DraggableOverlay';
+import { CropModal } from '@/components/CropModal';
+import { useTransparentSpotifyCode } from '@/hooks/useTransparentSpotifyCode';
+import { TrashZone } from '@/components/TrashZone';
 
 export function PolaroidView() {
   const { canvasRef, exportPNG } = usePolaroidCanvas();

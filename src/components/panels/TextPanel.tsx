@@ -1,5 +1,7 @@
-import { useStore } from '../../store';
-import { Input, Slider, SectionLabel, Chip, Button, Card } from '../ui';
+'use client';
+
+import { useStore } from '@/store';
+import { Input, Slider, SectionLabel, Chip, Button, Card } from '@/components/ui';
 
 const FONTS = [
   { id: 'Dancing Script', label: 'Script', category: 'cursive' },
@@ -116,7 +118,7 @@ export function TextPanel() {
             </Chip>
           ))}
         </div>
-        <div className="flex items-center gap-3 mt-3">
+        <div className="flex items-end gap-3 mt-3">
           <div className="flex-1">
             <Slider
               label="Size"
@@ -126,16 +128,14 @@ export function TextPanel() {
               onChange={(e) => updateFrame(activeFrameId, { topLabelSize: Number(e.target.value) })}
             />
           </div>
-          <div className="pt-5">
-            <label className="relative w-8 h-8 rounded-full cursor-pointer border-2 border-[#E8DFD6] flex items-center justify-center overflow-hidden transition-all hover:scale-110" style={{ backgroundColor: frame.topLabelColor }}>
-              <input
-                type="color"
-                value={frame.topLabelColor}
-                onChange={(e) => updateFrame(activeFrameId, { topLabelColor: e.target.value })}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-            </label>
-          </div>
+          <label className="relative w-8 h-8 rounded-full cursor-pointer border-2 border-[#E8DFD6] overflow-hidden transition-all hover:scale-110 flex-shrink-0 mb-0.5" style={{ backgroundColor: frame.topLabelColor }}>
+            <input
+              type="color"
+              value={frame.topLabelColor}
+              onChange={(e) => updateFrame(activeFrameId, { topLabelColor: e.target.value })}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            />
+          </label>
         </div>
       </section>
 
@@ -184,7 +184,7 @@ export function TextPanel() {
               </Chip>
             ))}
           </div>
-          <div className="flex items-center gap-3 mt-3">
+          <div className="flex items-end gap-3 mt-3">
             <div className="flex-1">
               <Slider
                 label="Size"
@@ -194,16 +194,14 @@ export function TextPanel() {
                 onChange={(e) => updateFrame(activeFrameId, { bottomCaptionSize: Number(e.target.value) })}
               />
             </div>
-            <div className="pt-5">
-              <label className="relative w-8 h-8 rounded-full cursor-pointer border-2 border-[#E8DFD6] flex items-center justify-center overflow-hidden transition-all hover:scale-110" style={{ backgroundColor: frame.bottomCaptionColor }}>
-                <input
-                  type="color"
-                  value={frame.bottomCaptionColor}
-                  onChange={(e) => updateFrame(activeFrameId, { bottomCaptionColor: e.target.value })}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-              </label>
-            </div>
+            <label className="relative w-8 h-8 rounded-full cursor-pointer border-2 border-[#E8DFD6] overflow-hidden transition-all hover:scale-110 flex-shrink-0 mb-0.5" style={{ backgroundColor: frame.bottomCaptionColor }}>
+              <input
+                type="color"
+                value={frame.bottomCaptionColor}
+                onChange={(e) => updateFrame(activeFrameId, { bottomCaptionColor: e.target.value })}
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              />
+            </label>
           </div>
         </section>
       )}

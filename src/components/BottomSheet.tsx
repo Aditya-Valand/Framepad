@@ -1,3 +1,5 @@
+'use client';
+
 import type { ReactNode } from 'react';
 
 interface BottomSheetProps {
@@ -23,7 +25,7 @@ export function BottomSheet({ open, onClose, children }: BottomSheetProps) {
           open ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-full opacity-0 pointer-events-none'
         }`}
       >
-        <div className="bg-[#FFFCF8] rounded-t-2xl shadow-[0_-4px_30px_rgba(92,74,58,0.08)] border-t border-[#F0E6DA] max-h-[50vh] flex flex-col">
+        <div className="bg-[#FFFCF8] rounded-t-2xl shadow-[0_-8px_40px_rgba(92,74,58,0.12)] border-t border-[#F0E6DA] max-h-[65vh] flex flex-col">
           {/* Handle */}
           <div className="flex justify-center pt-2.5 pb-1.5">
             <button

@@ -142,63 +142,7 @@ export default function EditorPage() {
   );
 
   return (
-    <div className="editor-page">
-      <style>{`
-        body::before { display: none !important; }
-        .editor-page input[type="range"] {
-          -webkit-appearance: none;
-          appearance: none;
-          height: 4px;
-          border-radius: 2px;
-          background: #E8DFD6;
-          outline: none;
-          accent-color: #8B6F5C;
-        }
-        .editor-page input[type="range"]::-webkit-slider-runnable-track {
-          height: 4px;
-          border-radius: 2px;
-          background: #E8DFD6;
-        }
-        .editor-page input[type="range"]::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #8B6F5C;
-          cursor: pointer;
-          box-shadow: 0 1px 4px rgba(139,111,92,0.3);
-          margin-top: -6px;
-          border: none;
-        }
-        .editor-page input[type="range"]::-moz-range-track {
-          height: 4px;
-          border-radius: 2px;
-          background: #E8DFD6;
-          border: none;
-        }
-        .editor-page input[type="range"]::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #8B6F5C;
-          cursor: pointer;
-          box-shadow: 0 1px 4px rgba(139,111,92,0.3);
-          border: none;
-        }
-        .editor-page input[type="color"] {
-          -webkit-appearance: none;
-          appearance: none;
-          border: none;
-          padding: 0;
-          background: none;
-        }
-        .editor-page input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-        .editor-page input[type="color"]::-webkit-color-swatch {
-          border: 2px solid #E8DFD6;
-          border-radius: 999px;
-        }
-      `}</style>
+    <>
       {/* ═══════════════════════════════════════════════
           MOBILE LAYOUT (hidden on lg+)
       ═══════════════════════════════════════════════ */}
@@ -368,6 +312,6 @@ export default function EditorPage() {
 
       {/* Shared export success modal */}
       <ExportSuccessModal open={exportSuccess} onClose={() => setExportSuccess(false)} />
-    </div>
+    </>
   );
 }

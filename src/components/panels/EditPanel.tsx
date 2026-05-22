@@ -1,5 +1,7 @@
-import { useStore, FILTER_PRESETS } from '../../store';
-import { Slider, Chip, ChipGroup, SectionLabel, Button } from '../ui';
+'use client';
+
+import { useStore, FILTER_PRESETS } from '@/store';
+import { Slider, Chip, ChipGroup, SectionLabel, Button } from '@/components/ui';
 
 export function EditPanel() {
   const activeFrameId = useStore((s) => s.activeFrameId);
@@ -15,18 +17,16 @@ export function EditPanel() {
   return (
     <div className="space-y-5">
       {/* Filter Presets */}
-      <ChipGroup label="Presets">
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {Object.keys(FILTER_PRESETS).map((name) => (
-            <Chip
-              key={name}
-              selected={JSON.stringify(frame.filters) === JSON.stringify(FILTER_PRESETS[name])}
-              onClick={() => updateFrame(activeFrameId, { filters: FILTER_PRESETS[name] })}
-            >
-              {name}
-            </Chip>
-          ))}
-        </div>
+      <ChipGroup label="Presets" scroll>
+        {Object.keys(FILTER_PRESETS).map((name) => (
+          <Chip
+            key={name}
+            selected={JSON.stringify(frame.filters) === JSON.stringify(FILTER_PRESETS[name])}
+            onClick={() => updateFrame(activeFrameId, { filters: FILTER_PRESETS[name] })}
+          >
+            {name}
+          </Chip>
+        ))}
       </ChipGroup>
 
       {/* Sliders */}

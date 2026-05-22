@@ -1,4 +1,6 @@
-import { AdBanner } from './AdBanner';
+'use client';
+
+import { AdBanner } from '@/components/AdBanner';
 
 interface ExportSuccessModalProps {
   open: boolean;

@@ -1,9 +1,11 @@
+'use client';
+
 import { useCallback, useRef } from 'react';
-import { useStore, POLAROID_TEMPLATES } from '../../store';
-import type { TemplateId } from '../../store';
-import { useImageUpload } from '../../hooks/useImageUpload';
-import { useImageColors } from '../../hooks/useImageColors';
-import { UploadButton, ColorPicker, Slider, SectionLabel } from '../ui';
+import { useStore, POLAROID_TEMPLATES } from '@/store';
+import type { TemplateId } from '@/store';
+import { useImageUpload } from '@/hooks/useImageUpload';
+import { useImageColors } from '@/hooks/useImageColors';
+import { UploadButton, ColorPicker, Slider, SectionLabel } from '@/components/ui';
 
 export function FramePanel() {
   const activeFrameId = useStore((s) => s.activeFrameId);

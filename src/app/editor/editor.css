@@ -1,0 +1,123 @@
+/* ── Editor route styles ── */
+/* Imported by editor/layout.tsx — scoped to the /editor segment */
+
+/* Override landing-page body styles */
+body {
+  font-family: Inter, system-ui, -apple-system, sans-serif !important;
+  background: #FBF8F4!important;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Suppress landing-page grain overlay */
+body::before {
+  display: none !important;
+}
+
+/* Disable tap highlight on all editor elements */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Range sliders ── */
+input[type="range"] {
+  --fill: 50%;
+  height: 4px;
+  border-radius: 2px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    #C4B5A6 0%,
+    #C4B5A6 var(--fill, 50%),
+    #E8DFD6 var(--fill, 50%),
+    #E8DFD6 100%
+  );
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8B6F5C;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(139, 111, 92, 0.3);
+  margin-top: -6px;
+  border: none;
+}
+
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: #E8DFD6;
+  border: none;
+}
+
+input[type="range"]::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: #C4B5A6;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8B6F5C;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(139, 111, 92, 0.3);
+  border: none;
+}
+
+/* ── Color inputs ── */
+input[type="color"] {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+/* ── Focus ring suppression for touch controls ── */
+button:focus-visible,
+input[type="range"]:focus-visible {
+  outline: 2px solid #C4B5A6;
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+input[type="range"]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Scrollbar hide utility ── */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

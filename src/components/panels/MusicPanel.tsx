@@ -1,8 +1,10 @@
+'use client';
+
 import { useState } from 'react';
-import { useStore } from '../../store';
-import { useImageColors } from '../../hooks/useImageColors';
-import { useTransparentSpotifyCode } from '../../hooks/useTransparentSpotifyCode';
-import { Input, Button, ColorPicker, Chip, ChipGroup, Slider, SectionLabel, Card } from '../ui';
+import { useStore } from '@/store';
+import { useImageColors } from '@/hooks/useImageColors';
+import { useTransparentSpotifyCode } from '@/hooks/useTransparentSpotifyCode';
+import { Input, Button, ColorPicker, Chip, ChipGroup, Slider, SectionLabel, Card } from '@/components/ui';
 
 const CODE_BG_COLORS = [
   { id: 'transparent', label: 'Transparent' },
