@@ -2,7 +2,8 @@
 
 import { useState, useRef, FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import Logo from "@/components/ui/Logo";
 
 function EyeIcon() {
@@ -57,6 +58,7 @@ function Field({
           padding: "18px 0 8px",
           outline: "none",
           transition: "border-color .25s ease",
+          boxSizing: "border-box",
         }}
         onFocus={(e) => {
           if (!error) (e.target as HTMLInputElement).style.borderBottomColor = "var(--brown)";
@@ -123,15 +125,7 @@ function Field({
       )}
 
       {error && (
-        <div
-          style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: 11,
-            color: "var(--error)",
-            marginTop: 6,
-            letterSpacing: ".04em",
-          }}
-        >
+        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "var(--error)", marginTop: 6, letterSpacing: ".04em" }}>
           {errorMsg}
         </div>
       )}
@@ -139,11 +133,24 @@ function Field({
   );
 }
 
-export default function AuthPage() {
+function ErrorBanner({ message }: { message: string }) {
+  return (
+    <div style={{ padding: "10px 14px", borderRadius: 8, background: "rgba(200,60,60,0.07)", border: "0.5px solid rgba(200,60,60,0.2)", marginBottom: 20 }}>
+      <p style={{ fontSize: 13, color: "#c03c3c", margin: 0 }}>{message}</p>
+    </div>
+  );
+}
+
+function AuthForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? "/";
+  const oauthError = searchParams.get("error");
+
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const [serverError, setServerError] = useState("");
   const formRef = useRef<HTMLDivElement>(null);
 
   /* Login fields */
@@ -167,46 +174,93 @@ export default function AuthPage() {
 
   function switchMode(target: "login" | "signup") {
     if (animating || target === mode) return;
+    setServerError("");
     setAnimating(true);
-    if (formRef.current) {
-      formRef.current.style.animation = "fadeOut .25s ease both";
-    }
+    if (formRef.current) formRef.current.style.animation = "fadeOut .25s ease both";
     setTimeout(() => {
       setMode(target);
-      if (formRef.current) {
-        formRef.current.style.animation = "fadeUp .35s ease both";
-      }
+      if (formRef.current) formRef.current.style.animation = "fadeUp .35s ease both";
       setAnimating(false);
     }, 240);
   }
 
-  function handleLoginSubmit(e: FormEvent) {
+  async function handleLoginSubmit(e: FormEvent) {
     e.preventDefault();
+    setServerError("");
     const errors = {
       email: !liEmail.trim() || !/^\S+@\S+\.\S+$/.test(liEmail),
       pwd: liPwd.length < 6,
     };
     setLiErrors(errors);
     if (errors.email || errors.pwd) return;
+
     setLoading(true);
-    setTimeout(() => router.push("/order"), 900);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: liEmail.trim(), password: liPwd }),
+      });
+      const data = await res.json() as { error?: string };
+      if (!res.ok) {
+        setServerError(data.error ?? "Invalid email or password.");
+      } else {
+        router.push(redirectTo.startsWith("/") ? redirectTo : "/editor");
+      }
+    } catch {
+      setServerError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function handleSignupSubmit(e: FormEvent) {
+  async function handleSignupSubmit(e: FormEvent) {
     e.preventDefault();
+    setServerError("");
     const errors = {
       name: !suName.trim(),
       email: !suEmail.trim() || !/^\S+@\S+\.\S+$/.test(suEmail),
-      pwd: suPwd.length < 6,
+      pwd: suPwd.length < 8,
     };
     setSuErrors(errors);
     if (errors.name || errors.email || errors.pwd) return;
+
     setLoading(true);
-    setTimeout(() => router.push("/order"), 900);
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: suEmail.trim(), fullName: suName.trim(), password: suPwd }),
+      });
+      const data = await res.json() as { error?: string };
+      if (!res.ok) {
+        setServerError(data.error ?? "Something went wrong. Please try again.");
+      } else {
+        router.push(redirectTo.startsWith("/") ? redirectTo : "/editor");
+      }
+    } catch {
+      setServerError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
+
+  function handleGoogleLogin() {
+    const redirect = encodeURIComponent(redirectTo);
+    window.location.href = `/api/auth/google?redirect=${redirect}`;
+  }
+
+  const oauthErrorMessages: Record<string, string> = {
+    oauth_cancelled: "Google sign-in was cancelled.",
+    oauth_failed: "Google sign-in failed. Please try again.",
+    oauth_no_email: "Could not retrieve your Google email.",
+    server_error: "Something went wrong. Please try again.",
+    oauth_misconfigured: "Google sign-in is not available right now.",
+  };
 
   return (
     <div
+      className="auth-grid"
       style={{
         display: "grid",
         gridTemplateColumns: "55fr 45fr",
@@ -217,119 +271,61 @@ export default function AuthPage() {
       }}
     >
       {/* LEFT: FORM */}
-      <div
-        style={{
-          padding: "32px 56px",
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-        }}
-      >
-        <Link href="/" style={{ textDecoration: "none" }}>
-          <Logo />
-        </Link>
+      <div className="auth-form-col" style={{ padding: "32px 56px", display: "flex", flexDirection: "column", position: "relative" }}>
+        <Logo />
 
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "40px 0",
-          }}
-        >
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 0" }}>
           <div ref={formRef} style={{ width: "100%", maxWidth: 380, animation: "fadeUp .35s ease both" }}>
+            {/* OAuth error banner */}
+            {oauthError && oauthErrorMessages[oauthError] && (
+              <ErrorBanner message={oauthErrorMessages[oauthError]} />
+            )}
+
             {mode === "login" ? (
               <>
-                <h1
-                  style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: 42,
-                    fontWeight: 300,
-                    fontStyle: "italic",
-                    lineHeight: 1.1,
-                    marginBottom: 10,
-                    letterSpacing: "-.01em",
-                  }}
-                >
+                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 42, fontWeight: 300, fontStyle: "italic", lineHeight: 1.1, marginBottom: 10, letterSpacing: "-.01em" }}>
                   Welcome back.
                 </h1>
                 <p style={{ fontSize: 14, fontWeight: 300, color: "var(--text-2)", marginBottom: 36, lineHeight: 1.5 }}>
                   Your polaroids are waiting.
                 </p>
 
+                {serverError && <ErrorBanner message={serverError} />}
+
                 <form onSubmit={handleLoginSubmit} noValidate>
                   <Field
                     id="liEmail" label="Email" type="email" autoComplete="email" required
-                    value={liEmail} onChange={(v) => { setLiEmail(v); setLiErrors((p) => ({ ...p, email: false })); }}
+                    value={liEmail} onChange={(v) => { setLiEmail(v); setLiErrors((p) => ({ ...p, email: false })); setServerError(""); }}
                     error={liErrors.email} errorMsg="Enter a valid email."
                   />
                   <Field
                     id="liPwd" label="Password" type="password" autoComplete="current-password" required
-                    showEye value={liPwd} onChange={(v) => { setLiPwd(v); setLiErrors((p) => ({ ...p, pwd: false })); }}
+                    showEye value={liPwd} onChange={(v) => { setLiPwd(v); setLiErrors((p) => ({ ...p, pwd: false })); setServerError(""); }}
                     error={liErrors.pwd} errorMsg="At least 6 characters."
                   />
 
                   <div style={{ display: "flex", justifyContent: "flex-end", margin: "-12px 0 28px" }}>
-                    <a
-                      href="#"
-                      style={{
-                        fontFamily: "'DM Mono', monospace",
-                        fontSize: 11,
-                        letterSpacing: ".06em",
-                        color: "var(--text-3)",
-                        textDecoration: "none",
-                      }}
+                    <Link
+                      href="/auth/forgot-password"
+                      style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".06em", color: "var(--text-3)", textDecoration: "none" }}
                     >
                       Forgot password?
-                    </a>
+                    </Link>
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    style={{
-                      width: "100%",
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 15,
-                      fontWeight: 500,
-                      background: "var(--brown)",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: 100,
-                      height: 48,
-                      cursor: "pointer",
-                      transition: "all .2s ease",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
-                      letterSpacing: ".005em",
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
+                    style={{ width: "100%", fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, background: "var(--brown)", color: "#fff", border: "none", borderRadius: 100, height: 48, cursor: "pointer", transition: "all .2s ease", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, letterSpacing: ".005em", position: "relative", overflow: "hidden", opacity: loading ? 0.8 : 1 }}
                   >
                     {loading ? (
-                      <span
-                        style={{
-                          width: 18,
-                          height: 18,
-                          border: "1.5px solid rgba(255,255,255,.35)",
-                          borderTopColor: "#fff",
-                          borderRadius: "50%",
-                          animation: "spin .8s linear infinite",
-                        }}
-                      />
+                      <span style={{ width: 18, height: 18, border: "1.5px solid rgba(255,255,255,.35)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
                     ) : (
-                      <>
-                        <span>Continue</span>
-                        <span>→</span>
-                      </>
+                      <><span>Continue</span><span>→</span></>
                     )}
                   </button>
                 </form>
 
-                {/* Divider */}
                 <div style={{ display: "flex", alignItems: "center", gap: 14, margin: "22px 0" }}>
                   <span style={{ flex: 1, height: ".5px", background: "var(--border)" }} />
                   <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "var(--text-3)", letterSpacing: ".1em" }}>or</span>
@@ -338,121 +334,61 @@ export default function AuthPage() {
 
                 <button
                   type="button"
-                  style={{
-                    width: "100%",
-                    background: "#fff",
-                    border: ".5px solid rgba(26,23,20,0.12)",
-                    borderRadius: 100,
-                    height: 48,
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 14,
-                    fontWeight: 400,
-                    color: "var(--text)",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 10,
-                    transition: "all .18s ease",
-                  }}
+                  onClick={handleGoogleLogin}
+                  style={{ width: "100%", background: "#fff", border: ".5px solid rgba(26,23,20,0.12)", borderRadius: 100, height: 48, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 400, color: "var(--text)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, transition: "all .18s ease" }}
                 >
                   <GoogleIcon /> Continue with Google
                 </button>
 
                 <p style={{ marginTop: 28, fontSize: 13, fontWeight: 300, color: "var(--text-2)", textAlign: "center" }}>
                   Don&apos;t have an account?{" "}
-                  <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); switchMode("signup"); }}
-                    style={{ color: "var(--brown)", textDecoration: "none", fontWeight: 500, marginLeft: 4 }}
-                  >
+                  <a href="#" onClick={(e) => { e.preventDefault(); switchMode("signup"); }} style={{ color: "var(--brown)", textDecoration: "none", fontWeight: 500, marginLeft: 4 }}>
                     Create one →
                   </a>
                 </p>
               </>
             ) : (
               <>
-                <h1
-                  style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: 42,
-                    fontWeight: 300,
-                    fontStyle: "italic",
-                    lineHeight: 1.1,
-                    marginBottom: 10,
-                    letterSpacing: "-.01em",
-                  }}
-                >
+                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 42, fontWeight: 300, fontStyle: "italic", lineHeight: 1.1, marginBottom: 10, letterSpacing: "-.01em" }}>
                   Make your first Polaroid.
                 </h1>
                 <p style={{ fontSize: 14, fontWeight: 300, color: "var(--text-2)", marginBottom: 36, lineHeight: 1.5 }}>
                   Free to design. No credit card needed.
                 </p>
 
+                {serverError && <ErrorBanner message={serverError} />}
+
                 <form onSubmit={handleSignupSubmit} noValidate>
                   <Field
                     id="suName" label="Full name" autoComplete="name" required
-                    value={suName} onChange={(v) => { setSuName(v); setSuErrors((p) => ({ ...p, name: false })); }}
+                    value={suName} onChange={(v) => { setSuName(v); setSuErrors((p) => ({ ...p, name: false })); setServerError(""); }}
                     error={suErrors.name} errorMsg="Tell us your name."
                   />
                   <Field
                     id="suEmail" label="Email" type="email" autoComplete="email" required
-                    value={suEmail} onChange={(v) => { setSuEmail(v); setSuErrors((p) => ({ ...p, email: false })); }}
+                    value={suEmail} onChange={(v) => { setSuEmail(v); setSuErrors((p) => ({ ...p, email: false })); setServerError(""); }}
                     error={suErrors.email} errorMsg="Enter a valid email."
                   />
                   <Field
                     id="suPwd" label="Password" type="password" autoComplete="new-password" required
                     showEye strengthDots={pwdStrength}
-                    value={suPwd} onChange={(v) => { setSuPwd(v); setSuErrors((p) => ({ ...p, pwd: false })); }}
-                    error={suErrors.pwd} errorMsg="Use at least 6 characters."
+                    value={suPwd} onChange={(v) => { setSuPwd(v); setSuErrors((p) => ({ ...p, pwd: false })); setServerError(""); }}
+                    error={suErrors.pwd} errorMsg="Use at least 8 characters."
                   />
 
                   <button
                     type="submit"
                     disabled={loading}
-                    style={{
-                      width: "100%",
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 15,
-                      fontWeight: 500,
-                      background: "var(--brown)",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: 100,
-                      height: 48,
-                      cursor: "pointer",
-                      transition: "all .2s ease",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
-                      letterSpacing: ".005em",
-                      position: "relative",
-                      overflow: "hidden",
-                      marginTop: 8,
-                    }}
+                    style={{ width: "100%", fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, background: "var(--brown)", color: "#fff", border: "none", borderRadius: 100, height: 48, cursor: "pointer", transition: "all .2s ease", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, letterSpacing: ".005em", position: "relative", overflow: "hidden", marginTop: 8, opacity: loading ? 0.8 : 1 }}
                   >
                     {loading ? (
-                      <span
-                        style={{
-                          width: 18,
-                          height: 18,
-                          border: "1.5px solid rgba(255,255,255,.35)",
-                          borderTopColor: "#fff",
-                          borderRadius: "50%",
-                          animation: "spin .8s linear infinite",
-                        }}
-                      />
+                      <span style={{ width: 18, height: 18, border: "1.5px solid rgba(255,255,255,.35)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
                     ) : (
-                      <>
-                        <span>Create account</span>
-                        <span>→</span>
-                      </>
+                      <><span>Create account</span><span>→</span></>
                     )}
                   </button>
                 </form>
 
-                {/* Divider */}
                 <div style={{ display: "flex", alignItems: "center", gap: 14, margin: "22px 0" }}>
                   <span style={{ flex: 1, height: ".5px", background: "var(--border)" }} />
                   <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "var(--text-3)", letterSpacing: ".1em" }}>or</span>
@@ -461,34 +397,15 @@ export default function AuthPage() {
 
                 <button
                   type="button"
-                  style={{
-                    width: "100%",
-                    background: "#fff",
-                    border: ".5px solid rgba(26,23,20,0.12)",
-                    borderRadius: 100,
-                    height: 48,
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 14,
-                    fontWeight: 400,
-                    color: "var(--text)",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 10,
-                    transition: "all .18s ease",
-                  }}
+                  onClick={handleGoogleLogin}
+                  style={{ width: "100%", background: "#fff", border: ".5px solid rgba(26,23,20,0.12)", borderRadius: 100, height: 48, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 400, color: "var(--text)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, transition: "all .18s ease" }}
                 >
                   <GoogleIcon /> Continue with Google
                 </button>
 
                 <p style={{ marginTop: 28, fontSize: 13, fontWeight: 300, color: "var(--text-2)", textAlign: "center" }}>
                   Already have an account?{" "}
-                  <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); switchMode("login"); }}
-                    style={{ color: "var(--brown)", textDecoration: "none", fontWeight: 500, marginLeft: 4 }}
-                  >
+                  <a href="#" onClick={(e) => { e.preventDefault(); switchMode("login"); }} style={{ color: "var(--brown)", textDecoration: "none", fontWeight: 500, marginLeft: 4 }}>
                     Sign in →
                   </a>
                 </p>
@@ -501,16 +418,7 @@ export default function AuthPage() {
           </div>
         </div>
 
-        <p
-          style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: 10,
-            color: "var(--text-3)",
-            textAlign: "center",
-            letterSpacing: ".06em",
-            paddingTop: 24,
-          }}
-        >
+        <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: "var(--text-3)", textAlign: "center", letterSpacing: ".06em", paddingTop: 24 }}>
           ✦ Free to use. Physical prints from ₹79.
         </p>
       </div>
@@ -518,109 +426,32 @@ export default function AuthPage() {
       {/* RIGHT: DECORATIVE */}
       <aside
         className="auth-muse-side"
-        style={{
-          background: "var(--cream-deep)",
-          position: "relative",
-          overflow: "hidden",
-          padding: 48,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
+        style={{ background: "var(--cream-deep)", position: "relative", overflow: "hidden", padding: 48, display: "flex", flexDirection: "column", justifyContent: "center" }}
       >
-        {/* Radial glow */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,.4), transparent 60%)",
-            pointerEvents: "none",
-          }}
-        />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,.4), transparent 60%)", pointerEvents: "none" }} />
 
         {/* Scattered polaroids */}
         <div style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }}>
-          {/* s1 */}
-          <div
-            style={{
-              position: "absolute",
-              background: "#fff",
-              boxShadow: "0 14px 40px rgba(26,23,20,.14)",
-              borderRadius: 3,
-              width: 160,
-              top: "8%",
-              left: "6%",
-              animation: "f1 7s ease-in-out infinite",
-            }}
-          >
+          <div style={{ position: "absolute", background: "#fff", boxShadow: "0 14px 40px rgba(26,23,20,.14)", borderRadius: 3, width: 160, top: "8%", left: "6%", animation: "f1 7s ease-in-out infinite" }}>
             <div style={{ height: 138, margin: "9px 9px 0", borderRadius: 1, background: "linear-gradient(135deg,#e8d5c0,#c4a882)" }} />
             <div style={{ height: 38, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontFamily: "'Dancing Script', cursive", fontSize: 15, color: "#5a4a3a" }}>always you</span>
             </div>
           </div>
-          {/* s2 */}
-          <div
-            style={{
-              position: "absolute",
-              background: "#fff",
-              boxShadow: "0 14px 40px rgba(26,23,20,.14)",
-              borderRadius: 3,
-              width: 148,
-              top: "14%",
-              right: "8%",
-              animation: "f2 8s ease-in-out infinite .6s",
-            }}
-          >
+          <div style={{ position: "absolute", background: "#fff", boxShadow: "0 14px 40px rgba(26,23,20,.14)", borderRadius: 3, width: 148, top: "14%", right: "8%", animation: "f2 8s ease-in-out infinite .6s" }}>
             <div style={{ height: 128, margin: "9px 9px 0", borderRadius: 1, background: "linear-gradient(135deg,#d4c5b0,#a89080)" }} />
             <div style={{ height: 32, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: "#8a7a6a", letterSpacing: ".08em" }}>26 · 04 · 2025</span>
             </div>
           </div>
-          {/* s3 */}
-          <div
-            style={{
-              position: "absolute",
-              background: "#fff",
-              boxShadow: "0 14px 40px rgba(26,23,20,.14)",
-              borderRadius: 3,
-              width: 142,
-              bottom: "14%",
-              left: "10%",
-              animation: "f3 6.5s ease-in-out infinite 1.2s",
-            }}
-          >
+          <div style={{ position: "absolute", background: "#fff", boxShadow: "0 14px 40px rgba(26,23,20,.14)", borderRadius: 3, width: 142, bottom: "14%", left: "10%", animation: "f3 6.5s ease-in-out infinite 1.2s" }}>
             <div style={{ height: 122, margin: "9px 9px 0", borderRadius: 1, background: "linear-gradient(160deg,#c8b8a0,#8b7060)", filter: "saturate(.85)" }} />
             <div style={{ height: 34, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, color: "#9a8878", letterSpacing: ".1em" }}>SUMMER · &apos;24</span>
             </div>
           </div>
-          {/* s4 */}
-          <div
-            style={{
-              position: "absolute",
-              background: "#fff",
-              boxShadow: "0 14px 40px rgba(26,23,20,.14)",
-              borderRadius: 3,
-              width: 156,
-              bottom: "9%",
-              right: "10%",
-              animation: "f4 7.5s ease-in-out infinite .3s",
-            }}
-          >
-            {/* Tape */}
-            <div
-              style={{
-                position: "absolute",
-                top: -7,
-                left: "50%",
-                transform: "translateX(-50%) rotate(-2deg)",
-                width: 50,
-                height: 14,
-                background: "rgba(255,210,100,.6)",
-                borderRadius: 2,
-                zIndex: 2,
-              }}
-            />
+          <div style={{ position: "absolute", background: "#fff", boxShadow: "0 14px 40px rgba(26,23,20,.14)", borderRadius: 3, width: 156, bottom: "9%", right: "10%", animation: "f4 7.5s ease-in-out infinite .3s" }}>
+            <div style={{ position: "absolute", top: -7, left: "50%", transform: "translateX(-50%) rotate(-2deg)", width: 50, height: 14, background: "rgba(255,210,100,.6)", borderRadius: 2, zIndex: 2 }} />
             <div style={{ height: 134, margin: "9px 9px 0", borderRadius: 1, background: "linear-gradient(135deg,#e0ceb8,#b89878)" }} />
             <div style={{ height: 38, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontFamily: "'Dancing Script', cursive", fontSize: 14, color: "#7a5a3a" }}>besties forever</span>
@@ -628,37 +459,13 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* Quote */}
         <div style={{ position: "relative", zIndex: 2, maxWidth: 440, margin: "0 auto", textAlign: "center" }}>
-          <h2
-            style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontSize: 44,
-              fontWeight: 300,
-              fontStyle: "italic",
-              lineHeight: 1.18,
-              color: "var(--text)",
-              letterSpacing: "-.005em",
-            }}
-          >
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, fontWeight: 300, fontStyle: "italic", lineHeight: 1.18, color: "var(--text)", letterSpacing: "-.005em" }}>
             &ldquo;Every photo is waiting
             <br />
             to become a memory.&rdquo;
           </h2>
-          <div
-            style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: 11,
-              letterSpacing: ".14em",
-              color: "var(--text-2)",
-              textTransform: "uppercase",
-              marginTop: 28,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 10,
-            }}
-          >
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".14em", color: "var(--text-2)", textTransform: "uppercase", marginTop: 28, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
             <span style={{ width: 24, height: ".5px", background: "var(--text-3)" }} />
             — Polamuse
             <span style={{ width: 24, height: ".5px", background: "var(--text-3)" }} />
@@ -667,14 +474,26 @@ export default function AuthPage() {
       </aside>
 
       <style jsx>{`
-        @keyframes fadeOut {
-          from { opacity: 1; transform: translateY(0); }
-          to { opacity: 0; transform: translateY(-8px); }
-        }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-8px); } }
+        @keyframes fadeUp  { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin    { to { transform: rotate(360deg); } }
         @media (max-width: 880px) {
           .auth-muse-side { display: none !important; }
+          .auth-grid { grid-template-columns: 1fr !important; }
+          .auth-form-col { padding: 28px 24px !important; }
+        }
+        @media (max-width: 480px) {
+          .auth-form-col { padding: 24px 20px !important; }
         }
       `}</style>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense>
+      <AuthForm />
+    </Suspense>
   );
 }

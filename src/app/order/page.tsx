@@ -285,9 +285,9 @@ export default function OrderPage() {
           </svg>
           Back to Editor
         </Link>
-        <Link href="/" style={{ justifySelf: "center", textDecoration: "none" }}>
+        <div style={{ justifySelf: "center" }}>
           <Logo />
-        </Link>
+        </div>
         <div style={{ justifySelf: "end" }}>
           <button
             style={{
