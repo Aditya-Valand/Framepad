@@ -188,9 +188,9 @@ export default function AccountPage() {
       }}>
         <Logo />
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Link href="/" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: '#8A7870', textDecoration: 'none' }}>
+          {/* <Link href="/" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: '#8A7870', textDecoration: 'none' }}>
             ← Home
-          </Link>
+          </Link> */}
           <Link
             href="/editor"
             style={{ background: '#8B6F5C', color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, padding: '8px 18px', borderRadius: 100, textDecoration: 'none', letterSpacing: '.01em' }}
