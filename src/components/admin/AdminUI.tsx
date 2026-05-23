@@ -107,16 +107,18 @@ export function Btn({
   children,
   onClick,
   className = '',
+  disabled = false,
 }: {
   variant?: BtnVariant;
   size?: 'sm' | 'md';
   children: ReactNode;
   onClick?: () => void;
   className?: string;
+  disabled?: boolean;
 }) {
   const cls = [`btn`, variant, size === 'sm' ? 'sm' : '', className].filter(Boolean).join(' ');
   return (
-    <button onClick={onClick} className={cls}>
+    <button onClick={onClick} className={cls} disabled={disabled} style={disabled ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
       {children}
     </button>
   );

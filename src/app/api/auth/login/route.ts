@@ -51,7 +51,7 @@ export async function POST(req: Request) {
     `;
 
     const sessionId = crypto.randomUUID();
-    const accessToken = signAccessToken({ userId: user.id, email: normalizedEmail, role: user.role });
+    const accessToken = signAccessToken({ userId: user.id, email: normalizedEmail, role: user.role, is_banned: false });
     const refreshToken = signRefreshToken(user.id, sessionId);
     const refreshHash = await bcrypt.hash(refreshToken, 8);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);

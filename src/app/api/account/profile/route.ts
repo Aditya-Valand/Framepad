@@ -1,5 +1,5 @@
 import { sql } from '@/lib/db';
-import { ok, err, userId as getUserId } from '@/lib/api';
+import { ok, err, userId as getUserId, assertNotBanned } from '@/lib/api';
 import { z } from 'zod';
 
 export async function GET(req: Request) {
@@ -46,6 +46,9 @@ const updateSchema = z.object({
 export async function PUT(req: Request) {
   const uid = getUserId(req);
   if (!uid) return err('Unauthorized', 401);
+
+  const banned = await assertNotBanned(req);
+  if (banned) return banned;
 
   let body: unknown;
   try { body = await req.json(); } catch { return err('Invalid body', 400); }

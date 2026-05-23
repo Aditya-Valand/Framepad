@@ -1,42 +1,183 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AdminShell, PageHeader, Btn, Badge } from '@/components/admin';
 
-const GROUPS = [
-  { name: 'Classic Polaroid', finish: 'Glossy', items: 12, sheets: 2, layout: '2×3', capacity: 6, full: true },
-  { name: 'Instax Mini',      finish: 'Glossy', items: 9,  sheets: 1, layout: '3×3', capacity: 9, full: true },
-  { name: 'Classic Polaroid', finish: 'Matte',  items: 2,  sheets: 1, layout: '2×3', capacity: 6, full: false },
-];
+interface QueueGroup {
+  size_slug: string;
+  size_name: string;
+  finish_slug: string;
+  finish_name: string;
+  item_count: number;
+  fits_per_sheet: number;
+  columns: number;
+  rows: number;
+  sheets_needed: number;
+  is_full: boolean;
+  items: { order_item_id: string; design_snapshot_url: string; order_number: string; customer_name: string }[];
+}
 
-const SHEETS = [
-  { id: 'PSH-2026-00012', meta: 'Classic · Glossy · 6 items',    status: 'Generated',     grid: 'grid-2x3', slots: 6, sentTo: null },
-  { id: 'PSH-2026-00011', meta: 'Instax Mini · Glossy · 9 items', status: 'Sent to print', grid: 'grid-3x3', slots: 9, sentTo: 'Roy Photo, Bandra' },
-];
+interface SheetItem {
+  sheet_id: string;
+  order_item_id: string;
+  position: number;
+  col: number;
+  row: number;
+  design_snapshot_url: string;
+}
+
+interface PrintSheet {
+  id: string;
+  sheet_number: string;
+  status: string;
+  capacity: number;
+  items_count: number;
+  is_full: boolean;
+  sheet_url: string | null;
+  generated_at: string | null;
+  sent_to_shop_at: string | null;
+  printed_at: string | null;
+  print_shop_name: string | null;
+  size_name: string;
+  size_slug: string;
+  finish_name: string;
+  finish_slug: string;
+  columns: number;
+  rows: number;
+  items: SheetItem[];
+}
+
+interface Stats {
+  totalItems: number;
+  totalSheetsNeeded: number;
+  sheetsToday: number;
+  groupCount: number;
+}
 
 export default function PrintQueuePage() {
+  const [groups, setGroups] = useState<QueueGroup[]>([]);
+  const [sheets, setSheets] = useState<PrintSheet[]>([]);
+  const [stats, setStats] = useState<Stats>({ totalItems: 0, totalSheetsNeeded: 0, sheetsToday: 0, groupCount: 0 });
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState<string | null>(null); // key or 'all'
   const [markSent, setMarkSent] = useState<string | null>(null);
+  const [shopName, setShopName] = useState('');
+
+  const fetchQueue = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/print-queue');
+      if (!res.ok) throw new Error('Failed to fetch');
+      const json = await res.json();
+      setGroups(json.groups || []);
+      setSheets(json.sheets || []);
+      setStats(json.stats || { totalItems: 0, totalSheetsNeeded: 0, sheetsToday: 0, groupCount: 0 });
+    } catch (e) {
+      console.error('Fetch queue error:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchQueue(); }, [fetchQueue]);
+
+  const handleGenerateGroup = async (sizeSlug: string, finishSlug: string) => {
+    const key = `${sizeSlug}_${finishSlug}`;
+    setGenerating(key);
+    try {
+      const res = await fetch('/api/admin/print-sheets/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ size_slug: sizeSlug, finish_slug: finishSlug }),
+      });
+      if (!res.ok) throw new Error('Generation failed');
+      await fetchQueue();
+    } catch (e) {
+      console.error('Generate error:', e);
+    } finally {
+      setGenerating(null);
+    }
+  };
+
+  const handleGenerateAll = async () => {
+    setGenerating('all');
+    try {
+      const res = await fetch('/api/admin/print-sheets/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ all: true }),
+      });
+      if (!res.ok) throw new Error('Generation failed');
+      await fetchQueue();
+    } catch (e) {
+      console.error('Generate all error:', e);
+    } finally {
+      setGenerating(null);
+    }
+  };
+
+  const handleDownloadSheet = (sheetId: string) => {
+    window.open(`/api/admin/print-sheets/${sheetId}/download`, '_blank');
+  };
+
+  const handleMarkSent = async (sheetId: string) => {
+    if (!shopName.trim()) return;
+    try {
+      const res = await fetch(`/api/admin/print-sheets/${sheetId}/sent`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ printShopName: shopName.trim() }),
+      });
+      if (!res.ok) throw new Error('Failed to mark sent');
+      setMarkSent(null);
+      setShopName('');
+      await fetchQueue();
+    } catch (e) {
+      console.error('Mark sent error:', e);
+    }
+  };
+
+  const handleMarkPrinted = async (sheetId: string) => {
+    try {
+      const res = await fetch(`/api/admin/print-sheets/${sheetId}/printed`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) throw new Error('Failed to mark printed');
+      await fetchQueue();
+    } catch (e) {
+      console.error('Mark printed error:', e);
+    }
+  };
+
+  if (loading) {
+    return (
+      <AdminShell>
+        <PageHeader title="Print Queue" subtitle="Loading..." />
+        <div style={{ textAlign: 'center', padding: '60px 0', color: '#A39080' }}>Loading print queue...</div>
+      </AdminShell>
+    );
+  }
 
   return (
     <AdminShell>
       <PageHeader title="Print Queue" subtitle="Batch items into A4 sheets for the print shop.">
-        <Btn variant="outline">
+        <Btn variant="outline" onClick={() => { setLoading(true); fetchQueue(); }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
           Refresh
         </Btn>
-        <Btn variant="primary">
+        <Btn variant="primary" onClick={handleGenerateAll} disabled={generating === 'all' || stats.totalItems === 0}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M12 5v14M5 12h14"/></svg>
-          Generate all sheets
+          {generating === 'all' ? 'Generating…' : 'Generate all sheets'}
         </Btn>
       </PageHeader>
 
       {/* Stats */}
       <div className="queue-stats">
         {[
-          { val: '23',   label: 'items waiting' },
-          { val: '4',    label: 'sheets needed' },
-          { val: '2',    label: 'sheets today' },
-          { val: '~38m', label: 'time saved by batching' },
+          { val: String(stats.totalItems), label: 'items waiting' },
+          { val: String(stats.totalSheetsNeeded), label: 'sheets needed' },
+          { val: String(stats.sheetsToday), label: 'sheets today' },
+          { val: `${stats.groupCount}`, label: 'groups' },
         ].map((s) => (
           <div key={s.label} className="queue-stat">
             <strong>{s.val}</strong>{s.label}
@@ -45,105 +186,135 @@ export default function PrintQueuePage() {
       </div>
 
       {/* Queue Groups */}
-      <div className="pq-section-head">
-        <span>Print Queue — 23 items waiting</span>
-        <span className="pq-section-tag">3 groups</span>
-      </div>
-
-      <div className="pq-groups">
-        {GROUPS.map((g, i) => (
-          <div key={i} className="pq-group">
-            <div className="pq-group-head">
-              <div className="pq-group-title">
-                <span className="pq-dot" />
-                <em>{g.name}</em>
-                <span className="pq-finish">· {g.finish}</span>
-              </div>
-              <div className="pq-group-meta">
-                <span className="pq-count">{g.items}</span>
-                <span className="pq-count-sub">items · needs {g.sheets} sheet{g.sheets > 1 ? 's' : ''} of {g.capacity}</span>
-              </div>
-            </div>
-
-            <div className="pq-thumbs">
-              {Array.from({ length: Math.min(g.items, 8) }).map((_, j) => (
-                <div key={j} className="pq-thumb">
-                  <div className="pq-thumb-img" />
-                  <div className="pq-thumb-cap"><span>♡</span></div>
-                </div>
-              ))}
-              {g.items > 8 && <div className="pq-thumb-more">+{g.items - 8}</div>}
-            </div>
-
-            <div className="pq-group-foot">
-              <div className="pq-layout-info">
-                → <strong>{g.sheets} sheet{g.sheets > 1 ? 's' : ''}</strong> of {g.capacity} ({g.layout} layout)
-                {!g.full && <span className="pq-hold"> · 4 slots empty — hold for more</span>}
-              </div>
-              <Btn variant={g.full ? 'primary' : 'outline'} size="sm">
-                Generate {g.sheets > 1 ? 'sheets' : g.full ? 'sheet' : 'anyway'} →
-              </Btn>
-            </div>
+      {groups.length > 0 && (
+        <>
+          <div className="pq-section-head">
+            <span>Print Queue — {stats.totalItems} items waiting</span>
+            <span className="pq-section-tag">{stats.groupCount} group{stats.groupCount !== 1 ? 's' : ''}</span>
           </div>
-        ))}
-      </div>
+
+          <div className="pq-groups">
+            {groups.map((g) => {
+              const key = `${g.size_slug}_${g.finish_slug}`;
+              return (
+                <div key={key} className="pq-group">
+                  <div className="pq-group-head">
+                    <div className="pq-group-title">
+                      <span className="pq-dot" />
+                      <em>{g.size_name}</em>
+                      <span className="pq-finish">· {g.finish_name}</span>
+                    </div>
+                    <div className="pq-group-meta">
+                      <span className="pq-count">{g.item_count}</span>
+                      <span className="pq-count-sub">items · needs {g.sheets_needed} sheet{g.sheets_needed > 1 ? 's' : ''} of {g.fits_per_sheet}</span>
+                    </div>
+                  </div>
+
+                  <div className="pq-thumbs">
+                    {g.items.slice(0, 8).map((item, j) => (
+                      <div key={j} className="pq-thumb">
+                        <div className="pq-thumb-img" style={item.design_snapshot_url ? { backgroundImage: `url(${item.design_snapshot_url})`, backgroundSize: 'cover' } : undefined} />
+                        <div className="pq-thumb-cap"><span>♡</span></div>
+                      </div>
+                    ))}
+                    {g.item_count > 8 && <div className="pq-thumb-more">+{g.item_count - 8}</div>}
+                  </div>
+
+                  <div className="pq-group-foot">
+                    <div className="pq-layout-info">
+                      → <strong>{g.sheets_needed} sheet{g.sheets_needed > 1 ? 's' : ''}</strong> of {g.fits_per_sheet} ({g.columns}×{g.rows} layout)
+                      {!g.is_full && <span className="pq-hold"> · {g.fits_per_sheet - g.item_count} slots empty — hold for more</span>}
+                    </div>
+                    <Btn
+                      variant={g.is_full ? 'primary' : 'outline'}
+                      size="sm"
+                      onClick={() => handleGenerateGroup(g.size_slug, g.finish_slug)}
+                      disabled={generating === key}
+                    >
+                      {generating === key ? 'Generating…' : `Generate ${g.sheets_needed > 1 ? 'sheets' : g.is_full ? 'sheet' : 'anyway'} →`}
+                    </Btn>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* Generated Sheets */}
-      <div className="pq-section-head" style={{ marginTop: '36px' }}>
-        <span>Print Sheets</span>
-        <span className="pq-section-tag">Today&apos;s batch</span>
-      </div>
-
-      <div className="pq-sheets">
-        {SHEETS.map((sh) => (
-          <div key={sh.id} className="pq-sheet">
-            <div className="pq-sheet-head">
-              <div>
-                <div className="pq-sheet-id">{sh.id}</div>
-                <div className="pq-sheet-meta">{sh.meta}</div>
-              </div>
-              <Badge variant={sh.sentTo ? 'info' : 'brown'}>{sh.status}</Badge>
-            </div>
-
-            <div className={`admin-a4 ${sh.grid}`}>
-              {Array.from({ length: sh.slots }).map((_, i) => (
-                <div key={i} className="slot">
-                  <div className="si" />
-                  <div className="sc"><span>♡</span></div>
-                </div>
-              ))}
-            </div>
-
-            {sh.sentTo && (
-              <div className="pq-sent-info">↗ Sent to <strong>{sh.sentTo}</strong> · 13:02</div>
-            )}
-
-            <div className="pq-sheet-actions">
-              <Btn variant="outline" size="sm">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                Download PDF
-              </Btn>
-              {!sh.sentTo ? (
-                <Btn variant="primary" size="sm" onClick={() => setMarkSent(sh.id)}>Mark sent →</Btn>
-              ) : (
-                <Btn variant="primary" size="sm">Mark printed →</Btn>
-              )}
-            </div>
-
-            {markSent === sh.id && (
-              <div className="pq-mark-sent">
-                <input
-                  type="text"
-                  placeholder="Print shop name (e.g. Roy Photo, Bandra)"
-                  className="input"
-                  style={{ flex: '1' }}
-                />
-                <Btn variant="primary" size="sm" onClick={() => setMarkSent(null)}>Confirm</Btn>
-              </div>
-            )}
+      {sheets.length > 0 && (
+        <>
+          <div className="pq-section-head" style={{ marginTop: '36px' }}>
+            <span>Print Sheets</span>
+            <span className="pq-section-tag">{sheets.length} sheet{sheets.length !== 1 ? 's' : ''}</span>
           </div>
-        ))}
-      </div>
+
+          <div className="pq-sheets">
+            {sheets.map((sh) => (
+              <div key={sh.id} className="pq-sheet">
+                <div className="pq-sheet-head">
+                  <div>
+                    <div className="pq-sheet-id">{sh.sheet_number}</div>
+                    <div className="pq-sheet-meta">{sh.size_name} · {sh.finish_name} · {sh.items_count} items</div>
+                  </div>
+                  <Badge variant={sh.status === 'sent' ? 'info' : sh.status === 'printed' ? 'good' : 'brown'}>
+                    {sh.status === 'generated' ? 'Generated' : sh.status === 'sent' ? 'Sent to print' : sh.status === 'printed' ? 'Printed' : sh.status}
+                  </Badge>
+                </div>
+
+                <div className={`admin-a4 grid-${sh.columns}x${sh.rows}`}>
+                  {Array.from({ length: sh.capacity }).map((_, i) => {
+                    const item = sh.items.find((si) => si.position === i + 1);
+                    return (
+                      <div key={i} className="slot">
+                        <div className="si" style={item?.design_snapshot_url ? { backgroundImage: `url(${item.design_snapshot_url})`, backgroundSize: 'cover' } : undefined} />
+                        <div className="sc"><span>♡</span></div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {sh.print_shop_name && sh.sent_to_shop_at && (
+                  <div className="pq-sent-info">↗ Sent to <strong>{sh.print_shop_name}</strong> · {new Date(sh.sent_to_shop_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                )}
+
+                <div className="pq-sheet-actions">
+                  <Btn variant="outline" size="sm" onClick={() => handleDownloadSheet(sh.id)}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    Download PDF
+                  </Btn>
+                  {sh.status === 'generated' && (
+                    <Btn variant="primary" size="sm" onClick={() => setMarkSent(sh.id)}>Mark sent →</Btn>
+                  )}
+                  {sh.status === 'sent' && (
+                    <Btn variant="primary" size="sm" onClick={() => handleMarkPrinted(sh.id)}>Mark printed →</Btn>
+                  )}
+                </div>
+
+                {markSent === sh.id && (
+                  <div className="pq-mark-sent">
+                    <input
+                      type="text"
+                      placeholder="Print shop name (e.g. Roy Photo, Bandra)"
+                      className="input"
+                      style={{ flex: '1' }}
+                      value={shopName}
+                      onChange={(e) => setShopName(e.target.value)}
+                    />
+                    <Btn variant="primary" size="sm" onClick={() => handleMarkSent(sh.id)}>Confirm</Btn>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {groups.length === 0 && sheets.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: '#A39080', fontSize: '14px' }}>
+          No items in the print queue. Orders will appear here once confirmed.
+        </div>
+      )}
     </AdminShell>
   );
 }

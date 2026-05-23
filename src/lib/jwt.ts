@@ -4,6 +4,7 @@ export interface JWTPayload {
   userId: string;
   email: string;
   role: 'customer' | 'admin';
+  is_banned?: boolean;
 }
 
 export interface RefreshPayload {

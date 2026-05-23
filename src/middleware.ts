@@ -18,9 +18,49 @@ export async function middleware(req: NextRequest) {
   const isProtectedApi  = PROTECTED_API.some((p) => pathname.startsWith(p));
   const isAdmin         = ADMIN_PATHS.some((p) => pathname.startsWith(p));
 
-  // Bypass admin role check — allow anyone to access /admin routes for now
+  // Admin routes require authentication + admin role check
   if (isAdmin) {
-    return NextResponse.next();
+    const token = req.cookies.get('access_token')?.value;
+    if (!token) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      return NextResponse.redirect(new URL('/auth?redirect=' + encodeURIComponent(pathname), req.url));
+    }
+    try {
+      const { payload } = await jwtVerify(token, getAccessSecret());
+      const role = payload.role as string;
+      const uid = payload.userId as string;
+      const email = payload.email as string;
+      const isBanned = payload.is_banned as boolean | undefined;
+
+      if (isBanned) {
+        if (pathname.startsWith('/api/')) {
+          return NextResponse.json({ error: 'Account suspended' }, { status: 403 });
+        }
+        const res = NextResponse.redirect(new URL('/auth?error=suspended', req.url));
+        res.cookies.set('access_token', '', { maxAge: 0, path: '/' });
+        res.cookies.set('refresh_token', '', { maxAge: 0, path: '/api/auth/refresh' });
+        return res;
+      }
+
+      if (role !== 'admin') {
+        return pathname.startsWith('/api/')
+          ? NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+          : NextResponse.redirect(new URL('/404', req.url));
+      }
+
+      const requestHeaders = new Headers(req.headers);
+      requestHeaders.set('x-user-id', uid);
+      requestHeaders.set('x-user-role', role);
+      requestHeaders.set('x-user-email', email);
+      return NextResponse.next({ request: { headers: requestHeaders } });
+    } catch {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      return NextResponse.redirect(new URL('/auth?redirect=' + encodeURIComponent(pathname), req.url));
+    }
   }
 
   if (!isProtectedPage && !isProtectedApi && !isAdmin) {
@@ -43,8 +83,19 @@ export async function middleware(req: NextRequest) {
     const userId = payload.userId as string;
     const role   = payload.role   as string;
     const email  = payload.email  as string;
+    const isBanned = payload.is_banned as boolean | undefined;
 
-    if (false && isAdmin && role !== 'admin') {
+    if (isBanned) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Account suspended' }, { status: 403 });
+      }
+      const res = NextResponse.redirect(new URL('/auth?error=suspended', req.url));
+      res.cookies.set('access_token', '', { maxAge: 0, path: '/' });
+      res.cookies.set('refresh_token', '', { maxAge: 0, path: '/api/auth/refresh' });
+      return res;
+    }
+
+    if (isAdmin && role !== 'admin') {
       return pathname.startsWith('/api/')
         ? NextResponse.json({ error: 'Forbidden' }, { status: 403 })
         : NextResponse.redirect(new URL('/404', req.url));
