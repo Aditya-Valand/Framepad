@@ -646,6 +646,65 @@
 .admin-shell .pq-sheet-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
 .admin-shell .pq-mark-sent { display:flex; gap:8px; margin-top:12px; padding-top:12px; border-top:.5px solid var(--border); animation:admin-fadeIn .25s ease; }
 
+/* ══ DESIGNS PAGE ══ */
+.admin-shell .designs-controls { display:flex; justify-content:space-between; align-items:center; gap:14px; margin-bottom:24px; flex-wrap:wrap; }
+.admin-shell .designs-controls .pill-row { margin-bottom:0; }
+.admin-shell .sort-sel { height:36px; border:.5px solid var(--border); border-radius:100px; background:#fff; padding:0 32px 0 14px; font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--text); cursor:pointer; outline:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237A6E65' stroke-width='1.6'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; flex-shrink:0; }
+.admin-shell .sort-sel:focus { border-color:var(--brown); }
+
+.admin-shell .designs-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:32px 24px; }
+
+.admin-shell .design-card { position:relative; cursor:pointer; }
+
+/* Tape decoration */
+.admin-shell .design-card.taped::before { content:''; position:absolute; top:-6px; left:50%; transform:translateX(-50%) rotate(-2deg); width:52px; height:14px; background:rgba(255,210,100,.55); border-radius:2px; z-index:3; pointer-events:none; }
+
+/* The polaroid frame */
+.admin-shell .design-card .pola { background:#fff; box-shadow:0 8px 28px rgba(26,23,20,.08),0 1px 2px rgba(26,23,20,.04); border-radius:3px; transition:transform .35s cubic-bezier(.34,1.4,.64,1),box-shadow .35s ease; position:relative; overflow:hidden; }
+.admin-shell .design-card:hover .pola { transform:rotate(-1.5deg) translateY(-6px); box-shadow:0 20px 48px rgba(26,23,20,.14),0 1px 2px rgba(26,23,20,.04); }
+.admin-shell .design-card .pola .img { margin:10px 10px 0; aspect-ratio:1/1.05; border-radius:1px; position:relative; overflow:hidden; }
+.admin-shell .design-card .pola .img::after { content:''; position:absolute; inset:0; background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.22),transparent 60%); pointer-events:none; }
+.admin-shell .design-card .pola .cap { padding:10px 12px 14px; text-align:center; min-height:48px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; }
+.admin-shell .design-card .pola .cap .ttl { font-family:'Dancing Script',cursive; font-size:18px; color:#3a2a1a; line-height:1; }
+.admin-shell .design-card .pola .cap .sub { font-family:'DM Mono',monospace; font-size:9px; color:#9a8878; letter-spacing:.14em; text-transform:uppercase; }
+
+/* Dark frame variant */
+.admin-shell .design-card.dark .pola { background:#1a1714; }
+.admin-shell .design-card.dark .pola .cap .ttl { color:#e8e2d0; }
+.admin-shell .design-card.dark .pola .cap .sub { color:#7a7060; }
+
+/* Hover action buttons */
+.admin-shell .design-card .card-actions { position:absolute; top:14px; right:14px; display:flex; gap:6px; opacity:0; transform:translateY(-4px); transition:opacity .22s ease,transform .22s ease; z-index:4; }
+.admin-shell .design-card:hover .card-actions { opacity:1; transform:translateY(0); }
+.admin-shell .design-card .card-actions .icon-btn { width:30px; height:30px; border-radius:50%; background:#fff; border:.5px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-2); cursor:pointer; box-shadow:0 4px 12px rgba(26,23,20,.12); transition:all .15s; }
+.admin-shell .design-card .card-actions .icon-btn:hover { color:var(--text); transform:scale(1.1); }
+.admin-shell .design-card .card-actions .icon-btn.danger:hover { color:#9C3A2A; border-color:rgba(156,58,42,.3); background:#fff8f7; }
+
+/* Meta row below polaroid */
+.admin-shell .design-meta { margin-top:13px; padding:0 4px; }
+.admin-shell .design-meta .nm { font-size:13px; font-weight:500; color:var(--text); letter-spacing:.005em; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px; }
+.admin-shell .design-meta .nm.untitled { font-style:italic; font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--text-3); font-weight:300; }
+.admin-shell .design-meta .row { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:10px; color:var(--text-3); letter-spacing:.04em; }
+.admin-shell .design-meta .user-tag { display:flex; align-items:center; gap:5px; margin-top:5px; font-family:'DM Mono',monospace; font-size:10px; color:var(--text-3); letter-spacing:.02em; }
+.admin-shell .design-meta .user-av { width:16px; height:16px; border-radius:50%; background:var(--brown-light); color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:8px; font-style:italic; line-height:1; flex-shrink:0; }
+
+/* "New design" placeholder card */
+.admin-shell .design-card.new-card .pola { border:1.5px dashed var(--brown-light); background:transparent; box-shadow:none; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; }
+.admin-shell .design-card.new-card .pola::before { content:'+'; font-family:'Cormorant Garamond',serif; font-size:60px; font-weight:300; font-style:italic; color:var(--brown-light); line-height:.7; margin-bottom:10px; }
+.admin-shell .design-card.new-card .pola .new-label { font-family:'Cormorant Garamond',serif; font-size:20px; font-style:italic; color:var(--text); font-weight:300; margin-bottom:4px; line-height:1; }
+.admin-shell .design-card.new-card .pola .new-desc { font-size:12px; color:var(--text-2); font-weight:300; line-height:1.5; }
+.admin-shell .design-card.new-card:hover .pola { border-color:var(--brown); background:rgba(139,99,71,.04); transform:none; box-shadow:none; }
+
+/* Empty state */
+.admin-shell .designs-empty { display:flex; flex-direction:column; align-items:center; text-align:center; padding:80px 32px; }
+.admin-shell .designs-empty .empty-frame { width:180px; background:#fff; box-shadow:0 14px 40px rgba(26,23,20,.1); border-radius:3px; margin-bottom:32px; animation:admin-float 5s ease-in-out infinite; transform:rotate(-2deg); }
+.admin-shell .designs-empty .empty-frame .ph { margin:12px 12px 0; aspect-ratio:1/1.05; background:repeating-linear-gradient(135deg,#F0EBE0,#F0EBE0 8px,#E8E1D2 8px,#E8E1D2 16px); border-radius:1px; display:flex; align-items:center; justify-content:center; }
+.admin-shell .designs-empty .empty-frame .fc { height:36px; display:flex; align-items:center; justify-content:center; font-family:'Dancing Script',cursive; font-size:14px; color:#b5a99e; }
+.admin-shell .designs-empty h2 { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:300; font-style:italic; margin-bottom:10px; }
+.admin-shell .designs-empty p { font-size:13.5px; color:var(--text-2); font-weight:300; max-width:360px; line-height:1.6; }
+
+@keyframes admin-float { 0%,100%{transform:rotate(-2deg) translateY(0)} 50%{transform:rotate(-2deg) translateY(-10px)} }
+
 /* ══ RESPONSIVE ══ */
 @media (max-width: 1000px) {
   .admin-shell .admin { grid-template-columns: 1fr; }
