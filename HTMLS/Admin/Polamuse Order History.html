@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polamuse — Your Orders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F2EDE4; --cream-deep:#EDE7DC; --cream-soft:#F7F3EC; --white:#FFFFFF;
+  --brown:#8B6347; --brown-deep:#7a5540; --brown-light:#C4A882; --brown-soft:#F1E8DC;
+  --dark:#1A1714; --text:#1A1714; --text-2:#7A6E65; --text-3:#B5A99E;
+  --border:rgba(26,23,20,0.1);
+  --good:#0F6E56; --good-bg:#E1F5EE;
+  --warn:#B86415; --warn-bg:#FBEDD9;
+  --bad:#9C3A2A; --bad-bg:#F5DCD5;
+  --info:#3A6B86; --info-bg:#DDE9F0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.024;pointer-events:none;z-index:1000;mix-blend-mode:multiply}
+a{color:inherit;text-decoration:none}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:50;padding:14px 32px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;background:rgba(242,237,228,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:.5px solid var(--border)}
+.nav-left{display:flex;align-items:center;gap:10px}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;display:inline-flex;align-items:baseline;gap:8px;line-height:1}
+.logo em{font-style:italic}
+.logo .mark{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--brown);transform:translateY(-1px)}
+.nav-links{display:flex;align-items:center;gap:4px;justify-self:center;background:rgba(255,255,255,.4);border:.5px solid rgba(26,23,20,.06);border-radius:100px;padding:5px}
+.nav-link{font-size:13px;color:var(--text-2);padding:7px 14px;border-radius:100px;transition:color .15s,background .15s}
+.nav-link:hover{color:var(--text)}
+.nav-link.active{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(26,23,20,.05),0 4px 12px rgba(26,23,20,.04)}
+.nav-right{justify-self:end;display:flex;align-items:center;gap:12px}
+.av-nav{width:34px;height:34px;border-radius:50%;background:var(--brown-light);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;line-height:1;cursor:pointer}
+
+/* PAGE */
+.page{max-width:1080px;margin:0 auto;padding:36px 32px 80px}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px;flex-wrap:wrap}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;font-style:italic;line-height:1.1;letter-spacing:-.005em}
+.page-head .sub{font-size:13px;color:var(--text-2);margin-top:6px;font-weight:300}
+
+/* FILTER PILLS */
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.pill{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:400;padding:7px 14px;border:.5px solid var(--border);border-radius:100px;background:#fff;color:var(--text-2);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;line-height:1.2;letter-spacing:.005em}
+.pill:hover{border-color:var(--text-3);color:var(--text)}
+.pill.active{background:var(--text);color:#fff;border-color:var(--text)}
+.pill .count{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.02em}
+.pill.active .count{color:rgba(255,255,255,.6)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:100px;line-height:1.4;white-space:nowrap}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.badge.good{background:var(--good-bg);color:var(--good)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.info{background:var(--info-bg);color:var(--info)}
+.badge.brown{background:var(--brown-soft);color:var(--brown)}
+.badge.bad{background:var(--bad-bg);color:var(--bad)}
+
+/* ORDER LIST */
+.orders-list{display:flex;flex-direction:column;gap:10px;transition:opacity .25s ease}
+.orders-list.hide{display:none}
+.order-row{background:#fff;border:.5px solid var(--border);border-radius:18px;padding:16px 20px;display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;cursor:pointer;transition:all .2s ease}
+.order-row:hover{border-color:var(--text-3);transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,23,20,.05)}
+
+/* mini polaroid */
+.mini-pola{width:72px;background:#fff;box-shadow:0 4px 14px rgba(26,23,20,.1);border-radius:2px;flex-shrink:0;transition:transform .2s}
+.order-row:hover .mini-pola{transform:rotate(-2deg)}
+.mini-pola .mp-img{margin:5px 5px 0;height:60px;border-radius:1px}
+.mini-pola .mp-cap{height:18px;display:flex;align-items:center;justify-content:center}
+.mini-pola .mp-cap span{font-family:'Dancing Script',cursive;font-size:8px;color:#5a4a3a;line-height:1}
+
+.order-info .ord-no{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:.06em;margin-bottom:4px}
+.order-info .ord-name{font-size:14.5px;font-weight:500;margin-bottom:3px;letter-spacing:.005em}
+.order-info .ord-meta{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-2);letter-spacing:.04em}
+
+.order-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.order-right .amt{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--text);letter-spacing:.02em}
+
+/* DETAIL VIEW */
+.detail{display:none;animation:fadeUp .35s ease}
+.detail.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.back-link{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px;cursor:pointer;transition:color .15s}
+.back-link:hover{color:var(--text)}
+
+.detail-hero{display:grid;grid-template-columns:auto 1fr;gap:42px;align-items:center;margin-bottom:36px;padding-bottom:32px;border-bottom:.5px solid var(--border)}
+.big-pola{width:220px;background:#fff;box-shadow:0 18px 50px rgba(26,23,20,.14),0 2px 6px rgba(26,23,20,.06);border-radius:3px;transform:rotate(-2deg);transition:transform .35s ease}
+.big-pola:hover{transform:rotate(0deg)}
+.big-pola .img{margin:10px 10px 0;height:188px;background:linear-gradient(135deg,#e8d5c0 0%,#c4a882 50%,#8b7060 100%);border-radius:1px;position:relative;overflow:hidden}
+.big-pola .img::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.22),transparent 60%)}
+.big-pola .cap{padding:10px 12px 8px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.big-pola .cap .ttl{font-family:'Dancing Script',cursive;font-size:16px;color:#3a2a1a;line-height:1}
+.big-pola .cap .sub{font-family:'DM Mono',monospace;font-size:8px;color:#9a8878;letter-spacing:.12em;text-transform:uppercase}
+
+.hero-info .meta-line{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.hero-info h2{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;font-style:italic;line-height:1.1;letter-spacing:-.005em;margin-bottom:8px}
+.hero-info .desc{font-size:14px;color:var(--text-2);line-height:1.6;font-weight:300;margin-bottom:18px;max-width:440px}
+.hero-info .total{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;font-style:italic;letter-spacing:-.005em}
+.hero-info .total .lbl{font-family:'DM Mono',monospace;font-size:10px;font-style:normal;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;margin-right:8px;vertical-align:.3em}
+
+/* STEPPER */
+.stepper-card{background:#fff;border:.5px solid var(--border);border-radius:18px;padding:30px 36px;margin-bottom:24px}
+.stepper-h{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--text-3);text-transform:uppercase;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center}
+.stepper-h .when{color:var(--text-2);letter-spacing:.04em}
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);position:relative;padding:0 0 4px}
+.stepper::before{content:'';position:absolute;top:14px;left:12.5%;right:12.5%;height:1.5px;background:var(--cream-deep);z-index:0}
+.stepper-fill{position:absolute;top:14px;left:12.5%;height:1.5px;background:var(--brown);z-index:0;transition:width .6s ease}
+.step{position:relative;text-align:center;z-index:1}
+.step .dot{width:30px;height:30px;border-radius:50%;background:#fff;border:1.5px solid var(--text-3);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.step.done .dot{background:var(--brown);border-color:var(--brown);color:#fff}
+.step.current .dot{background:#fff;border-color:var(--brown);box-shadow:0 0 0 4px rgba(139,99,71,.15)}
+.step.current .dot::after{content:'';width:9px;height:9px;border-radius:50%;background:var(--brown)}
+.step .nm{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.step.future .nm{color:var(--text-3);font-weight:400}
+.step .ago{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.04em}
+
+/* TWO COL DETAIL */
+.detail-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;align-items:start}
+.dcard{background:#fff;border:.5px solid var(--border);border-radius:18px;padding:24px 26px}
+.dcard-h{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--text-3);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.dcard-h .ic{color:var(--brown-light)}
+.address{font-size:14px;color:var(--text);line-height:1.7;font-weight:400}
+.address .nm{font-weight:500;display:block;margin-bottom:3px}
+.address .phone{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text-2);letter-spacing:.04em;display:block;margin-top:8px}
+
+.tracking-line{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.carrier-logo{width:44px;height:44px;border-radius:10px;background:var(--cream-soft);border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-weight:500;font-size:11px;color:var(--brown);letter-spacing:.04em;flex-shrink:0}
+.tracking-line .info{flex:1}
+.tracking-line .carrier{font-size:13px;font-weight:500;line-height:1.3;margin-bottom:2px}
+.tracking-line .tn{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.04em}
+.tracking-eta{font-family:'DM Mono',monospace;font-size:11px;color:var(--good);letter-spacing:.04em;display:flex;align-items:center;gap:6px;margin-bottom:14px}
+.track-btn{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;background:var(--text);color:#fff;border:none;border-radius:100px;padding:11px;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;justify-content:center;gap:7px;letter-spacing:.005em}
+.track-btn:hover{background:#000}
+
+/* ITEMS TABLE */
+.items-card{background:#fff;border:.5px solid var(--border);border-radius:18px;padding:6px 6px 14px}
+.items-card .card-head{padding:18px 22px 12px;display:flex;justify-content:space-between;align-items:center}
+.items-card .card-head h3{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--text-3);text-transform:uppercase;font-weight:400}
+.items-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.items-tbl thead th{text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--text-3);text-transform:uppercase;font-weight:400;padding:10px 18px;border-bottom:.5px solid var(--border)}
+.items-tbl tbody td{padding:14px 18px;border-bottom:.5px solid var(--border);vertical-align:middle}
+.items-tbl tbody tr:last-child td{border-bottom:none}
+.items-tbl .item-cell{display:flex;align-items:center;gap:12px}
+.items-tbl .mini-pola{width:48px}
+.items-tbl .mini-pola .mp-img{height:42px}
+.items-tbl .mini-pola .mp-cap{height:12px}
+.items-tbl .mini-pola .mp-cap span{font-size:6px}
+.items-tbl .nm{font-weight:500;font-size:13.5px}
+.items-tbl .cap{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-3);letter-spacing:.04em;margin-top:2px}
+.items-tbl .num{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-2);letter-spacing:.04em}
+.items-tbl .amount{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);font-weight:500;letter-spacing:.02em;text-align:right}
+.items-tbl .totals td{padding-top:18px;border-top:.5px solid var(--border);background:var(--cream-soft);border-bottom:none}
+.items-tbl .totals .label{font-size:14px;font-weight:500;text-align:right;color:var(--text)}
+.items-tbl .totals .grand{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;font-style:italic;letter-spacing:-.005em}
+
+/* FOOT actions */
+.detail-actions{display:flex;justify-content:space-between;align-items:center;margin-top:18px;flex-wrap:wrap;gap:14px}
+.help-line{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:.04em}
+.help-line a{color:var(--brown);text-decoration:underline;text-underline-offset:3px}
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;border-radius:100px;padding:10px 18px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:7px;transition:all .18s ease;line-height:1;letter-spacing:.005em}
+.btn.primary{background:var(--brown);color:#fff}
+.btn.primary:hover{background:var(--brown-deep);transform:translateY(-1px);box-shadow:0 6px 16px rgba(139,99,71,.24)}
+.btn.outline{background:#fff;color:var(--text);border:.5px solid var(--border)}
+.btn.outline:hover{border-color:var(--text-3);background:var(--cream-soft)}
+
+@media(max-width:780px){
+  nav{padding:12px 18px}
+  .nav-links{display:none}
+  .page{padding:24px 18px 60px}
+  .page-head h1{font-size:26px}
+  .order-row{grid-template-columns:auto 1fr;gap:14px;padding:14px}
+  .order-right{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;border-top:.5px solid var(--border);padding-top:12px}
+  .detail-hero{grid-template-columns:1fr;text-align:center;gap:24px}
+  .big-pola{margin:0 auto}
+  .stepper-card{padding:22px 18px}
+  .stepper{grid-template-columns:repeat(4,1fr)}
+  .step .nm{font-size:11px}
+  .step .ago{font-size:9px}
+  .detail-cols{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a class="logo" href="Polamuse Landing.html"><span class="mark"></span>Pola<em>muse</em></a>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="Polamuse Landing.html">Templates</a>
+    <a class="nav-link" href="Polamuse Designs.html">Designs</a>
+    <a class="nav-link active" href="Polamuse Order History.html">Orders</a>
+  </div>
+  <div class="nav-right">
+    <a class="nav-link" href="Polamuse Auth.html">Sign out</a>
+    <div class="av-nav" title="Priya">P</div>
+  </div>
+</nav>
+
+<main class="page">
+
+  <!-- LIST STATE -->
+  <section id="listState">
+    <div class="page-head">
+      <div>
+        <h1>Your Orders</h1>
+        <p class="sub">14 orders · since March 2024</p>
+      </div>
+    </div>
+
+    <div class="pill-row" id="filterRow">
+      <button class="pill active" data-f="all">All<span class="count">14</span></button>
+      <button class="pill" data-f="Confirmed">Confirmed<span class="count">1</span></button>
+      <button class="pill" data-f="Printing">Printing<span class="count">2</span></button>
+      <button class="pill" data-f="Shipped">Shipped<span class="count">1</span></button>
+      <button class="pill" data-f="Delivered">Delivered<span class="count">10</span></button>
+    </div>
+
+    <div class="orders-list" id="ordersList">
+
+      <div class="order-row" data-order="00342" data-status="Confirmed">
+        <div class="mini-pola"><div class="mp-img" style="background:linear-gradient(135deg,#e8d5c0,#c4a882)"></div><div class="mp-cap"><span>always you</span></div></div>
+        <div class="order-info">
+          <div class="ord-no">PML-2026-00342</div>
+          <div class="ord-name">Classic Polaroid · Single · Glossy</div>
+          <div class="ord-meta">23 May 2026 · 14:32</div>
+        </div>
+        <div class="order-right"><span class="badge good">Confirmed</span><span class="amt">₹79</span></div>
+      </div>
+
+      <div class="order-row" data-order="00298" data-status="Shipped">
+        <div class="mini-pola"><div class="mp-img" style="background:linear-gradient(135deg,#c8d4f0,#a0b4e0)"></div><div class="mp-cap"><span>besties</span></div></div>
+        <div class="order-info">
+          <div class="ord-no">PML-2026-00298</div>
+          <div class="ord-name">Instax Mini · Pack of 5 · Glossy</div>
+          <div class="ord-meta">14 May 2026 · 18:12</div>
+        </div>
+        <div class="order-right"><span class="badge info">Shipped</span><span class="amt">₹349</span></div>
+      </div>
+
+      <div class="order-row" data-order="00271" data-status="Delivered">
+        <div class="mini-pola"><div class="mp-img" style="background:linear-gradient(135deg,#a8c8a0,#78a870)"></div><div class="mp-cap"><span>amalfi</span></div></div>
+        <div class="order-info">
+          <div class="ord-no">PML-2026-00271</div>
+          <div class="ord-name">Classic Polaroid · Single · Glossy</div>
+          <div class="ord-meta">29 Apr 2026 · 11:48</div>
+        </div>
+        <div class="order-right"><span class="badge good">Delivered</span><span class="amt">₹79</span></div>
+      </div>
+
+      <div class="order-row" data-order="00244" data-status="Delivered">
+        <div class="mini-pola"><div class="mp-img" style="background:linear-gradient(135deg,#f0c8a0,#d0a070)"></div><div class="mp-cap"><span>3 years ✦</span></div></div>
+        <div class="order-info">
+          <div class="ord-no">PML-2026-00244</div>
+          <div class="ord-name">Vintage 600 · Pack of 10 · Matte</div>
+          <div class="ord-meta">12 Apr 2026 · 21:04</div>
+        </div>
+        <div class="order-right"><span class="badge good">Delivered</span><span class="amt">₹590</span></div>
+      </div>
+
+      <div class="order-row" data-order="00219" data-status="Delivered">
+        <div class="mini-pola"><div class="mp-img" style="background:linear-gradient(135deg,#d4c0e8,#b0a0d0)"></div><div class="mp-cap"><span>we made it</span></div></div>
+        <div class="order-info">
+          <div class="ord-no">PML-2026-00219</div>
+          <div class="ord-name">Classic Polaroid · Single · Glossy</div>
+          <div class="ord-meta">02 Apr 2026 · 09:30</div>
+        </div>
+        <div class="order-right"><span class="badge good">Delivered</span><span class="amt">₹79</span></div>
+      </div>
+
+      <div class="order-row" data-order="00187" data-status="Delivered">
+        <div class="mini-pola"><div class="mp-img" style="background:linear-gradient(135deg,#c8b8a0,#8b7060)"></div><div class="mp-cap"><span>summer '24</span></div></div>
+        <div class="order-info">
+          <div class="ord-no">PML-2026-00187</div>
+          <div class="ord-name">Movie Poster · Pack of 5 · Matte</div>
+          <div class="ord-meta">14 Mar 2026 · 16:22</div>
+        </div>
+        <div class="order-right"><span class="badge good">Delivered</span><span class="amt">₹349</span></div>
+      </div>
+
+      <div class="order-row" data-order="00161" data-status="Delivered">
+        <div class="mini-pola"><div class="mp-img" style="background:linear-gradient(135deg,#f0d0c0,#d0a090)"></div><div class="mp-cap"><span>home</span></div></div>
+        <div class="order-info">
+          <div class="ord-no">PML-2026-00161</div>
+          <div class="ord-name">Polaroid B&W · Single · Glossy</div>
+          <div class="ord-meta">28 Feb 2026 · 12:50</div>
+        </div>
+        <div class="order-right"><span class="badge good">Delivered</span><span class="amt">₹79</span></div>
+      </div>
+
+      <div class="order-row" data-order="00128" data-status="Delivered">
+        <div class="mini-pola"><div class="mp-img" style="background:linear-gradient(135deg,#f0e8c0,#d0c890)"></div><div class="mp-cap"><span>just because</span></div></div>
+        <div class="order-info">
+          <div class="ord-no">PML-2026-00128</div>
+          <div class="ord-name">Instax Square · Pack of 20 · Glossy</div>
+          <div class="ord-meta">04 Feb 2026 · 20:16</div>
+        </div>
+        <div class="order-right"><span class="badge good">Delivered</span><span class="amt">₹999</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DETAIL STATE -->
+  <section id="detailState" class="detail">
+
+    <a class="back-link" id="backLink">← Back to orders</a>
+
+    <div class="detail-hero">
+      <div class="big-pola">
+        <div class="img"></div>
+        <div class="cap">
+          <div class="ttl">amalfi</div>
+          <div class="sub">29 · 04 · 2026</div>
+        </div>
+      </div>
+      <div class="hero-info">
+        <div class="meta-line" id="dMeta">PML-2026-00271 · placed 29 Apr 2026</div>
+        <h2 id="dTitle">A polaroid from <em>Amalfi.</em></h2>
+        <p class="desc">Single Classic Polaroid · Glossy finish · with Spotify code for "Estate" by Bruno Martino on the caption.</p>
+        <div class="total"><span class="lbl">Total paid</span>₹79</div>
+      </div>
+    </div>
+
+    <!-- STEPPER -->
+    <div class="stepper-card">
+      <div class="stepper-h"><span>Order timeline</span><span class="when">All steps · estimated delivery 03 May</span></div>
+      <div class="stepper" id="stepper">
+        <div class="stepper-fill" id="stepperFill" style="width:0%"></div>
+        <div class="step done"><div class="dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><div class="nm">Confirmed</div><div class="ago">29 Apr · 11:48</div></div>
+        <div class="step done"><div class="dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><div class="nm">Printing</div><div class="ago">30 Apr · 09:14</div></div>
+        <div class="step done"><div class="dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><div class="nm">Shipped</div><div class="ago">30 Apr · 17:32</div></div>
+        <div class="step done"><div class="dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><div class="nm">Delivered</div><div class="ago">03 May · 14:10</div></div>
+      </div>
+    </div>
+
+    <!-- TWO COLS -->
+    <div class="detail-cols">
+      <div class="dcard">
+        <div class="dcard-h"><span>Shipping address</span><span class="ic">✦</span></div>
+        <div class="address">
+          <span class="nm">Priya Sharma</span>
+          2B, Hillside Apts, Pali Hill<br>
+          Bandra West, Mumbai 400050<br>
+          Maharashtra, India
+          <span class="phone">+91 98201 22345</span>
+        </div>
+      </div>
+
+      <div class="dcard" id="trackingCard">
+        <div class="dcard-h"><span>Tracking</span><span class="ic" id="trackingState">Delivered ✓</span></div>
+        <div class="tracking-line">
+          <div class="carrier-logo">DTDC</div>
+          <div class="info">
+            <div class="carrier">DTDC Express</div>
+            <div class="tn">DTDC-IN-202600271</div>
+          </div>
+        </div>
+        <div class="tracking-eta">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Delivered on 03 May at 14:10
+        </div>
+        <button class="track-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open tracking link</button>
+      </div>
+    </div>
+
+    <!-- ITEMS -->
+    <div class="items-card">
+      <div class="card-head"><h3>Items in this order</h3></div>
+      <table class="items-tbl">
+        <thead>
+          <tr><th>Design</th><th>Size</th><th>Finish</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="item-cell"><div class="mini-pola"><div class="mp-img" style="background:linear-gradient(135deg,#a8c8a0,#78a870)"></div><div class="mp-cap"><span>amalfi</span></div></div><div><div class="nm">A polaroid from Amalfi</div><div class="cap">caption · "amalfi" · spotify · Estate</div></div></div></td>
+            <td class="num">Classic Polaroid<br><span style="font-size:9.5px;color:var(--text-3)">3.5 × 4.25 in</span></td>
+            <td class="num">Glossy</td>
+            <td class="num" style="text-align:center">1</td>
+            <td class="amount">₹79</td>
+          </tr>
+          <tr class="totals">
+            <td colspan="3" class="num" style="background:var(--cream-soft);text-align:right;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)">Subtotal</td>
+            <td colspan="2" class="amount" style="background:var(--cream-soft)">₹79</td>
+          </tr>
+          <tr class="totals">
+            <td colspan="3" class="num" style="background:var(--cream-soft);text-align:right;border-top:none;padding-top:0;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)">Shipping</td>
+            <td colspan="2" class="amount" style="background:var(--cream-soft);border-top:none;padding-top:0;color:var(--good)">Free</td>
+          </tr>
+          <tr class="totals">
+            <td colspan="3" class="label" style="border-top:.5px solid var(--border)">Total paid</td>
+            <td colspan="2" class="grand" style="text-align:right;border-top:.5px solid var(--border)">₹79</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="detail-actions">
+      <span class="help-line">Something wrong with this order? <a href="#">Get help →</a></span>
+      <div style="display:flex;gap:10px">
+        <button class="btn outline"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Download invoice</button>
+        <button class="btn primary">Reorder →</button>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+const list = document.getElementById('listState');
+const detail = document.getElementById('detailState');
+
+// Open detail
+document.querySelectorAll('.order-row').forEach(row => {
+  row.addEventListener('click', () => {
+    const ord = row.dataset.order;
+    const status = row.dataset.status;
+    const polaSrc = row.querySelector('.mini-pola');
+    const name = row.querySelector('.ord-name').textContent;
+    const date = row.querySelector('.ord-meta').textContent;
+    const amt = row.querySelector('.amt').textContent;
+    const capSrc = row.querySelector('.mp-cap span').textContent;
+    const bgSrc = row.querySelector('.mp-img').style.background;
+
+    // populate
+    document.getElementById('dMeta').textContent = `PML-2026-${ord} · placed ${date}`;
+    document.querySelector('.big-pola .img').style.background = bgSrc;
+    document.querySelector('.big-pola .ttl').textContent = capSrc;
+    document.querySelector('.big-pola .sub').textContent = date.split(' · ')[0];
+    document.querySelector('.hero-info .desc').textContent = name + ' · with personal caption and Spotify code.';
+    document.querySelector('.hero-info .total').innerHTML = '<span class="lbl">Total paid</span>' + amt;
+    document.querySelector('.items-tbl tbody .item-cell .mp-img').style.background = bgSrc;
+    document.querySelector('.items-tbl tbody .item-cell .mp-cap span').textContent = capSrc;
+    document.querySelector('.items-tbl tbody .item-cell .nm').textContent = name.split(' · ')[0];
+    document.querySelectorAll('.items-tbl tbody .amount').forEach(el => { if(el.textContent.startsWith('₹')) el.textContent = amt; });
+    document.querySelector('.items-tbl .totals .grand').textContent = amt;
+
+    // status -> stepper
+    const stepperFills = {'Confirmed':0, 'Printing':33.33, 'Shipped':66.66, 'Delivered':100};
+    const stepIdx = {'Confirmed':0,'Printing':1,'Shipped':2,'Delivered':3};
+    const idx = stepIdx[status] ?? 0;
+    document.getElementById('stepperFill').style.width = stepperFills[status] + '%';
+    document.querySelectorAll('#stepper .step').forEach((s, i) => {
+      s.classList.remove('done','current','future');
+      if(i < idx) s.classList.add('done');
+      else if(i === idx) s.classList.add('current');
+      else s.classList.add('future');
+    });
+    // mark final as done if delivered
+    if(status === 'Delivered') document.querySelectorAll('#stepper .step').forEach(s => { s.classList.remove('current','future'); s.classList.add('done'); });
+
+    // tracking card visibility
+    const trackCard = document.getElementById('trackingCard');
+    if(status === 'Confirmed' || status === 'Printing'){
+      trackCard.style.opacity = '.55';
+      trackCard.style.pointerEvents = 'none';
+      document.getElementById('trackingState').textContent = 'Awaiting shipment';
+      document.querySelector('.tracking-eta').innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Will appear once the package ships';
+      document.querySelector('.tracking-eta').style.color = 'var(--text-3)';
+    } else {
+      trackCard.style.opacity = '1';
+      trackCard.style.pointerEvents = 'auto';
+      document.getElementById('trackingState').textContent = status === 'Delivered' ? 'Delivered ✓' : 'In transit';
+      document.querySelector('.tracking-eta').innerHTML = status === 'Delivered' ?
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Delivered on 03 May at 14:10' :
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Expected by 03 May';
+      document.querySelector('.tracking-eta').style.color = status === 'Delivered' ? 'var(--good)' : 'var(--info)';
+    }
+
+    list.style.display = 'none';
+    detail.classList.add('show');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+// Back
+document.getElementById('backLink').addEventListener('click', () => {
+  detail.classList.remove('show');
+  list.style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+// Filter
+document.querySelectorAll('#filterRow .pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('#filterRow .pill').forEach(x => x.classList.remove('active'));
+  p.classList.add('active');
+  const f = p.dataset.f;
+  document.querySelectorAll('.order-row').forEach(r => {
+    r.style.display = (f === 'all' || r.dataset.status === f) ? 'grid' : 'none';
+  });
+}));
+</script>
+</body>
+</html>

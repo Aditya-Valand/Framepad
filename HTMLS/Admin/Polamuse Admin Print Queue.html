@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polamuse Admin — Print Queue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<style>
+.pq-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+
+/* GROUP CARD */
+.group{margin-bottom:18px;background:#fff;border:.5px solid var(--border);border-radius:18px;padding:20px 22px}
+.group-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:14px;padding-bottom:14px;border-bottom:.5px solid var(--border)}
+.group-head .ttl{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;font-style:italic;line-height:1.1;letter-spacing:-.005em}
+.group-head .ttl .finish{font-size:13px;color:var(--text-2);font-style:normal;font-family:'DM Sans',sans-serif;font-weight:400;margin-left:4px}
+.group-head .ttl::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brown);margin-right:8px;transform:translateY(-3px)}
+.group-head .meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase;text-align:right;line-height:1.6}
+.group-head .meta .big{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;font-weight:300;color:var(--text);display:block;letter-spacing:-.01em}
+
+.thumbs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.thumbs .thumb{width:54px}
+.thumbs .thumb .ti{height:46px;border-radius:1px}
+.thumbs .thumb .tc{height:10px;display:flex;align-items:center;justify-content:center}
+.thumbs .thumb .tc span{font-size:6px;font-family:'Dancing Script',cursive;color:#5a4a3a}
+
+.group-foot{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.sheet-calc{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.04em}
+.sheet-calc strong{color:var(--brown);font-weight:500}
+
+/* SHEET CARDS */
+.sheet-card{background:#fff;border:.5px solid var(--border);border-radius:18px;padding:20px;margin-bottom:14px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sheet-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text);letter-spacing:.08em;font-weight:500}
+.sheet-id .meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:3px;font-weight:400}
+
+/* A4 visual */
+.a4{background:#fff;border:.5px solid var(--text-3);border-radius:3px;aspect-ratio:1/1.414;padding:8%;display:grid;gap:5%;margin-bottom:14px;position:relative;box-shadow:0 4px 14px rgba(26,23,20,.06),0 1px 0 rgba(255,255,255,.5) inset}
+.a4.grid-2x3{grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr)}
+.a4.grid-3x3{grid-template-columns:1fr 1fr 1fr;grid-template-rows:repeat(3,1fr)}
+.a4::after{content:'A4';position:absolute;top:6px;right:8px;font-family:'DM Mono',monospace;font-size:8px;color:var(--text-3);letter-spacing:.14em}
+.a4 .slot{background:#fff;box-shadow:0 1px 4px rgba(26,23,20,.18);border-radius:1.5px;display:flex;flex-direction:column;overflow:hidden}
+.a4 .slot .si{flex:1;background:linear-gradient(135deg,#e8d5c0,#c4a882)}
+.a4 .slot .sc{height:18%;display:flex;align-items:center;justify-content:center;background:#fff}
+.a4 .slot .sc span{font-family:'Dancing Script',cursive;font-size:5px;color:#5a4a3a;line-height:1;letter-spacing:.01em}
+.a4 .slot.empty{background:transparent;box-shadow:none;border:.5px dashed var(--border)}
+.a4 .slot.empty .si,.a4 .slot.empty .sc{background:transparent}
+
+.sheet-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sheet-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* mark sent input row */
+.mark-sent{display:none;margin-top:12px;padding-top:12px;border-top:.5px solid var(--border)}
+.mark-sent.show{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.mark-sent .row{display:flex;gap:8px}
+.mark-sent input{flex:1;border:.5px solid var(--border);border-radius:10px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.mark-sent input:focus{border-color:var(--brown)}
+
+.pq-stats{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.pq-stat{background:#fff;border:.5px solid var(--border);border-radius:12px;padding:10px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.04em}
+.pq-stat strong{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--text);font-weight:300;margin-right:6px;letter-spacing:-.01em}
+
+@media(max-width:1100px){.pq-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="admin">
+  <aside class="sidebar">
+    <div class="sb-brand"><span class="mark"></span>Pola<em>muse</em><span class="tag">admin</span></div>
+    <nav class="sb-nav">
+      <a class="sb-item" href="Polamuse Admin Dashboard.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a class="sb-item" href="Polamuse Admin Orders.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h18l-2 14H5L3 5z"/><path d="M8 9h8"/></svg>Orders</a>
+      <a class="sb-item active" href="Polamuse Admin Print Queue.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print Queue<span class="count">23</span></a>
+      <a class="sb-item" href="Polamuse Admin Users.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Users</a>
+      <a class="sb-item" href="Polamuse Admin Analytics.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18M7 14l4-4 4 4 5-7"/></svg>Analytics</a>
+      <a class="sb-item" href="Polamuse Admin Coupons.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM15 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM9 12h6"/></svg>Coupons</a>
+      <a class="sb-item" href="Polamuse Admin Settings.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user"><div class="sb-avatar">A</div><div class="who"><div class="name">Aanya Mehta</div><div class="role">admin</div></div></div>
+      <a class="sb-logout" href="Polamuse Auth.html">Log out <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>Print Queue</h1>
+        <p class="sub">Batch items into A4 sheets for the print shop.</p>
+      </div>
+      <div class="head-actions">
+        <button class="btn outline">Refresh</button>
+        <button class="btn primary"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg>Generate all sheets</button>
+      </div>
+    </div>
+
+    <div class="pq-stats">
+      <div class="pq-stat"><strong>23</strong>items waiting</div>
+      <div class="pq-stat"><strong>4</strong>sheets needed</div>
+      <div class="pq-stat"><strong>2</strong>sheets generated today</div>
+      <div class="pq-stat"><strong>~38m</strong>est. print time saved by batching</div>
+    </div>
+
+    <div class="pq-grid">
+
+      <!-- LEFT: QUEUE -->
+      <section>
+        <div class="card-h" style="padding:0 4px 12px;border-bottom:.5px solid var(--border);margin-bottom:14px">
+          <span>Print Queue — 23 items waiting</span>
+          <span class="more">3 groups</span>
+        </div>
+
+        <!-- Group 1 -->
+        <div class="group">
+          <div class="group-head">
+            <div class="ttl">Classic Polaroid<span class="finish">· Glossy</span></div>
+            <div class="meta"><span class="big">12</span>items · needs 2 sheets of 6</div>
+          </div>
+          <div class="thumbs" id="g1Thumbs"></div>
+          <div class="group-foot">
+            <div class="sheet-calc">→ <strong>2 sheets</strong> of 6 (2×3 layout)</div>
+            <button class="btn primary sm">Generate sheets →</button>
+          </div>
+        </div>
+
+        <!-- Group 2 -->
+        <div class="group">
+          <div class="group-head">
+            <div class="ttl">Instax Mini<span class="finish">· Glossy</span></div>
+            <div class="meta"><span class="big">9</span>items · needs 1 sheet of 9</div>
+          </div>
+          <div class="thumbs" id="g2Thumbs"></div>
+          <div class="group-foot">
+            <div class="sheet-calc">→ <strong>1 sheet</strong> of 9 (3×3 layout)</div>
+            <button class="btn primary sm">Generate sheet →</button>
+          </div>
+        </div>
+
+        <!-- Group 3 -->
+        <div class="group">
+          <div class="group-head">
+            <div class="ttl">Classic Polaroid<span class="finish">· Matte</span></div>
+            <div class="meta"><span class="big">2</span>items · 1 sheet (partial)</div>
+          </div>
+          <div class="thumbs" id="g3Thumbs"></div>
+          <div class="group-foot">
+            <div class="sheet-calc">→ <strong>1 sheet</strong> of 6 (4 slots empty — hold for more)</div>
+            <button class="btn outline sm">Generate anyway →</button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT: SHEETS -->
+      <section>
+        <div class="card-h" style="padding:0 4px 12px;border-bottom:.5px solid var(--border);margin-bottom:14px">
+          <span>Print Sheets</span>
+          <span class="more">Today's batch</span>
+        </div>
+
+        <!-- Sheet 1 -->
+        <div class="sheet-card">
+          <div class="sheet-head">
+            <div class="sheet-id">PSH-2026-00012<span class="meta">Classic · Glossy · 6 items</span></div>
+            <span class="badge brown">Generated</span>
+          </div>
+          <div class="a4 grid-2x3" id="sh1"></div>
+          <div class="sheet-foot">
+            <div class="sheet-actions">
+              <button class="btn outline sm"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Download PDF</button>
+              <button class="btn primary sm" data-mark-sent="sh1send">Mark sent →</button>
+            </div>
+          </div>
+          <div class="mark-sent" id="sh1send">
+            <div class="row">
+              <input type="text" placeholder="Print shop name (e.g. Roy Photo, Bandra)">
+              <button class="btn primary sm">Confirm</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sheet 2 -->
+        <div class="sheet-card">
+          <div class="sheet-head">
+            <div class="sheet-id">PSH-2026-00011<span class="meta">Instax Mini · Glossy · 9 items</span></div>
+            <span class="badge info">Sent to print</span>
+          </div>
+          <div class="a4 grid-3x3" id="sh2"></div>
+          <div class="sheet-foot">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.04em">↗ Sent to <strong>Roy Photo, Bandra</strong> · 13:02</div>
+            <div class="sheet-actions">
+              <button class="btn outline sm">Reprint</button>
+              <button class="btn primary sm">Mark printed →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sheet 3 -->
+        <div class="sheet-card">
+          <div class="sheet-head">
+            <div class="sheet-id">PSH-2026-00010<span class="meta">Classic · Matte · 6 items</span></div>
+            <span class="badge good">Printed</span>
+          </div>
+          <div class="a4 grid-2x3" id="sh3" style="opacity:.72"></div>
+          <div class="sheet-foot">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.04em">✓ Printed · Roy Photo · 11:48</div>
+            <div class="sheet-actions">
+              <button class="btn ghost sm">Archive</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+const captions = ['always you','26 · 04 · 2025','summer 24','besties','golden','since day one','3 years','memory','we made it','just because','holiday','sunset','first day','love','goa','home'];
+const gradients = [
+  'linear-gradient(135deg,#e8d5c0,#c4a882)',
+  'linear-gradient(135deg,#d4c5b0,#a89080)',
+  'linear-gradient(160deg,#c8b8a0,#8b7060)',
+  'linear-gradient(135deg,#e0ceb8,#b89878)',
+  'linear-gradient(135deg,#f0c8a0,#d0a070)',
+  'linear-gradient(135deg,#c8d4f0,#a0b4e0)',
+  'linear-gradient(135deg,#a8c8a0,#78a870)',
+  'linear-gradient(135deg,#f0d0c0,#d0a090)',
+  'linear-gradient(135deg,#d4c0e8,#b0a0d0)',
+  'linear-gradient(135deg,#f0e8c0,#d0c890)',
+  'linear-gradient(135deg,#c8a878,#987058)',
+  'linear-gradient(160deg,#d4c5b0,#b09080)'
+];
+
+function fillThumbs(id, n){
+  const c = document.getElementById(id);
+  for(let i=0;i<n;i++){
+    const cap = captions[(i*3)%captions.length];
+    const g = gradients[i % gradients.length];
+    c.innerHTML += `<div class="thumb"><div class="ti" style="background:${g}"></div><div class="tc"><span>${cap}</span></div></div>`;
+  }
+}
+fillThumbs('g1Thumbs', 12);
+fillThumbs('g2Thumbs', 9);
+fillThumbs('g3Thumbs', 2);
+
+function fillSheet(id, n, total){
+  const c = document.getElementById(id);
+  for(let i=0;i<total;i++){
+    if(i < n){
+      const cap = captions[(i*5)%captions.length];
+      const g = gradients[(i+2) % gradients.length];
+      c.innerHTML += `<div class="slot"><div class="si" style="background:${g}"></div><div class="sc"><span>${cap}</span></div></div>`;
+    } else {
+      c.innerHTML += `<div class="slot empty"></div>`;
+    }
+  }
+}
+fillSheet('sh1', 6, 6);
+fillSheet('sh2', 9, 9);
+fillSheet('sh3', 6, 6);
+
+// mark sent reveal
+document.querySelectorAll('[data-mark-sent]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.getElementById(b.dataset.markSent).classList.toggle('show');
+  });
+});
+</script>
+</body>
+</html>

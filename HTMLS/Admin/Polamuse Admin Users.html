@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polamuse Admin — Users</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<style>
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.toolbar .input.search{flex:1;min-width:240px;max-width:380px}
+
+/* USER PANEL */
+.user-hero{display:flex;align-items:center;gap:14px;margin-bottom:22px;padding-bottom:22px;border-bottom:.5px solid var(--border)}
+.user-hero .lg-av{width:64px;height:64px;border-radius:50%;background:var(--brown-light);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:28px;font-style:italic;line-height:1;flex-shrink:0}
+.user-hero .nm{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;font-style:italic;line-height:1.1;letter-spacing:-.005em;margin-bottom:4px}
+.user-hero .em{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.02em;display:block}
+
+.fact-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.fact{padding:12px 14px;background:var(--cream-soft);border-radius:10px;font-size:12.5px;color:var(--text)}
+.fact .lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.fact .val{font-weight:500}
+
+.stat-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.stat-trio .stat-mini{padding:14px;background:#fff;border:.5px solid var(--border);border-radius:12px;text-align:center}
+.stat-trio .stat-mini .lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.stat-trio .stat-mini .val{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;font-style:italic;line-height:1;letter-spacing:-.01em}
+
+.h-sec{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+
+.mini-order{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--cream-soft);border-radius:10px;margin-bottom:6px;font-size:12.5px}
+.mini-order .o-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.04em;flex:1}
+.mini-order .o-amt{font-family:'DM Mono',monospace;font-weight:500;color:var(--text)}
+
+.design-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.design-grid .thumb{width:100%}
+.design-grid .thumb .ti{height:80px;background:linear-gradient(135deg,#e8d5c0,#c4a882)}
+.design-grid .thumb .tc{height:22px}
+.design-grid .thumb .tc span{font-size:9px}
+
+.ban-section{padding:18px 0 0;border-top:.5px solid var(--border);margin-top:8px}
+#banReason{display:none;margin-top:12px}
+#banReason.show{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="admin">
+  <aside class="sidebar">
+    <div class="sb-brand"><span class="mark"></span>Pola<em>muse</em><span class="tag">admin</span></div>
+    <nav class="sb-nav">
+      <a class="sb-item" href="Polamuse Admin Dashboard.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a class="sb-item" href="Polamuse Admin Orders.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h18l-2 14H5L3 5z"/><path d="M8 9h8"/></svg>Orders</a>
+      <a class="sb-item" href="Polamuse Admin Print Queue.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print Queue<span class="count">23</span></a>
+      <a class="sb-item active" href="Polamuse Admin Users.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Users</a>
+      <a class="sb-item" href="Polamuse Admin Analytics.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18M7 14l4-4 4 4 5-7"/></svg>Analytics</a>
+      <a class="sb-item" href="Polamuse Admin Coupons.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM15 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM9 12h6"/></svg>Coupons</a>
+      <a class="sb-item" href="Polamuse Admin Settings.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user"><div class="sb-avatar">A</div><div class="who"><div class="name">Aanya Mehta</div><div class="role">admin</div></div></div>
+      <a class="sb-logout" href="Polamuse Auth.html">Log out <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>Users</h1>
+        <p class="sub">342 total · 14 new this week · 6 banned</p>
+      </div>
+      <div class="head-actions">
+        <button class="btn outline">Export CSV</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input class="input search" type="search" placeholder="Search by name, email or city…">
+    </div>
+
+    <div class="pill-row">
+      <button class="pill active">All<span class="count">342</span></button>
+      <button class="pill">Active<span class="count">336</span></button>
+      <button class="pill">Banned<span class="count">6</span></button>
+    </div>
+
+    <div class="card" style="padding:6px 6px 14px">
+      <table class="tbl">
+        <thead>
+          <tr><th>Customer</th><th>City</th><th>Orders</th><th>Spent</th><th>Joined</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="usersBody">
+
+          <tr data-name="Priya Sharma" data-email="priya.s@gmail.com" data-city="Mumbai" data-orders="14" data-spent="₹4,820" data-status="Active"><td><div class="who"><div class="av">P</div><div><div class="nm">Priya Sharma</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6010120919014e1320070d01090c4e030f0d">[email&#160;protected]</a></div></div></div></td><td class="num">Mumbai</td><td class="num">14</td><td class="amount">₹4,820</td><td class="num">Mar 12, 2024</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-name="Rohan Kapoor" data-email="rohan.k@hey.com" data-city="Bengaluru" data-orders="9" data-spent="₹3,290" data-status="Active"><td><div class="who"><div class="av">R</div><div><div class="nm">Rohan Kapoor</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b9cbd6d1d8d797d2f9d1dcc097dad6d4">[email&#160;protected]</a></div></div></div></td><td class="num">Bengaluru</td><td class="num">9</td><td class="amount">₹3,290</td><td class="num">Jul 04, 2024</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-name="Anika Reddy" data-email="anika.r@gmail.com" data-city="Hyderabad" data-orders="22" data-spent="₹8,140" data-status="Active"><td><div class="who"><div class="av">A</div><div><div class="nm">Anika Reddy</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c8a9a6a1a3a9e6ba88afa5a9a1a4e6aba7a5">[email&#160;protected]</a></div></div></div></td><td class="num">Hyderabad</td><td class="num">22</td><td class="amount">₹8,140</td><td class="num">Jan 28, 2024</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-name="Vikram Singh" data-email="vik.singh@outlook.com" data-city="Delhi" data-orders="3" data-spent="₹620" data-status="Active"><td><div class="who"><div class="av">V</div><div><div class="nm">Vikram Singh</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="addbc4c683dec4c3cac5edc2d8d9c1c2c2c683cec2c0">[email&#160;protected]</a></div></div></div></td><td class="num">Delhi</td><td class="num">3</td><td class="amount">₹620</td><td class="num">Feb 11, 2025</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-name="Meera Iyer" data-email="meera.iyer@gmail.com" data-city="Chennai" data-orders="11" data-spent="₹5,460" data-status="Active"><td><div class="who"><div class="av">M</div><div><div class="nm">Meera Iyer</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="305d555542511e5949554270575d51595c1e535f5d">[email&#160;protected]</a></div></div></div></td><td class="num">Chennai</td><td class="num">11</td><td class="amount">₹5,460</td><td class="num">Aug 19, 2024</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-name="Kabir Joshi" data-email="kabir.j@gmail.com" data-city="Pune" data-orders="6" data-spent="₹1,840" data-status="Active"><td><div class="who"><div class="av">K</div><div><div class="nm">Kabir Joshi</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f59e94979c87db9fb59298949c99db969a98">[email&#160;protected]</a></div></div></div></td><td class="num">Pune</td><td class="num">6</td><td class="amount">₹1,840</td><td class="num">Nov 02, 2024</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-name="Nisha Patel" data-email="nisha.p@gmail.com" data-city="Ahmedabad" data-orders="4" data-spent="₹1,290" data-status="Active"><td><div class="who"><div class="av">N</div><div><div class="nm">Nisha Patel</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2e40475d464f005e6e49434f4742004d4143">[email&#160;protected]</a></div></div></div></td><td class="num">Ahmedabad</td><td class="num">4</td><td class="amount">₹1,290</td><td class="num">Apr 22, 2025</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-name="Sahil Bansal" data-email="sahil.b@hey.com" data-city="Delhi" data-orders="1" data-spent="₹79" data-status="Banned"><td><div class="who"><div class="av">S</div><div><div class="nm">Sahil Bansal</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="91e2f0f9f8fdbff3d1f9f4e8bff2fefc">[email&#160;protected]</a></div></div></div></td><td class="num">Delhi</td><td class="num">1</td><td class="amount">₹79</td><td class="num">May 14, 2025</td><td><span class="badge bad">Banned</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-name="Tanvi Sen" data-email="tanvi.s@gmail.com" data-city="Kolkata" data-orders="18" data-spent="₹7,210" data-status="Active"><td><div class="who"><div class="av">T</div><div><div class="nm">Tanvi Sen</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="592d38372f30772a193e34383035773a3634">[email&#160;protected]</a></div></div></div></td><td class="num">Kolkata</td><td class="num">18</td><td class="amount">₹7,210</td><td class="num">Dec 09, 2023</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-name="Devansh Roy" data-email="dev.roy@gmail.com" data-city="Bengaluru" data-orders="7" data-spent="₹2,440" data-status="Active"><td><div class="who"><div class="av">D</div><div><div class="nm">Devansh Roy</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a4c0c1d28ad6cbdde4c3c9c5cdc88ac7cbc9">[email&#160;protected]</a></div></div></div></td><td class="num">Bengaluru</td><td class="num">7</td><td class="amount">₹2,440</td><td class="num">Jun 14, 2024</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- USER DETAIL PANEL -->
+<div class="panel-backdrop" id="backdrop"></div>
+<aside class="panel" id="panel" role="dialog">
+  <div class="panel-head">
+    <div>
+      <div class="ttl">User detail</div>
+      <div class="meta" id="pStatus">Active member</div>
+    </div>
+    <button class="panel-close" id="pClose">×</button>
+  </div>
+  <div class="panel-body">
+
+    <div class="user-hero">
+      <div class="lg-av" id="pAv">P</div>
+      <div>
+        <div class="nm" id="pName">Priya Sharma</div>
+        <span class="em" id="pEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2f5f5d46564e015c6f48424e4643014c4042">[email&#160;protected]</a></span>
+      </div>
+    </div>
+
+    <div class="fact-grid">
+      <div class="fact"><div class="lbl">Phone</div><div class="val">+91 98201 22345</div></div>
+      <div class="fact"><div class="lbl">City</div><div class="val" id="pCity">Mumbai</div></div>
+      <div class="fact"><div class="lbl">Joined</div><div class="val">Mar 12, 2024</div></div>
+      <div class="fact"><div class="lbl">Last login</div><div class="val">2 hours ago</div></div>
+    </div>
+
+    <div class="stat-trio">
+      <div class="stat-mini"><div class="lbl">Designs</div><div class="val">38</div></div>
+      <div class="stat-mini"><div class="lbl">Orders</div><div class="val" id="pOrders">14</div></div>
+      <div class="stat-mini"><div class="lbl">Spent</div><div class="val" id="pSpent">₹4.8k</div></div>
+    </div>
+
+    <div class="h-sec"><span>Recent orders</span><a href="Polamuse Admin Orders.html" class="more" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--brown);letter-spacing:.1em;text-transform:uppercase">All →</a></div>
+    <div class="mini-order"><span class="o-id">#PM-2026-00342</span><span class="badge good">Confirmed</span><span class="o-amt">₹79</span></div>
+    <div class="mini-order"><span class="o-id">#PM-2026-00298</span><span class="badge good">Delivered</span><span class="o-amt">₹349</span></div>
+    <div class="mini-order"><span class="o-id">#PM-2026-00271</span><span class="badge good">Delivered</span><span class="o-amt">₹79</span></div>
+    <div class="mini-order"><span class="o-id">#PM-2026-00244</span><span class="badge good">Delivered</span><span class="o-amt">₹590</span></div>
+    <div class="mini-order" style="margin-bottom:22px"><span class="o-id">#PM-2026-00219</span><span class="badge good">Delivered</span><span class="o-amt">₹79</span></div>
+
+    <div class="h-sec"><span>Recent designs</span><span class="more" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase">Last 6</span></div>
+    <div class="design-grid" id="designGrid"></div>
+
+    <div class="ban-section">
+      <button class="btn danger" id="banBtn">Ban this user</button>
+      <div id="banReason" class="field-group" style="margin-top:14px;margin-bottom:0">
+        <label>Reason for ban</label>
+        <textarea placeholder="e.g. Repeated chargebacks · Abusive content uploads · Spam orders"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+          <button class="btn ghost sm" id="banCancel">Cancel</button>
+          <button class="btn primary sm" style="background:var(--bad)">Confirm ban</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</aside>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Build design thumbnail grid
+const designGrid = document.getElementById('designGrid');
+const gradients = ['linear-gradient(135deg,#e8d5c0,#c4a882)','linear-gradient(135deg,#c8d4f0,#a0b4e0)','linear-gradient(160deg,#c8b8a0,#8b7060)','linear-gradient(135deg,#f0c8a0,#d0a070)','linear-gradient(135deg,#d4c0e8,#b0a0d0)','linear-gradient(135deg,#a8c8a0,#78a870)'];
+const caps = ['always you','besties','golden','3 years','summer','goa'];
+for(let i=0;i<6;i++){
+  designGrid.innerHTML += `<div class="thumb"><div class="ti" style="background:${gradients[i]}"></div><div class="tc"><span>${caps[i]}</span></div></div>`;
+}
+
+// Panel
+const panel = document.getElementById('panel');
+const backdrop = document.getElementById('backdrop');
+function openPanel(tr){
+  document.getElementById('pName').textContent = tr.dataset.name;
+  document.getElementById('pEmail').textContent = tr.dataset.email;
+  document.getElementById('pAv').textContent = tr.dataset.name[0];
+  document.getElementById('pCity').textContent = tr.dataset.city;
+  document.getElementById('pOrders').textContent = tr.dataset.orders;
+  document.getElementById('pSpent').textContent = tr.dataset.spent;
+  document.getElementById('pStatus').textContent = tr.dataset.status === 'Banned' ? 'Banned' : 'Active member';
+  // reset ban
+  document.getElementById('banReason').classList.remove('show');
+  document.body.classList.add('panel-open');
+}
+function closePanel(){ document.body.classList.remove('panel-open'); }
+document.querySelectorAll('#usersBody tr').forEach(tr => tr.addEventListener('click', () => openPanel(tr)));
+document.getElementById('pClose').addEventListener('click', closePanel);
+backdrop.addEventListener('click', closePanel);
+document.addEventListener('keydown', e => e.key === 'Escape' && closePanel());
+
+// Ban reveal
+document.getElementById('banBtn').addEventListener('click', () => document.getElementById('banReason').classList.add('show'));
+document.getElementById('banCancel').addEventListener('click', () => document.getElementById('banReason').classList.remove('show'));
+
+// pills
+document.querySelectorAll('.pill-row .pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('.pill-row .pill').forEach(x => x.classList.remove('active'));
+  p.classList.add('active');
+}));
+</script>
+</body>
+</html>

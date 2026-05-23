@@ -68,7 +68,7 @@ async function rotateSession(refreshToken: string): Promise<{
     VALUES (${newSessionId}, ${user.id}, ${newRefreshHash}, ${newExpiry})
   `;
 
-  const accessToken = signAccessToken({ userId: user.id, email: user.email, role: user.role });
+  const accessToken = signAccessToken({ userId: user.id, email: user.email, role: user.role as 'admin' | 'customer' });
   return { accessToken, newRefreshToken };
 }
 

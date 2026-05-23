@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polamuse Admin — Orders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<style>
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.toolbar .input.search{flex:1;min-width:240px;max-width:380px}
+.dt-range{display:inline-flex;align-items:center;gap:8px;height:38px;border:.5px solid var(--border);border-radius:10px;background:#fff;padding:0 14px;font-size:13px;color:var(--text-2);cursor:pointer}
+.dt-range svg{color:var(--text-3)}
+
+/* slide-in detail */
+.detail-grid{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:flex-start;margin-bottom:22px;padding:14px;background:var(--cream-soft);border-radius:14px;border:.5px solid var(--border)}
+.detail-grid .thumb{width:90px}
+.detail-grid .thumb .ti{height:78px;background:linear-gradient(135deg,#e8d5c0,#c4a882)}
+.detail-grid .thumb .tc{height:22px}
+.detail-grid .thumb .tc span{font-size:10px}
+.detail-info .nm{font-size:14px;font-weight:500;margin-bottom:4px}
+.detail-info .em{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.02em;margin-bottom:8px;display:block;text-decoration:underline;text-underline-offset:2px}
+.detail-info .ln{font-size:12.5px;color:var(--text-2);line-height:1.6}
+
+.detail-section{margin-bottom:22px}
+.detail-section h3{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+.detail-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-mini{padding:12px 14px;background:#fff;border:.5px solid var(--border);border-radius:10px}
+.stat-mini .lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.stat-mini .val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;font-style:italic;line-height:1}
+
+#trackingRow{display:none;margin-top:12px}
+#trackingRow.show{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.timeline{position:relative;padding-left:22px}
+.timeline::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:.5px;background:var(--border)}
+.tl-item{position:relative;padding:6px 0 14px;font-size:12.5px}
+.tl-item::before{content:'';position:absolute;left:-19px;top:9px;width:9px;height:9px;border-radius:50%;background:var(--cream-deep);border:1.5px solid var(--text-3)}
+.tl-item.done::before{background:var(--brown);border-color:var(--brown)}
+.tl-item.current::before{background:var(--good);border-color:var(--good);box-shadow:0 0 0 3px rgba(15,110,86,.2)}
+.tl-item .ev{font-weight:500;color:var(--text)}
+.tl-item .when{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.04em;margin-top:2px}
+
+.pagination{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:.04em}
+.pagination .nav{display:flex;gap:4px}
+.pagination .nav button{width:30px;height:30px;border-radius:8px;border:.5px solid var(--border);background:#fff;color:var(--text-2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px}
+.pagination .nav button.active{background:var(--text);color:#fff;border-color:var(--text)}
+.pagination .nav button:hover:not(.active){border-color:var(--text-3);color:var(--text)}
+</style>
+</head>
+<body>
+
+<div class="admin">
+  <aside class="sidebar">
+    <div class="sb-brand"><span class="mark"></span>Pola<em>muse</em><span class="tag">admin</span></div>
+    <nav class="sb-nav">
+      <a class="sb-item" href="Polamuse Admin Dashboard.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a class="sb-item active" href="Polamuse Admin Orders.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h18l-2 14H5L3 5z"/><path d="M8 9h8"/></svg>Orders</a>
+      <a class="sb-item" href="Polamuse Admin Print Queue.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print Queue<span class="count">23</span></a>
+      <a class="sb-item" href="Polamuse Admin Users.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Users</a>
+      <a class="sb-item" href="Polamuse Admin Analytics.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18M7 14l4-4 4 4 5-7"/></svg>Analytics</a>
+      <a class="sb-item" href="Polamuse Admin Coupons.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM15 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM9 12h6"/></svg>Coupons</a>
+      <a class="sb-item" href="Polamuse Admin Settings.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user"><div class="sb-avatar">A</div><div class="who"><div class="name">Aanya Mehta</div><div class="role">admin</div></div></div>
+      <a class="sb-logout" href="Polamuse Auth.html">Log out <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>Orders</h1>
+        <p class="sub">342 total · 23 in print queue · 8 today</p>
+      </div>
+      <div class="head-actions">
+        <button class="btn outline"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export CSV</button>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <input class="input search" type="search" placeholder="Search by order number or email…">
+      <select class="select"><option>All statuses</option><option>Pending</option><option>Confirmed</option><option>Printing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select>
+      <div class="dt-range"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>May 1 — May 23, 2026</div>
+    </div>
+
+    <!-- STATUS FILTER PILLS -->
+    <div class="pill-row">
+      <button class="pill active">All<span class="count">342</span></button>
+      <button class="pill">Pending<span class="count">12</span></button>
+      <button class="pill">Confirmed<span class="count">34</span></button>
+      <button class="pill">Printing<span class="count">23</span></button>
+      <button class="pill">Shipped<span class="count">41</span></button>
+      <button class="pill">Delivered<span class="count">218</span></button>
+      <button class="pill">Cancelled<span class="count">14</span></button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card" style="padding:6px 6px 14px">
+      <table class="tbl">
+        <thead>
+          <tr><th>Order #</th><th>Customer</th><th>Items</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr>
+        </thead>
+        <tbody id="ordersBody">
+          <tr data-order="00342" data-name="Priya Sharma" data-email="priya.s@gmail.com" data-amt="₹79" data-status="Confirmed" data-status-class="good"><td class="num">#PM-2026-00342</td><td><div class="who"><div class="av">P</div><div><div class="nm">Priya Sharma</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4333312a3a226d3003242e222a2f6d202c2e">[email&#160;protected]</a></div></div></div></td><td>1 × Classic · Glossy</td><td class="amount">₹79</td><td><span class="badge good">Confirmed</span></td><td class="num">23 May · 14:32</td><td><button class="icon-btn" aria-label="View"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-order="00341" data-name="Rohan Kapoor" data-email="rohan.k@hey.com" data-amt="₹590" data-status="Pending" data-status-class="warn"><td class="num">#PM-2026-00341</td><td><div class="who"><div class="av">R</div><div><div class="nm">Rohan Kapoor</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b7c5d8dfd6d999dcf7dfd2ce99d4d8da">[email&#160;protected]</a></div></div></div></td><td>10 × Classic · Matte</td><td class="amount">₹590</td><td><span class="badge warn">Pending</span></td><td class="num">23 May · 14:18</td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-order="00340" data-name="Anika Reddy" data-email="anika.r@gmail.com" data-amt="₹349" data-status="Printing" data-status-class="brown"><td class="num">#PM-2026-00340</td><td><div class="who"><div class="av">A</div><div><div class="nm">Anika Reddy</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8eefe0e7e5efa0fccee9e3efe7e2a0ede1e3">[email&#160;protected]</a></div></div></div></td><td>5 × Classic · Glossy</td><td class="amount">₹349</td><td><span class="badge brown">Printing</span></td><td class="num">23 May · 13:50</td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-order="00339" data-name="Vikram Singh" data-email="vik.singh@outlook.com" data-amt="₹79" data-status="Shipped" data-status-class="info"><td class="num">#PM-2026-00339</td><td><div class="who"><div class="av">V</div><div><div class="nm">Vikram Singh</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8dfbe4e6a3fee4e3eae5cde2f8f9e1e2e2e6a3eee2e0">[email&#160;protected]</a></div></div></div></td><td>1 × Classic · Glossy</td><td class="amount">₹79</td><td><span class="badge info">Shipped</span></td><td class="num">23 May · 12:42</td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-order="00338" data-name="Meera Iyer" data-email="meera.iyer@gmail.com" data-amt="₹999" data-status="Delivered" data-status-class="good"><td class="num">#PM-2026-00338</td><td><div class="who"><div class="av">M</div><div><div class="nm">Meera Iyer</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="78151d1d0a195611011d0a381f15191114561b1715">[email&#160;protected]</a></div></div></div></td><td>20 × Classic · Matte</td><td class="amount">₹999</td><td><span class="badge good">Delivered</span></td><td class="num">23 May · 11:24</td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-order="00337" data-name="Kabir Joshi" data-email="kabir.j@gmail.com" data-amt="₹79" data-status="Confirmed" data-status-class="good"><td class="num">#PM-2026-00337</td><td><div class="who"><div class="av">K</div><div><div class="nm">Kabir Joshi</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="375c56555e45195d77505a565e5b1954585a">[email&#160;protected]</a></div></div></div></td><td>1 × Instax Mini · Glossy</td><td class="amount">₹79</td><td><span class="badge good">Confirmed</span></td><td class="num">23 May · 10:30</td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-order="00336" data-name="Nisha Patel" data-email="nisha.p@gmail.com" data-amt="₹349" data-status="Printing" data-status-class="brown"><td class="num">#PM-2026-00336</td><td><div class="who"><div class="av">N</div><div><div class="nm">Nisha Patel</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8fe1e6fce7eea1ffcfe8e2eee6e3a1ece0e2">[email&#160;protected]</a></div></div></div></td><td>5 × Vintage · Matte</td><td class="amount">₹349</td><td><span class="badge brown">Printing</span></td><td class="num">22 May · 21:55</td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-order="00335" data-name="Sahil Bansal" data-email="sahil.b@hey.com" data-amt="₹79" data-status="Cancelled" data-status-class="bad"><td class="num">#PM-2026-00335</td><td><div class="who"><div class="av">S</div><div><div class="nm">Sahil Bansal</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5a293b32333674381a323f2374393537">[email&#160;protected]</a></div></div></div></td><td>1 × Classic · Glossy</td><td class="amount">₹79</td><td><span class="badge bad">Cancelled</span></td><td class="num">22 May · 18:14</td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-order="00334" data-name="Tanvi Sen" data-email="tanvi.s@gmail.com" data-amt="₹999" data-status="Delivered" data-status-class="good"><td class="num">#PM-2026-00334</td><td><div class="who"><div class="av">T</div><div><div class="nm">Tanvi Sen</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3044515e46591e4370575d51595c1e535f5d">[email&#160;protected]</a></div></div></div></td><td>20 × Movie Poster · Glossy</td><td class="amount">₹999</td><td><span class="badge good">Delivered</span></td><td class="num">22 May · 16:02</td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+
+          <tr data-order="00333" data-name="Devansh Roy" data-email="dev.roy@gmail.com" data-amt="₹590" data-status="Shipped" data-status-class="info"><td class="num">#PM-2026-00333</td><td><div class="who"><div class="av">D</div><div><div class="nm">Devansh Roy</div><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="721617045c001d0b32151f131b1e5c111d1f">[email&#160;protected]</a></div></div></div></td><td>10 × Classic · Glossy</td><td class="amount">₹590</td><td><span class="badge info">Shipped</span></td><td class="num">22 May · 14:38</td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+        </tbody>
+      </table>
+      <div class="pagination" style="padding:0 12px">
+        <span>Showing 1–10 of 342</span>
+        <div class="nav">
+          <button>‹</button><button class="active">1</button><button>2</button><button>3</button><button>…</button><button>35</button><button>›</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ORDER DETAIL PANEL -->
+<div class="panel-backdrop" id="backdrop"></div>
+<aside class="panel" id="panel" role="dialog">
+  <div class="panel-head">
+    <div>
+      <div class="ttl" id="pTitle">#PM-2026-00342</div>
+      <div class="meta" id="pMeta">23 May 2026 · 14:32</div>
+    </div>
+    <button class="panel-close" id="pClose">×</button>
+  </div>
+  <div class="panel-body">
+
+    <div class="detail-grid">
+      <div class="thumb">
+        <div class="ti" style="background:linear-gradient(135deg,#e8d5c0,#c4a882)"></div>
+        <div class="tc"><span>always you</span></div>
+      </div>
+      <div class="detail-info">
+        <div class="nm" id="pName">Priya Sharma</div>
+        <a class="em" id="pEmail" href="Polamuse Admin Users.html"><span class="__cf_email__" data-cfemail="2656544f5f47085566414b474f4a0845494b">[email&#160;protected]</span></a>
+        <div class="ln">1 × Classic Polaroid · Glossy<br>Spotify code: "Iris" — Goo Goo Dolls<br>Caption: <em>always you</em></div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Shipping</h3>
+      <div class="ln" style="font-size:12.5px;color:var(--text-2);line-height:1.6">Priya Sharma<br>2B, Hillside Apts, Pali Hill<br>Bandra West, Mumbai 400050<br>+91 98201 22345</div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Status</h3>
+      <div class="field-group">
+        <select id="statusSel">
+          <option>Pending</option>
+          <option selected>Confirmed</option>
+          <option>Printing</option>
+          <option>Shipped</option>
+          <option>Delivered</option>
+          <option>Cancelled</option>
+        </select>
+      </div>
+      <div id="trackingRow" class="field-group">
+        <label>Tracking number</label>
+        <input type="text" placeholder="e.g. DTDC-IN-202600342">
+        <div class="hint">Customer will be notified on WhatsApp once saved.</div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Internal note</h3>
+      <div class="field-group">
+        <textarea placeholder="Add a note for the team (not visible to customer)…"></textarea>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Payment</h3>
+      <div class="detail-stats">
+        <div class="stat-mini"><div class="lbl">Total</div><div class="val" id="pAmt">₹79</div></div>
+        <div class="stat-mini"><div class="lbl">Method</div><div class="val" style="font-size:14px;font-style:normal;font-family:'DM Sans',sans-serif;margin-top:4px">UPI · GPay</div></div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Timeline</h3>
+      <div class="timeline">
+        <div class="tl-item done"><div class="ev">Order placed</div><div class="when">23 May · 14:32</div></div>
+        <div class="tl-item done"><div class="ev">Payment received</div><div class="when">23 May · 14:33</div></div>
+        <div class="tl-item current"><div class="ev">Confirmed</div><div class="when">23 May · 14:34</div></div>
+        <div class="tl-item"><div class="ev">Printing</div><div class="when">—</div></div>
+        <div class="tl-item"><div class="ev">Shipped</div><div class="when">—</div></div>
+        <div class="tl-item"><div class="ev">Delivered</div><div class="when">—</div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="panel-foot">
+    <button class="btn outline"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Download print file</button>
+    <button class="btn primary">Save changes</button>
+  </div>
+</aside>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const panel = document.getElementById('panel');
+const backdrop = document.getElementById('backdrop');
+function openPanel(tr){
+  document.getElementById('pTitle').textContent = '#PM-2026-' + tr.dataset.order;
+  document.getElementById('pName').textContent = tr.dataset.name;
+  document.getElementById('pEmail').textContent = tr.dataset.email;
+  document.getElementById('pAmt').textContent = tr.dataset.amt;
+  // status sync
+  const sel = document.getElementById('statusSel');
+  [...sel.options].forEach(o => o.selected = o.value === tr.dataset.status || o.text === tr.dataset.status);
+  toggleTracking();
+  document.body.classList.add('panel-open');
+}
+function closePanel(){ document.body.classList.remove('panel-open'); }
+document.querySelectorAll('#ordersBody tr').forEach(tr => tr.addEventListener('click', () => openPanel(tr)));
+document.getElementById('pClose').addEventListener('click', closePanel);
+backdrop.addEventListener('click', closePanel);
+document.addEventListener('keydown', e => e.key === 'Escape' && closePanel());
+
+// status -> tracking row
+function toggleTracking(){
+  const v = document.getElementById('statusSel').value;
+  document.getElementById('trackingRow').classList.toggle('show', v === 'Shipped' || v === 'Delivered');
+}
+document.getElementById('statusSel').addEventListener('change', toggleTracking);
+
+// filter pills
+document.querySelectorAll('.pill-row .pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('.pill-row .pill').forEach(x => x.classList.remove('active'));
+  p.classList.add('active');
+}));
+</script>
+</body>
+</html>
