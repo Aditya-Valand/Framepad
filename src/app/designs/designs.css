@@ -479,7 +479,7 @@
 @media (max-width: 900px) {
   .dp-nav { padding: 12px 18px; }
   .dp-nav-links { display: none; }
-  .dp-page { padding: 24px 18px 80px; }
+  .dp-page { padding: 80px 18px 80px; }
   .dp-head h1 { font-size: 30px; }
   .dp-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 18px; }
 }

@@ -3,6 +3,7 @@ import { jwtVerify } from 'jose';
 
 const PROTECTED_PAGES = ['/order'];
 const PROTECTED_API   = ['/api/designs', '/api/orders', '/api/payments', '/api/account'];
+const AUTH_REQUIRED_API = ['/api/designs', '/api/orders', '/api/payments', '/api/account', '/api/uploads'];
 const ADMIN_PATHS     = ['/admin', '/api/admin'];
 
 function getAccessSecret(): Uint8Array {
@@ -15,7 +16,7 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const isProtectedPage = PROTECTED_PAGES.some((p) => pathname.startsWith(p));
-  const isProtectedApi  = PROTECTED_API.some((p) => pathname.startsWith(p));
+  const isProtectedApi  = AUTH_REQUIRED_API.some((p) => pathname.startsWith(p));
   const isAdmin         = ADMIN_PATHS.some((p) => pathname.startsWith(p));
 
   // Bypass admin role check — allow anyone to access /admin routes for now
@@ -23,19 +24,19 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!isProtectedPage && !isProtectedApi && !isAdmin) {
-    return NextResponse.next();
-  }
-
   const token = req.cookies.get('access_token')?.value;
 
+  // No token: block protected routes, pass-through others
   if (!token) {
-    if (pathname.startsWith('/api/')) {
+    if (isProtectedApi) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    return NextResponse.redirect(
-      new URL(`/auth?redirect=${encodeURIComponent(pathname)}`, req.url)
-    );
+    if (isProtectedPage) {
+      return NextResponse.redirect(
+        new URL(`/auth?redirect=${encodeURIComponent(pathname)}`, req.url)
+      );
+    }
+    return NextResponse.next();
   }
 
   try {
@@ -57,13 +58,16 @@ export async function middleware(req: NextRequest) {
 
     return NextResponse.next({ request: { headers: requestHeaders } });
   } catch {
-    // Access token invalid or expired — try refresh for page routes
-    if (pathname.startsWith('/api/')) {
+    // Access token invalid or expired
+    if (isProtectedApi) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    return NextResponse.redirect(
-      new URL(`/api/auth/refresh?next=${encodeURIComponent(pathname)}`, req.url)
-    );
+    if (isProtectedPage) {
+      return NextResponse.redirect(
+        new URL(`/api/auth/refresh?next=${encodeURIComponent(pathname)}`, req.url)
+      );
+    }
+    return NextResponse.next();
   }
 }
 
@@ -76,5 +80,6 @@ export const config = {
     '/api/payments/:path*',
     '/api/account/:path*',
     '/api/admin/:path*',
+    '/api/uploads/:path*',
   ],
 };

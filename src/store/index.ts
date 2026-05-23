@@ -260,6 +260,9 @@ export interface FrameData {
   movieDirector: string;
   movieCast: string;
   captionSubtext: string;
+  // Cloud storage fields
+  cloudinaryId: string | null;
+  imageUrl: string | null;
 }
 
 export interface AppState {
@@ -267,6 +270,10 @@ export interface AppState {
   activeFrameId: string;
   activeTab: SidebarTab;
   layoutMode: LayoutMode;
+  // Design persistence
+  currentDesignId: string | null;
+  isSaving: boolean;
+  lastSavedAt: Date | null;
 
   setActiveTab: (tab: SidebarTab) => void;
   setLayoutMode: (mode: LayoutMode) => void;
@@ -275,6 +282,9 @@ export interface AppState {
   addFrame: () => void;
   removeFrame: (id: string) => void;
   setActiveFrame: (id: string) => void;
+  setDesignId: (id: string | null) => void;
+  setSaving: (saving: boolean) => void;
+  setLastSavedAt: (date: Date | null) => void;
 }
 
 function createFrame(id: string): FrameData {
@@ -315,6 +325,8 @@ function createFrame(id: string): FrameData {
     movieDirector: '',
     movieCast: '',
     captionSubtext: '',
+    cloudinaryId: null,
+    imageUrl: null,
   };
 }
 
@@ -340,6 +352,9 @@ export const useStore = create<AppState>((set) => ({
   activeFrameId: 'frame-1',
   activeTab: 'frame',
   layoutMode: 'single',
+  currentDesignId: null,
+  isSaving: false,
+  lastSavedAt: null,
 
   setActiveTab: (activeTab) => set({ activeTab }),
   setLayoutMode: (layoutMode) => set({ layoutMode }),
@@ -421,4 +436,7 @@ export const useStore = create<AppState>((set) => ({
     })),
 
   setActiveFrame: (activeFrameId) => set({ activeFrameId }),
+  setDesignId: (currentDesignId) => set({ currentDesignId }),
+  setSaving: (isSaving) => set({ isSaving }),
+  setLastSavedAt: (lastSavedAt) => set({ lastSavedAt }),
 }));

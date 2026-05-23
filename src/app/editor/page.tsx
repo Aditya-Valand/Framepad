@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import type { ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
 import { useStore } from "@/store";
+import { useAuth } from "@/hooks/useAuth";
+import { useAutoSave, useGuestAutoSave, useSaveDesign, loadDesignById, restoreGuestDesign } from "@/hooks/useDesignSave";
 import { PolaroidView } from "@/components/PolaroidView";
 import { BottomSheet } from "@/components/BottomSheet";
 import { FramePanel } from "@/components/panels/FramePanel";
@@ -141,17 +144,107 @@ function CanvasBackground() {
   );
 }
 
+function SaveIndicator({ isSaving, lastSavedAt }: { isSaving: boolean; lastSavedAt: Date | null }) {
+  if (isSaving) {
+    return (
+      <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 11, color: "#A39080", display: "inline-flex", alignItems: "center", gap: 4 }}>
+        <span className="animate-pulse" style={{ width: 6, height: 6, borderRadius: "50%", background: "#C4A882" }} />
+        Saving…
+      </span>
+    );
+  }
+  if (lastSavedAt) {
+    return (
+      <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 11, color: "#A39080", display: "inline-flex", alignItems: "center", gap: 4 }}>
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#8B9E6B" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 8.5l3.5 3.5 6.5-7" />
+        </svg>
+        Saved
+      </span>
+    );
+  }
+  return null;
+}
+
 /* ── Main ── */
 
 export default function EditorPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen" style={{ background: '#EDE6DC' }}><div className="animate-spin rounded-full h-8 w-8 border-2 border-[#8B6F5C] border-t-transparent" /></div>}>
+      <EditorPageInner />
+    </Suspense>
+  );
+}
+
+function EditorPageInner() {
   const activeTab = useStore((s) => s.activeTab);
   const setActiveTab = useStore((s) => s.setActiveTab);
+  const isSaving = useStore((s) => s.isSaving);
+  const lastSavedAt = useStore((s) => s.lastSavedAt);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  const searchParams = useSearchParams();
+  const { user, loading: authLoading } = useAuth();
+  const isLoggedIn = !!user;
+
+  // Auto-save hooks
+  useAutoSave(isLoggedIn);
+  useGuestAutoSave(isLoggedIn);
+  const { saveDesign } = useSaveDesign();
+
   useEffect(() => { setMounted(true); }, []);
+
+  // Load design from URL param or start fresh
+  useEffect(() => {
+    if (!mounted || authLoading) return;
+    const designId = searchParams.get('id');
+    const store = useStore.getState();
+
+    if (designId) {
+      loadDesignById(designId);
+    } else {
+      // No ?id= means "New Design" — reset to fresh state
+      store.setDesignId(null);
+      store.updateFrame(store.activeFrameId, {
+        imageDataUrl: null,
+        imageUrl: null,
+        cloudinaryId: null,
+        topLabelText: '',
+        bottomCaptionText: '',
+        musicUrl: '',
+        filters: { brightness: 0, contrast: 0, saturation: 0, warmth: 0 },
+        imageRotation: 0,
+        imagePanX: 0,
+        imagePanY: 0,
+        imageScale: 1,
+        templateId: 'polaroid-600',
+        frameColor: '#FFFFFF',
+        frameStyle: 'classic',
+        borderTop: 54,
+        borderLeft: 54,
+        borderRight: 54,
+        borderBottom: 210,
+        borderRadius: 0,
+        movieTitle: '',
+        movieYear: '',
+        movieDirector: '',
+        movieCast: '',
+        captionSubtext: '',
+      });
+
+      // For guests, restore pending work from localStorage
+      if (!isLoggedIn) {
+        const guest = restoreGuestDesign();
+        if (guest) {
+          store.updateFrame(store.activeFrameId, guest);
+        }
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, authLoading]);
 
   if (!mounted) {
     return (
@@ -208,7 +301,31 @@ export default function EditorPage() {
           }}
         >
           <Logo />
-          <ExportButton onSuccess={() => setExportSuccess(true)} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <SaveIndicator isSaving={isSaving} lastSavedAt={lastSavedAt} />
+            {isLoggedIn && (
+              <button
+                onClick={() => saveDesign()}
+                style={{
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  background: "transparent",
+                  color: "#8B6F5C",
+                  border: "0.5px solid rgba(139,111,92,0.3)",
+                  borderRadius: 100,
+                  padding: "7px 14px",
+                  cursor: "pointer",
+                  transition: "all .2s ease",
+                  letterSpacing: ".01em",
+                }}
+                className="hover:!bg-[rgba(139,111,92,0.07)] active:scale-[0.97]"
+              >
+                Save
+              </button>
+            )}
+            <ExportButton onSuccess={() => setExportSuccess(true)} />
+          </div>
         </header>
 
         {/* Canvas */}
@@ -372,6 +489,40 @@ export default function EditorPage() {
 
           <div style={{ flex: 1 }} />
 
+          {/* Save button (logged in only) */}
+          {isLoggedIn && (
+            <div className="group" style={{ position: "relative", marginBottom: 6 }}>
+              <button
+                onClick={() => saveDesign()}
+                aria-label="Save design"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  background: "transparent",
+                  border: "0.5px solid rgba(139,111,92,0.25)",
+                  color: "#8B6F5C",
+                  cursor: "pointer",
+                  transition: "all .18s ease",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(139,111,92,0.07)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                onMouseDown={(e) => { e.currentTarget.style.transform = "scale(0.93)"; }}
+                onMouseUp={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+              >
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.7">
+                  <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+              </button>
+              <SidebarTooltip>Save</SidebarTooltip>
+            </div>
+          )}
+
           {/* Export button */}
           <div className="group" style={{ position: "relative" }}>
             <button
@@ -469,6 +620,10 @@ export default function EditorPage() {
             borderLeft: "0.5px solid rgba(26,23,20,0.08)",
           }}
         >
+          {/* Save indicator */}
+          <div style={{ flexShrink: 0, padding: "8px 14px 0", display: "flex", justifyContent: "flex-end" }}>
+            <SaveIndicator isSaving={isSaving} lastSavedAt={lastSavedAt} />
+          </div>
           {/* Panel tab header — pill nav */}
           <div style={{
             flexShrink: 0,
