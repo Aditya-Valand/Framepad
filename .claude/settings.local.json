@@ -7,7 +7,13 @@
       "Bash(ConvertTo-Csv -NoTypeInformation)",
       "Bash(Out-String)",
       "Bash(npm install *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "PowerShell(Stop-Process *)",
+      "Bash(taskkill.exe /PID 63888 /F)",
+      "Bash(taskkill.exe /PID 80332 /F)",
+      "Bash(cmd.exe *)",
+      "Bash(npm run *)",
+      "Read(//tmp/**)"
     ]
   }
 }

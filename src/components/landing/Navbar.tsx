@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -116,6 +117,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const { user, loading, logout, initials } = useAuth();
+  const pathname = usePathname();
 
   useEffect(() => {
     const sections = ["templates", "moments", "how", "pricing"]
@@ -148,11 +150,13 @@ export default function Navbar() {
     document.body.style.overflow = next ? "hidden" : "";
   };
 
+  const isHome = pathname === "/";
   const links = [
-    { href: "#templates", label: "Templates", target: "templates" },
-    { href: "#moments", label: "Moments", target: "moments" },
-    { href: "#how", label: "How it works", target: "how" },
-    { href: "#pricing", label: "Pricing", target: "pricing" },
+    { href: isHome ? "#templates" : "/#templates", label: "Templates", target: "templates" },
+    { href: isHome ? "#moments" : "/#moments", label: "Moments", target: "moments" },
+    { href: isHome ? "#how" : "/#how", label: "How it works", target: "how" },
+    { href: isHome ? "#pricing" : "/#pricing", label: "Pricing", target: "pricing" },
+    { href: "/designs", label: "My Designs", target: "_page" },
   ];
 
   return (
@@ -188,22 +192,29 @@ export default function Navbar() {
             borderRadius: 100, padding: 5,
           }}
         >
-          {links.map((l) => (
-            <a
-              key={l.target} href={l.href}
-              style={{
-                position: "relative",
-                fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, fontWeight: 400,
-                color: activeSection === l.target ? "var(--text)" : "var(--text-2)",
-                textDecoration: "none", padding: "8px 16px", borderRadius: 100,
-                transition: "color .18s ease, background .18s ease", letterSpacing: ".005em",
-                background: activeSection === l.target ? "#fff" : "transparent",
-                boxShadow: activeSection === l.target ? "0 1px 2px rgba(26,23,20,.05), 0 4px 12px rgba(26,23,20,.04)" : "none",
-              }}
-            >
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) => {
+            const isPage = l.href.startsWith("/");
+            const isActive = isPage ? pathname === l.href : activeSection === l.target;
+            const style = {
+              position: "relative" as const,
+              fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, fontWeight: 400,
+              color: isActive ? "var(--text)" : "var(--text-2)",
+              textDecoration: "none", padding: "8px 16px", borderRadius: 100,
+              transition: "color .18s ease, background .18s ease", letterSpacing: ".005em",
+              background: isActive ? "#fff" : "transparent",
+              boxShadow: isActive ? "0 1px 2px rgba(26,23,20,.05), 0 4px 12px rgba(26,23,20,.04)" : "none",
+            };
+
+            return isPage || !isHome ? (
+              <Link key={l.target} href={l.href} style={style}>
+                {l.label}
+              </Link>
+            ) : (
+              <a key={l.target} href={l.href} style={style}>
+                {l.label}
+              </a>
+            );
+          })}
         </div>
 
         {/* Right — auth state */}
@@ -302,14 +313,19 @@ export default function Navbar() {
           overflowY: "auto",
         }}
       >
-        {links.map((l) => (
-          <a
-            key={l.target} href={l.href} onClick={closeMenu}
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300, color: "var(--text)", textDecoration: "none", padding: "14px 0", borderBottom: ".5px solid var(--border)" }}
-          >
-            {l.label}
-          </a>
-        ))}
+        {links.map((l) => {
+          const isPage = l.href.startsWith("/");
+          const linkStyle = { fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300, color: "var(--text)", textDecoration: "none", padding: "14px 0", borderBottom: ".5px solid var(--border)" } as const;
+          return isPage || !isHome ? (
+            <Link key={l.target} href={l.href} onClick={closeMenu} style={linkStyle}>
+              {l.label}
+            </Link>
+          ) : (
+            <a key={l.target} href={l.href} onClick={closeMenu} style={linkStyle}>
+              {l.label}
+            </a>
+          );
+        })}
 
         {!loading && user ? (
           <>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polamuse Admin — Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<style>
+/* PERIOD SEGMENTED */
+.seg{display:inline-flex;background:#fff;border:.5px solid var(--border);border-radius:100px;padding:4px;gap:2px}
+.seg button{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:var(--text-2);background:transparent;border:none;border-radius:100px;padding:7px 14px;cursor:pointer;transition:all .15s;letter-spacing:.005em}
+.seg button:hover{color:var(--text)}
+.seg button.active{background:var(--text);color:#fff}
+
+/* CHART CARD */
+.chart-card{background:#fff;border:.5px solid var(--border);border-radius:18px;padding:24px;margin-bottom:18px}
+.chart-h{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;gap:14px}
+.chart-h .ttl{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;font-style:italic;line-height:1.1;letter-spacing:-.005em}
+.chart-h .ttl .big{display:block;font-family:'Cormorant Garamond',serif;font-size:38px;line-height:1;margin-top:4px;letter-spacing:-.01em}
+.chart-h .ttl .delta{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.04em;margin-top:6px;font-style:normal;color:var(--good)}
+.chart-h .legend{display:flex;gap:14px;align-items:center}
+.legend-item{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--text-2);text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.legend-item .sw{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--brown)}
+.legend-item .sw.alt{background:var(--text-3)}
+
+/* SVG AREA */
+.area-chart{width:100%;height:240px;display:block}
+.area-chart .grid line{stroke:var(--border);stroke-dasharray:2 4}
+.area-chart .axis text{font-family:'DM Mono',monospace;font-size:10px;fill:var(--text-3);letter-spacing:.04em}
+.area-chart .area{fill:url(#brownArea)}
+.area-chart .line{fill:none;stroke:var(--brown);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.area-chart .lineSec{fill:none;stroke:var(--text-3);stroke-width:1.2;stroke-dasharray:3 4}
+.area-chart .dot{fill:#fff;stroke:var(--brown);stroke-width:2}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;align-items:stretch}
+
+/* FUNNEL */
+.funnel{display:flex;flex-direction:column;gap:18px;padding:8px 0}
+.fnl{position:relative}
+.fnl .head-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.fnl .lbl{font-size:13.5px;font-weight:500;color:var(--text)}
+.fnl .pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:.04em}
+.fnl .bar{height:38px;background:var(--cream-soft);border-radius:8px;overflow:hidden;position:relative}
+.fnl .fill{height:100%;background:linear-gradient(90deg,var(--brown) 0%,var(--brown-light) 100%);border-radius:8px;display:flex;align-items:center;padding:0 14px;font-family:'Cormorant Garamond',serif;font-size:20px;color:#fff;font-style:italic;font-weight:300;line-height:1;letter-spacing:-.01em;transition:width 1.2s ease}
+.fnl .drop{position:absolute;right:-2px;top:46px;font-family:'DM Mono',monospace;font-size:10px;color:var(--bad);letter-spacing:.04em;display:none}
+.fnl:not(:last-child) .drop{display:block}
+
+/* TEMPLATE BARS */
+.tpl-bar{display:grid;grid-template-columns:130px 1fr 40px;gap:14px;align-items:center;padding:10px 0;border-bottom:.5px solid var(--border)}
+.tpl-bar:last-child{border-bottom:none}
+.tpl-bar .nm{font-size:13px;color:var(--text)}
+.tpl-bar .track{height:10px;background:var(--cream-soft);border-radius:100px;overflow:hidden}
+.tpl-bar .fill{height:100%;background:var(--brown);border-radius:100px;transition:width 1s ease}
+.tpl-bar:nth-child(2) .fill{background:var(--brown)}
+.tpl-bar:nth-child(3) .fill{background:#A07a5a}
+.tpl-bar:nth-child(4) .fill{background:var(--brown-light)}
+.tpl-bar:nth-child(5) .fill{background:#D4B898}
+.tpl-bar:nth-child(6) .fill{background:#E8D0B0}
+.tpl-bar .pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.02em;text-align:right}
+
+/* DONUT */
+.donut-wrap{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:12px 0}
+.donut{width:170px;height:170px;position:relative;flex-shrink:0}
+.donut svg{transform:rotate(-90deg);width:100%;height:100%}
+.donut .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut .center .num{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;font-style:italic;line-height:1;letter-spacing:-.01em}
+.donut .center .lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
+.donut-leg{display:flex;flex-direction:column;gap:9px}
+.donut-leg .row{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:center;font-size:12.5px}
+.donut-leg .sw{width:9px;height:9px;border-radius:50%;background:var(--brown)}
+.donut-leg .num{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.02em}
+
+@media(max-width:1000px){.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="admin">
+  <aside class="sidebar">
+    <div class="sb-brand"><span class="mark"></span>Pola<em>muse</em><span class="tag">admin</span></div>
+    <nav class="sb-nav">
+      <a class="sb-item" href="Polamuse Admin Dashboard.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a class="sb-item" href="Polamuse Admin Orders.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h18l-2 14H5L3 5z"/><path d="M8 9h8"/></svg>Orders</a>
+      <a class="sb-item" href="Polamuse Admin Print Queue.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print Queue<span class="count">23</span></a>
+      <a class="sb-item" href="Polamuse Admin Users.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Users</a>
+      <a class="sb-item active" href="Polamuse Admin Analytics.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18M7 14l4-4 4 4 5-7"/></svg>Analytics</a>
+      <a class="sb-item" href="Polamuse Admin Coupons.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM15 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM9 12h6"/></svg>Coupons</a>
+      <a class="sb-item" href="Polamuse Admin Settings.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user"><div class="sb-avatar">A</div><div class="who"><div class="name">Aanya Mehta</div><div class="role">admin</div></div></div>
+      <a class="sb-logout" href="Polamuse Auth.html">Log out <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>Analytics</h1>
+        <p class="sub">Revenue, funnel and template insights · last 30 days vs previous 30</p>
+      </div>
+      <div class="head-actions">
+        <div class="seg">
+          <button>7d</button>
+          <button class="active">30d</button>
+          <button>90d</button>
+          <button>All time</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 1: STATS -->
+    <div class="stat-row">
+      <div class="stat"><div class="label">Revenue</div><div class="value">₹2.84L</div><div class="delta up">▲ 22.4% vs prev period</div></div>
+      <div class="stat"><div class="label">Orders</div><div class="value">486</div><div class="delta up">▲ 14.8%</div></div>
+      <div class="stat"><div class="label">Avg order value</div><div class="value">₹584</div><div class="delta up">▲ 6.5%</div></div>
+      <div class="stat"><div class="label">New users</div><div class="value">128</div><div class="delta down">▼ 3.2%</div></div>
+    </div>
+
+    <!-- REVENUE CHART -->
+    <div class="chart-card">
+      <div class="chart-h">
+        <div class="ttl">Revenue<span class="big">₹2,84,400</span><span class="delta">▲ ₹52,100 vs prev 30 days</span></div>
+        <div class="legend">
+          <span class="legend-item"><span class="sw"></span>This period</span>
+          <span class="legend-item"><span class="sw alt"></span>Previous</span>
+        </div>
+      </div>
+      <svg class="area-chart" viewBox="0 0 920 240" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="brownArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#8B6347" stop-opacity=".22"/>
+            <stop offset="100%" stop-color="#8B6347" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- grid lines -->
+        <g class="grid">
+          <line x1="0" y1="50"  x2="920" y2="50"/>
+          <line x1="0" y1="100" x2="920" y2="100"/>
+          <line x1="0" y1="150" x2="920" y2="150"/>
+          <line x1="0" y1="200" x2="920" y2="200"/>
+        </g>
+        <g class="axis">
+          <text x="6" y="46">₹15k</text>
+          <text x="6" y="96">₹10k</text>
+          <text x="6" y="146">₹5k</text>
+          <text x="6" y="196">₹0</text>
+        </g>
+        <!-- previous (dashed) -->
+        <path class="lineSec" d="M50,170 L110,160 L170,155 L230,158 L290,148 L350,142 L410,150 L470,138 L530,128 L590,135 L650,130 L710,122 L770,118 L830,124 L890,116"/>
+        <!-- current area -->
+        <path class="area" d="M50,160 L110,148 L170,140 L230,144 L290,128 L350,118 L410,124 L470,108 L530,92 L590,100 L650,84 L710,72 L770,60 L830,68 L890,52 L890,220 L50,220 Z"/>
+        <!-- current line -->
+        <path class="line" d="M50,160 L110,148 L170,140 L230,144 L290,128 L350,118 L410,124 L470,108 L530,92 L590,100 L650,84 L710,72 L770,60 L830,68 L890,52"/>
+        <!-- dots -->
+        <circle class="dot" cx="890" cy="52" r="4"/>
+        <!-- x-axis labels -->
+        <g class="axis">
+          <text x="50" y="234" text-anchor="middle">Apr 24</text>
+          <text x="240" y="234" text-anchor="middle">May 1</text>
+          <text x="450" y="234" text-anchor="middle">May 8</text>
+          <text x="670" y="234" text-anchor="middle">May 15</text>
+          <text x="890" y="234" text-anchor="end">May 23</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- ROW 3: FUNNEL + TEMPLATES -->
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-h"><div class="ttl">Design funnel<span class="delta" style="color:var(--text-3)">Last 30 days</span></div></div>
+        <div class="funnel">
+          <div class="fnl">
+            <div class="head-row"><div class="lbl">Designs created</div><div class="pct">100% · 1,240</div></div>
+            <div class="bar"><div class="fill" style="width:100%">1,240</div></div>
+            <div class="drop">↓ 45% drop-off (560)</div>
+          </div>
+          <div class="fnl">
+            <div class="head-row"><div class="lbl">Exported (PNG download)</div><div class="pct">54.8% · 680</div></div>
+            <div class="bar"><div class="fill" style="width:54.8%">680</div></div>
+            <div class="drop">↓ 54% drop-off (368)</div>
+          </div>
+          <div class="fnl">
+            <div class="head-row"><div class="lbl">Ordered (paid print)</div><div class="pct">25.2% · 312</div></div>
+            <div class="bar"><div class="fill" style="width:25.2%">312</div></div>
+          </div>
+        </div>
+        <div style="margin-top:18px;padding-top:14px;border-top:.5px solid var(--border);font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:.04em">✦ 46% of exporters end up ordering — strong intent signal</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-h"><div class="ttl">Top templates<span class="delta" style="color:var(--text-3)">By share of orders</span></div></div>
+        <div class="tpl-bar"><div class="nm">Classic Polaroid</div><div class="track"><div class="fill" style="width:88%"></div></div><div class="pct">38%</div></div>
+        <div class="tpl-bar"><div class="nm">Instax Mini</div><div class="track"><div class="fill" style="width:42%"></div></div><div class="pct">18%</div></div>
+        <div class="tpl-bar"><div class="nm">Vintage 600</div><div class="track"><div class="fill" style="width:32%"></div></div><div class="pct">14%</div></div>
+        <div class="tpl-bar"><div class="nm">Movie Poster</div><div class="track"><div class="fill" style="width:26%"></div></div><div class="pct">11%</div></div>
+        <div class="tpl-bar"><div class="nm">Instax Square</div><div class="track"><div class="fill" style="width:20%"></div></div><div class="pct">8%</div></div>
+        <div class="tpl-bar"><div class="nm">Polaroid B&W</div><div class="track"><div class="fill" style="width:14%"></div></div><div class="pct">6%</div></div>
+        <div class="tpl-bar"><div class="nm">Others (3)</div><div class="track"><div class="fill" style="width:10%"></div></div><div class="pct">5%</div></div>
+      </div>
+    </div>
+
+    <!-- ROW 4: DONUT -->
+    <div class="chart-card">
+      <div class="chart-h"><div class="ttl">Orders by status<span class="delta" style="color:var(--text-3)">Current snapshot</span></div></div>
+      <div class="donut-wrap">
+        <div class="donut">
+          <!-- donut SVG: cx=85, cy=85, r=64 -- circumference ≈ 402.12 -->
+          <svg viewBox="0 0 170 170">
+            <circle cx="85" cy="85" r="64" fill="none" stroke="var(--cream-soft)" stroke-width="22"/>
+            <!-- segments: Delivered 218 (63.7%), Shipped 41 (12%), Printing 23 (6.7%), Confirmed 34 (9.9%), Pending 12 (3.5%), Cancelled 14 (4.1%) -->
+            <circle cx="85" cy="85" r="64" fill="none" stroke="#0F6E56" stroke-width="22" stroke-dasharray="256.0 402.12" stroke-dashoffset="0"/>
+            <circle cx="85" cy="85" r="64" fill="none" stroke="#3A6B86" stroke-width="22" stroke-dasharray="48.3 402.12" stroke-dashoffset="-256.0"/>
+            <circle cx="85" cy="85" r="64" fill="none" stroke="#8B6347" stroke-width="22" stroke-dasharray="26.9 402.12" stroke-dashoffset="-304.3"/>
+            <circle cx="85" cy="85" r="64" fill="none" stroke="#C4A882" stroke-width="22" stroke-dasharray="39.8 402.12" stroke-dashoffset="-331.2"/>
+            <circle cx="85" cy="85" r="64" fill="none" stroke="#B86415" stroke-width="22" stroke-dasharray="14.1 402.12" stroke-dashoffset="-371.0"/>
+            <circle cx="85" cy="85" r="64" fill="none" stroke="#9C3A2A" stroke-width="22" stroke-dasharray="16.5 402.12" stroke-dashoffset="-385.1"/>
+          </svg>
+          <div class="center"><div class="num">342</div><div class="lbl">Total orders</div></div>
+        </div>
+        <div class="donut-leg" style="flex:1">
+          <div class="row"><span class="sw" style="background:#0F6E56"></span><span>Delivered</span><span class="num">218 · 63.7%</span></div>
+          <div class="row"><span class="sw" style="background:#3A6B86"></span><span>Shipped</span><span class="num">41 · 12.0%</span></div>
+          <div class="row"><span class="sw" style="background:#C4A882"></span><span>Confirmed</span><span class="num">34 · 9.9%</span></div>
+          <div class="row"><span class="sw" style="background:#8B6347"></span><span>Printing</span><span class="num">23 · 6.7%</span></div>
+          <div class="row"><span class="sw" style="background:#9C3A2A"></span><span>Cancelled</span><span class="num">14 · 4.1%</span></div>
+          <div class="row"><span class="sw" style="background:#B86415"></span><span>Pending</span><span class="num">12 · 3.5%</span></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.seg button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+}));
+</script>
+</body>
+</html>
