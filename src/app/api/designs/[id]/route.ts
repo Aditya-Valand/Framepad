@@ -1,5 +1,6 @@
 import { sql } from '@/lib/db';
 import { userId, ok, err } from '@/lib/api';
+import { deleteAsset } from '@/lib/cloudinary';
 
 /**
  * GET /api/designs/[id] — Get single design with full canvas_state
@@ -100,7 +101,7 @@ export async function DELETE(
 
   // Verify ownership
   const [existing] = await sql`
-    SELECT id, user_id FROM designs WHERE id = ${id} AND deleted_at IS NULL`;
+    SELECT id, user_id, canvas_state FROM designs WHERE id = ${id} AND deleted_at IS NULL`;
 
   if (!existing) return err('Design not found', 404);
   if (existing.user_id !== uid) return err('Forbidden', 403);
@@ -118,6 +119,13 @@ export async function DELETE(
   }
 
   await sql`UPDATE designs SET deleted_at = NOW() WHERE id = ${id}`;
+
+  // Delete Cloudinary image in background (non-blocking)
+  const canvasState = existing.canvas_state as { frameData?: { cloudinaryId?: string } } | null;
+  const cloudinaryId = canvasState?.frameData?.cloudinaryId;
+  if (cloudinaryId) {
+    deleteAsset(cloudinaryId).catch(() => {});
+  }
 
   return ok({ deleted: true });
 }

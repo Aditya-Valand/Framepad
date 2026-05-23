@@ -195,18 +195,13 @@ function EditorPageInner() {
   useGuestAutoSave(isLoggedIn);
   const { saveDesign } = useSaveDesign();
 
-  useEffect(() => { setMounted(true); }, []);
-
-  // Load design from URL param or start fresh
+  // On mount: reset state BEFORE showing canvas to prevent flash of old data
   useEffect(() => {
-    if (!mounted || authLoading) return;
-    const designId = searchParams.get('id');
     const store = useStore.getState();
+    const designId = searchParams.get('id');
 
-    if (designId) {
-      loadDesignById(designId);
-    } else {
-      // No ?id= means "New Design" — reset to fresh state
+    if (!designId) {
+      // "New Design" — reset immediately before canvas renders
       store.setDesignId(null);
       store.updateFrame(store.activeFrameId, {
         imageDataUrl: null,
@@ -235,13 +230,24 @@ function EditorPageInner() {
         captionSubtext: '',
       });
 
-      // For guests, restore pending work from localStorage
-      if (!isLoggedIn) {
-        const guest = restoreGuestDesign();
-        if (guest) {
-          store.updateFrame(store.activeFrameId, guest);
-        }
+      // For guests, immediately restore pending work so no blank flash
+      const guest = restoreGuestDesign();
+      if (guest) {
+        store.updateFrame(store.activeFrameId, guest);
       }
+    }
+
+    setMounted(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Load design from URL param (after auth resolves)
+  useEffect(() => {
+    if (!mounted || authLoading) return;
+    const designId = searchParams.get('id');
+
+    if (designId) {
+      loadDesignById(designId);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, authLoading]);
