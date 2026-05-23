@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { useStore } from './store';
-import { PolaroidView } from './components/PolaroidView';
-import { BottomSheet } from './components/BottomSheet';
-import { FramePanel } from './components/panels/FramePanel';
-import { EditPanel } from './components/panels/EditPanel';
-import { TextPanel } from './components/panels/TextPanel';
-import { MusicPanel } from './components/panels/MusicPanel';
-import { ExportSuccessModal } from './components/ExportSuccessModal';
-import { PrivacyPage } from './components/PrivacyPage';
+import { useStore } from '@/store';
+
+import { PolaroidView } from '@/components/PolaroidView';
+import { BottomSheet } from '@/components/BottomSheet';
+import { FramePanel } from '@/components/panels/FramePanel';
+import { EditPanel } from '@/components/panels/EditPanel';
+import { TextPanel } from '@/components/panels/TextPanel';
+import { MusicPanel } from '@/components/panels/MusicPanel';
+import { ExportSuccessModal } from '@/components/ExportSuccessModal';
+import { PrivacyPage } from '@/components/PrivacyPage';
 
 const TABS = ['frame', 'edit', 'text', 'music'] as const;
 type Tab = typeof TABS[number];

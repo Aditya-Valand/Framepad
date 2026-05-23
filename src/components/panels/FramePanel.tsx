@@ -1,98 +1,115 @@
-import { useCallback, useRef } from 'react';
-import { useStore, POLAROID_TEMPLATES } from '../../store';
-import type { TemplateId } from '../../store';
-import { useImageUpload } from '../../hooks/useImageUpload';
-import { useImageColors } from '../../hooks/useImageColors';
+'use client';
+
+import { useCallback } from 'react';
+import { useStore, POLAROID_TEMPLATES } from '@/store';
+import type { TemplateId } from '@/store';
+import { useImageUpload } from '@/hooks/useImageUpload';
+import { useImageColors } from '@/hooks/useImageColors';
+import { UploadButton, ColorPicker, Slider, SectionLabel } from '@/components/ui';
+
+const Sep = () => (
+  <div style={{ height: '0.5px', background: 'rgba(26,23,20,0.07)' }} />
+);
 
 export function FramePanel() {
   const activeFrameId = useStore((s) => s.activeFrameId);
-  const frame = useStore((s) => s.frames.find((f) => f.id === s.activeFrameId));
-  const updateFrame = useStore((s) => s.updateFrame);
+  const frame         = useStore((s) => s.frames.find((f) => f.id === s.activeFrameId));
+  const updateFrame   = useStore((s) => s.updateFrame);
   const applyTemplate = useStore((s) => s.applyTemplate);
-  const { uploadFile } = useImageUpload();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const photoColors = useImageColors(frame?.imageDataUrl ?? null);
+  const { uploadFile }  = useImageUpload();
+  const photoColors   = useImageColors(frame?.imageDataUrl ?? null);
 
-  const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadFile(file);
-    e.target.value = '';
-  }, [uploadFile]);
+  const handleFile = useCallback((file: File) => uploadFile(file), [uploadFile]);
 
   if (!frame) return null;
 
   return (
-    <div className="space-y-5">
-      {/* Upload */}
-      <section>
-        <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Photo</h3>
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="w-full py-3 rounded-xl border-2 border-dashed border-[#E0D5C9] text-sm text-[#8B7B6B] font-medium hover:border-[#C4B5A6] active:bg-[#F8F3EE] transition-colors"
-        >
-          {frame.imageDataUrl ? 'Change Photo' : 'Upload Photo'}
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={handleFile}
-        />
-      </section>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-      {/* Template Picker */}
+      {/* ── Upload ── */}
+      <UploadButton
+        label="Photo"
+        onUpload={handleFile}
+        hasFile={!!frame.imageDataUrl}
+        buttonText="Upload Photo"
+        replaceText="Change Photo"
+      />
+
+      <Sep />
+
+      {/* ── Template Picker ── */}
       <section>
-        <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-3">Template</h3>
-        <div className="grid grid-cols-4 gap-2">
+        <SectionLabel>Template</SectionLabel>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
           {POLAROID_TEMPLATES.map((tmpl) => {
             const isActive = frame.templateId === tmpl.id;
-            // Mini preview proportions
-            const maxH = 56;
+            const maxH  = 54;
             const scale = maxH / tmpl.frameHeight;
-            const w = tmpl.frameWidth * scale;
-            const h = tmpl.frameHeight * scale;
-            const bt = tmpl.borderTop * scale;
-            const bl = tmpl.borderLeft * scale;
-            const br = tmpl.borderRight * scale;
-            const bb = tmpl.borderBottom * scale;
+            const w     = tmpl.frameWidth * scale;
+            const h     = tmpl.frameHeight * scale;
+            const bt    = tmpl.borderTop    * scale;
+            const bl    = tmpl.borderLeft   * scale;
+            const br    = tmpl.borderRight  * scale;
+            const bb    = tmpl.borderBottom * scale;
 
             return (
               <button
                 key={tmpl.id}
                 onClick={() => applyTemplate(activeFrameId, tmpl.id as TemplateId)}
-                className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all ${
-                  isActive
-                    ? 'bg-[#8B6F5C]/10 ring-2 ring-[#8B6F5C] shadow-sm'
-                    : 'bg-[#F8F3EE] hover:bg-[#F3EBE3] active:scale-95'
-                }`}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 7,
+                  padding: '10px 4px 8px',
+                  borderRadius: 11,
+                  border: isActive ? '1.5px solid rgba(139,111,92,0.45)' : '0.5px solid rgba(26,23,20,0.08)',
+                  background: isActive ? 'rgba(139,111,92,0.07)' : 'rgba(26,23,20,0.02)',
+                  cursor: 'pointer',
+                  transition: 'all .15s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'rgba(139,111,92,0.05)';
+                    e.currentTarget.style.borderColor = 'rgba(139,111,92,0.2)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'rgba(26,23,20,0.02)';
+                    e.currentTarget.style.borderColor = 'rgba(26,23,20,0.08)';
+                  }
+                }}
+                onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.96)'; }}
+                onMouseUp={(e)   => { e.currentTarget.style.transform = 'scale(1)'; }}
               >
                 {/* Mini polaroid preview */}
-                <div
-                  className="relative rounded-[2px] shadow-sm"
-                  style={{
-                    width: w,
-                    height: h,
-                    backgroundColor: tmpl.frameColor,
-                    border: '1px solid #E8DFD6',
-                  }}
-                >
-                  <div
-                    className="absolute"
-                    style={{
-                      top: bt,
-                      left: bl,
-                      right: br,
-                      bottom: bb,
-                      width: w - bl - br,
-                      height: h - bt - bb,
-                      backgroundColor: '#D4C5B5',
-                    }}
-                  />
+                <div style={{
+                  width: w,
+                  height: h,
+                  backgroundColor: tmpl.frameColor,
+                  borderRadius: 2,
+                  border: '0.5px solid rgba(26,23,20,0.12)',
+                  boxShadow: '0 1px 4px rgba(26,23,20,0.1)',
+                  position: 'relative',
+                  flexShrink: 0,
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: bt, left: bl, right: br, bottom: bb,
+                    width: w - bl - br,
+                    height: h - bt - bb,
+                    backgroundColor: '#C4B4A4',
+                  }} />
                 </div>
-                <span className={`text-[9px] font-medium leading-tight text-center ${
-                  isActive ? 'text-[#5C4A3A]' : 'text-[#A39080]'
-                }`}>
+                <span style={{
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontSize: 9,
+                  fontWeight: isActive ? 600 : 400,
+                  color: isActive ? '#6B4F3A' : '#A39080',
+                  textAlign: 'center',
+                  lineHeight: 1.3,
+                }}>
                   {tmpl.name}
                 </span>
               </button>
@@ -101,110 +118,51 @@ export function FramePanel() {
         </div>
       </section>
 
-      {/* Frame Color */}
-      <section>
-        <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest mb-2">Color</h3>
+      <Sep />
 
-        {/* Preset swatches + custom picker */}
-        <div className="flex gap-2 items-center">
-          {['#FFFFFF', '#F5EDD6', '#1A1A1A', '#F0E4D7', '#F2EDE8', '#E4E8F0'].map((color) => (
-            <button
-              key={color}
-              onClick={() => updateFrame(activeFrameId, { frameColor: color })}
-              className={`w-8 h-8 rounded-full border-2 transition-all ${
-                frame.frameColor === color ? 'border-[#8B6F5C] scale-110 ring-2 ring-[#8B6F5C]/20' : 'border-[#E8DFD6]'
-              }`}
-              style={{ backgroundColor: color }}
-            />
-          ))}
-          <input
-            type="color"
-            value={frame.frameColor}
-            onChange={(e) => updateFrame(activeFrameId, { frameColor: e.target.value })}
-            className="w-8 h-8 rounded-full cursor-pointer border-0"
+      {/* ── Frame Color ── */}
+      <ColorPicker
+        label="Color"
+        value={frame.frameColor}
+        onChange={(color) => updateFrame(activeFrameId, { frameColor: color })}
+        presets={['#FFFFFF', '#F5EDD6', '#1A1A1A', '#F0E4D7', '#F2EDE8', '#E4E8F0']}
+        customColors={photoColors}
+        customColorsLabel="From photo"
+      />
+
+      <Sep />
+
+      {/* ── Frame Adjustments ── */}
+      <section>
+        <SectionLabel>Frame</SectionLabel>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <Slider
+            label="Caption Area"
+            value={frame.borderBottom}
+            min={0}
+            max={450}
+            onChange={(e) => updateFrame(activeFrameId, { borderBottom: Number(e.target.value), templateId: 'custom' })}
+          />
+          <Slider
+            label="Borders"
+            value={frame.borderLeft}
+            min={0}
+            max={150}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              updateFrame(activeFrameId, { borderLeft: v, borderRight: v, borderTop: v, templateId: 'custom' });
+            }}
+          />
+          <Slider
+            label="Rounded Corners"
+            value={frame.borderRadius}
+            min={0}
+            max={30}
+            onChange={(e) => updateFrame(activeFrameId, { borderRadius: Number(e.target.value) })}
           />
         </div>
-
-        {/* Photo-sampled palette */}
-        {photoColors.length > 0 && (
-          <div className="mt-3">
-            <div className="flex items-center gap-1.5 mb-2">
-              {/* eyedropper icon */}
-              <svg className="w-3 h-3 text-[#A39080]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2 22l4-4m0 0L14.5 9.5M6 18l8.5-8.5m0 0l2-2a2.828 2.828 0 1 1 4 4l-2 2L6 18z"/>
-                <path d="M19.5 6.5l-2-2"/>
-              </svg>
-              <span className="text-[9px] font-medium text-[#A39080] uppercase tracking-widest">From photo</span>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {photoColors.map((color) => (
-                <button
-                  key={color}
-                  title={color}
-                  onClick={() => updateFrame(activeFrameId, { frameColor: color })}
-                  className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 active:scale-95 ${
-                    frame.frameColor === color
-                      ? 'border-[#8B6F5C] scale-110 ring-2 ring-[#8B6F5C]/20'
-                      : 'border-[#E8DFD6]'
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </section>
 
-      {/* Caption Area */}
-      <section>
-        <div className="flex justify-between items-center mb-1">
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Caption Area</h3>
-          <span className="text-[10px] text-[#C4B5A6]">{frame.borderBottom}px</span>
-        </div>
-        <input
-          type="range"
-          min="0"
-          max="450"
-          value={frame.borderBottom}
-          onChange={(e) => updateFrame(activeFrameId, { borderBottom: Number(e.target.value), templateId: 'custom' })}
-          className="w-full"
-        />
-      </section>
-
-      {/* Side Borders */}
-      <section>
-        <div className="flex justify-between items-center mb-1">
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Borders</h3>
-          <span className="text-[10px] text-[#C4B5A6]">{frame.borderLeft}px</span>
-        </div>
-        <input
-          type="range"
-          min="0"
-          max="150"
-          value={frame.borderLeft}
-          onChange={(e) => {
-            const v = Number(e.target.value);
-            updateFrame(activeFrameId, { borderLeft: v, borderRight: v, borderTop: v, templateId: 'custom' });
-          }}
-          className="w-full"
-        />
-      </section>
-
-      {/* Border Radius */}
-      <section>
-        <div className="flex justify-between items-center mb-1">
-          <h3 className="text-[10px] font-semibold text-[#A39080] uppercase tracking-widest">Rounded Corners</h3>
-          <span className="text-[10px] text-[#C4B5A6]">{frame.borderRadius}px</span>
-        </div>
-        <input
-          type="range"
-          min="0"
-          max="30"
-          value={frame.borderRadius}
-          onChange={(e) => updateFrame(activeFrameId, { borderRadius: Number(e.target.value) })}
-          className="w-full"
-        />
-      </section>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useStore } from '../store';
+import { useStore } from '@/store';
 
 const MAX_SIZE_BYTES = 10 * 1024 * 1024;
 const COMPRESS_THRESHOLD = 3 * 1024 * 1024;

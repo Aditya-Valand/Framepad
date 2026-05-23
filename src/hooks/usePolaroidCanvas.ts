@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react';
-import { useStore } from '../store';
-import type { FrameData } from '../store';
+import { useStore } from '@/store';
+import type { FrameData } from '@/store';
 import { getTransparentSpotifyCode } from './useTransparentSpotifyCode';
 
 export function usePolaroidCanvas() {

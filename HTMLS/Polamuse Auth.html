@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polamuse — Sign in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F2EDE4; --cream-deep:#EDE7DC; --white:#FFFFFF;
+  --brown:#8B6347; --brown-deep:#7a5540; --brown-light:#C4A882;
+  --dark:#1A1714; --text:#1A1714; --text-2:#7A6E65; --text-3:#B5A99E;
+  --border:rgba(26,23,20,0.1); --error:#C0604A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:1000;mix-blend-mode:multiply}
+
+.shell{display:grid;grid-template-columns:55fr 45fr;min-height:100vh}
+
+/* ===== LEFT: FORM ===== */
+.form-side{padding:32px 56px;display:flex;flex-direction:column;position:relative}
+.brand{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--text);text-decoration:none;letter-spacing:.005em;display:inline-flex;align-items:baseline;gap:8px;line-height:1}
+.brand em{font-style:italic;font-weight:300}
+.brand-mark{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--brown);transform:translateY(-1px)}
+
+.form-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 0}
+.form{width:100%;max-width:380px}
+
+.form-h{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;font-style:italic;line-height:1.1;margin-bottom:10px;letter-spacing:-.01em}
+.form-sub{font-size:14px;font-weight:300;color:var(--text-2);margin-bottom:36px;line-height:1.5}
+
+/* floating-label fields */
+.field{position:relative;margin-bottom:22px}
+.field input{width:100%;background:transparent;border:none;border-bottom:.5px solid var(--text-3);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);padding:18px 0 8px;outline:none;transition:border-color .25s ease}
+.field input:focus{border-bottom-color:var(--brown)}
+.field label{position:absolute;left:0;top:18px;font-size:14px;color:var(--text-3);pointer-events:none;transition:top .22s ease,font-size .22s ease,color .22s ease;letter-spacing:.005em}
+.field input:focus + label,
+.field input:not(:placeholder-shown) + label{top:0;font-size:11px;color:var(--text-2);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+.field.error input{border-bottom-color:var(--error)}
+.field .err{font-family:'DM Mono',monospace;font-size:11px;color:var(--error);margin-top:6px;letter-spacing:.04em;display:none}
+.field.error .err{display:block}
+.field .eye{position:absolute;right:0;top:18px;background:transparent;border:none;cursor:pointer;color:var(--text-3);padding:4px;transition:color .15s}
+.field .eye:hover{color:var(--brown)}
+
+.row-utility{display:flex;justify-content:flex-end;margin:-12px 0 28px}
+.utility-link{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--text-3);text-decoration:none}
+.utility-link:hover{color:var(--brown);text-decoration:underline;text-underline-offset:3px}
+
+/* password strength */
+.strength{display:flex;gap:5px;margin-top:8px}
+.strength i{height:3px;flex:1;background:rgba(26,23,20,.08);border-radius:2px;transition:background .25s ease}
+.strength i.on{background:var(--brown)}
+
+/* primary CTA */
+.btn-primary{width:100%;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;background:var(--brown);color:#fff;border:none;border-radius:100px;height:48px;cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.005em;position:relative;overflow:hidden}
+.btn-primary:hover{background:var(--brown-deep);transform:translateY(-1px);box-shadow:0 8px 22px rgba(139,99,71,.28)}
+.btn-primary .arr{transition:transform .25s ease}
+.btn-primary:hover .arr{transform:translateX(3px)}
+.btn-primary.loading .label,.btn-primary.loading .arr{opacity:0}
+.btn-primary .spin{position:absolute;width:18px;height:18px;border:1.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;opacity:0;animation:spin .8s linear infinite}
+.btn-primary.loading .spin{opacity:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* divider */
+.divider{display:flex;align-items:center;gap:14px;margin:22px 0}
+.divider::before,.divider::after{content:'';flex:1;height:.5px;background:var(--border)}
+.divider span{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:.1em}
+
+/* google */
+.btn-google{width:100%;background:#fff;border:.5px solid rgba(26,23,20,0.12);border-radius:100px;height:48px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .18s ease}
+.btn-google:hover{border-color:rgba(26,23,20,0.25);transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,23,20,.06)}
+
+/* switch */
+.switch{margin-top:28px;font-size:13px;font-weight:300;color:var(--text-2);text-align:center}
+.switch a{color:var(--brown);text-decoration:none;font-weight:500;margin-left:4px}
+.switch a:hover{text-decoration:underline;text-underline-offset:3px}
+
+.terms{margin-top:18px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);text-align:center;letter-spacing:.04em;line-height:1.6}
+.terms a{color:var(--text-2);text-decoration:underline;text-underline-offset:2px}
+
+.footer-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);text-align:center;letter-spacing:.06em;padding-top:24px}
+
+/* state animation */
+.state{animation:fadeUp .35s ease both}
+.state.exit{animation:fadeOut .25s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-8px)}}
+
+/* ===== RIGHT: DECORATIVE ===== */
+.muse-side{background:var(--cream-deep);position:relative;overflow:hidden;padding:48px;display:flex;flex-direction:column;justify-content:center}
+.muse-side::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.4),transparent 60%);pointer-events:none}
+.muse-quote{position:relative;z-index:2;max-width:440px;margin:0 auto;text-align:center}
+.muse-quote h2{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:300;font-style:italic;line-height:1.18;color:var(--text);letter-spacing:-.005em}
+.muse-quote .cite{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--text-2);text-transform:uppercase;margin-top:28px;display:flex;align-items:center;justify-content:center;gap:10px}
+.muse-quote .cite::before,.muse-quote .cite::after{content:'';width:24px;height:.5px;background:var(--text-3)}
+
+/* polaroid scatter */
+.scatter{position:absolute;inset:0;z-index:1;pointer-events:none}
+.pola{position:absolute;background:#fff;box-shadow:0 14px 40px rgba(26,23,20,.14);border-radius:3px;transition:transform .4s ease}
+.pola .pi{margin:9px 9px 0;border-radius:1px}
+.pola .pc{height:38px;display:flex;align-items:center;justify-content:center}
+
+.s1{width:160px;top:8%;left:6%;transform:rotate(-7deg)}
+.s1 .pi{height:138px;background:linear-gradient(135deg,#e8d5c0,#c4a882)}
+.s1 .pc span{font-family:'Dancing Script',cursive;font-size:15px;color:#5a4a3a}
+
+.s2{width:148px;top:14%;right:8%;transform:rotate(5deg)}
+.s2 .pi{height:128px;background:linear-gradient(135deg,#d4c5b0,#a89080)}
+.s2 .pc{height:32px}
+.s2 .pc span{font-family:'DM Mono',monospace;font-size:10px;color:#8a7a6a;letter-spacing:.08em}
+
+.s3{width:142px;bottom:14%;left:10%;transform:rotate(4deg)}
+.s3 .pi{height:122px;background:linear-gradient(160deg,#c8b8a0,#8b7060);filter:saturate(.85)}
+.s3 .pc{height:34px}
+.s3 .pc span{font-family:'DM Mono',monospace;font-size:9px;color:#9a8878;letter-spacing:.1em}
+
+.s4{width:156px;bottom:9%;right:10%;transform:rotate(-5deg)}
+.s4 .pi{height:134px;background:linear-gradient(135deg,#e0ceb8,#b89878)}
+.s4::before{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%) rotate(-2deg);width:50px;height:14px;background:rgba(255,210,100,.6);border-radius:2px;z-index:2}
+.s4 .pc span{font-family:'Dancing Script',cursive;font-size:14px;color:#7a5a3a}
+
+@keyframes f1{0%,100%{transform:rotate(-7deg) translateY(0)}50%{transform:rotate(-7deg) translateY(-8px)}}
+@keyframes f2{0%,100%{transform:rotate(5deg) translateY(0)}50%{transform:rotate(5deg) translateY(-12px)}}
+@keyframes f3{0%,100%{transform:rotate(4deg) translateY(0)}50%{transform:rotate(4deg) translateY(-7px)}}
+@keyframes f4{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(-5deg) translateY(-10px)}}
+.s1{animation:f1 7s ease-in-out infinite}
+.s2{animation:f2 8s ease-in-out infinite .6s}
+.s3{animation:f3 6.5s ease-in-out infinite 1.2s}
+.s4{animation:f4 7.5s ease-in-out infinite .3s}
+
+/* MOBILE */
+@media(max-width:880px){
+  .shell{grid-template-columns:1fr}
+  .muse-side{display:none}
+  .form-side{padding:24px 24px 32px}
+  .form-h{font-size:34px}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- LEFT: FORM -->
+  <div class="form-side">
+    <a class="brand" href="Polamuse Landing.html"><span class="brand-mark"></span>Pola<em>muse</em></a>
+
+    <div class="form-wrap">
+      <div class="form">
+
+        <!-- LOGIN -->
+        <div class="state" id="loginState">
+          <h1 class="form-h">Welcome back.</h1>
+          <p class="form-sub">Your polaroids are waiting.</p>
+
+          <form id="loginForm" novalidate>
+            <div class="field">
+              <input type="email" id="liEmail" placeholder=" " autocomplete="email" required>
+              <label for="liEmail">Email</label>
+              <div class="err">Enter a valid email.</div>
+            </div>
+            <div class="field">
+              <input type="password" id="liPwd" placeholder=" " autocomplete="current-password" required>
+              <label for="liPwd">Password</label>
+              <button type="button" class="eye" data-toggle="liPwd" aria-label="Show password">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <div class="err">At least 6 characters.</div>
+            </div>
+
+            <div class="row-utility"><a class="utility-link" href="#">Forgot password?</a></div>
+
+            <button class="btn-primary" type="submit">
+              <span class="label">Continue</span>
+              <span class="arr">→</span>
+              <span class="spin"></span>
+            </button>
+          </form>
+
+          <div class="divider"><span>or</span></div>
+
+          <button class="btn-google" type="button">
+            <svg width="17" height="17" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+            Continue with Google
+          </button>
+
+          <p class="switch">Don't have an account? <a href="#" data-go="signup">Create one →</a></p>
+        </div>
+
+        <!-- SIGNUP -->
+        <div class="state" id="signupState" style="display:none">
+          <h1 class="form-h">Make your first Polaroid.</h1>
+          <p class="form-sub">Free to design. No credit card needed.</p>
+
+          <form id="signupForm" novalidate>
+            <div class="field">
+              <input type="text" id="suName" placeholder=" " autocomplete="name" required>
+              <label for="suName">Full name</label>
+              <div class="err">Tell us your name.</div>
+            </div>
+            <div class="field">
+              <input type="email" id="suEmail" placeholder=" " autocomplete="email" required>
+              <label for="suEmail">Email</label>
+              <div class="err">Enter a valid email.</div>
+            </div>
+            <div class="field">
+              <input type="password" id="suPwd" placeholder=" " autocomplete="new-password" required>
+              <label for="suPwd">Password</label>
+              <button type="button" class="eye" data-toggle="suPwd" aria-label="Show password">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <div class="strength" id="strength"><i></i><i></i><i></i></div>
+              <div class="err">Use at least 6 characters.</div>
+            </div>
+
+            <button class="btn-primary" type="submit" style="margin-top:8px">
+              <span class="label">Create account</span>
+              <span class="arr">→</span>
+              <span class="spin"></span>
+            </button>
+          </form>
+
+          <div class="divider"><span>or</span></div>
+
+          <button class="btn-google" type="button">
+            <svg width="17" height="17" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+            Continue with Google
+          </button>
+
+          <p class="switch">Already have an account? <a href="#" data-go="login">Sign in →</a></p>
+          <p class="terms">By continuing, you agree to our <a href="#">Terms</a> & <a href="#">Privacy Policy</a></p>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="footer-tag">✦ Free to use. Physical prints from ₹79.</p>
+  </div>
+
+  <!-- RIGHT: DECORATIVE -->
+  <aside class="muse-side">
+    <div class="scatter">
+      <div class="pola s1"><div class="pi"></div><div class="pc"><span>always you</span></div></div>
+      <div class="pola s2"><div class="pi"></div><div class="pc"><span>26 · 04 · 2025</span></div></div>
+      <div class="pola s3"><div class="pi"></div><div class="pc"><span>SUMMER · '24</span></div></div>
+      <div class="pola s4"><div class="pi"></div><div class="pc"><span>besties forever</span></div></div>
+    </div>
+    <div class="muse-quote">
+      <h2>"Every photo is waiting<br>to become a memory."</h2>
+      <div class="cite">— Polamuse</div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+// State toggle
+const loginState = document.getElementById('loginState');
+const signupState = document.getElementById('signupState');
+function showState(target){
+  const from = target === 'signup' ? loginState : signupState;
+  const to   = target === 'signup' ? signupState : loginState;
+  if(to.style.display !== 'none') return;
+  from.classList.add('exit');
+  setTimeout(() => {
+    from.style.display = 'none';
+    from.classList.remove('exit');
+    to.style.display = '';
+    to.classList.remove('state'); void to.offsetWidth; to.classList.add('state');
+  }, 240);
+}
+document.querySelectorAll('[data-go]').forEach(a => {
+  a.addEventListener('click', e => { e.preventDefault(); showState(a.dataset.go); });
+});
+
+// Show/hide password
+document.querySelectorAll('.eye').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const inp = document.getElementById(btn.dataset.toggle);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.style.color = inp.type === 'text' ? 'var(--brown)' : '';
+  });
+});
+
+// Password strength (3 dots)
+const pwd = document.getElementById('suPwd');
+const dots = document.querySelectorAll('#strength i');
+pwd.addEventListener('input', () => {
+  const v = pwd.value;
+  let s = 0;
+  if(v.length >= 6) s = 1;
+  if(v.length >= 8 && /[A-Z]/.test(v) && /[0-9]/.test(v)) s = 2;
+  if(v.length >= 10 && /[A-Z]/.test(v) && /[0-9]/.test(v) && /[^A-Za-z0-9]/.test(v)) s = 3;
+  dots.forEach((d,i) => d.classList.toggle('on', i < s));
+});
+
+// Validation + submit
+function validate(form){
+  let ok = true;
+  form.querySelectorAll('.field').forEach(f => f.classList.remove('error'));
+  form.querySelectorAll('input[required]').forEach(inp => {
+    const f = inp.closest('.field');
+    if(!inp.value.trim()){ f.classList.add('error'); ok = false; }
+    else if(inp.type === 'email' && !/^\S+@\S+\.\S+$/.test(inp.value)){ f.classList.add('error'); ok = false; }
+    else if(inp.type === 'password' && inp.value.length < 6){ f.classList.add('error'); ok = false; }
+  });
+  return ok;
+}
+function fakeSubmit(form){
+  const btn = form.querySelector('.btn-primary');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  setTimeout(() => {
+    window.location.href = 'Polamuse Order.html';
+  }, 900);
+}
+['loginForm','signupForm'].forEach(id => {
+  const f = document.getElementById(id);
+  f.addEventListener('submit', e => { e.preventDefault(); if(validate(f)) fakeSubmit(f); });
+  f.querySelectorAll('input').forEach(i => i.addEventListener('input', () => i.closest('.field').classList.remove('error')));
+});
+</script>
+</body>
+</html>
