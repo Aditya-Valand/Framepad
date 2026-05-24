@@ -108,6 +108,7 @@ export function Btn({
   onClick,
   className = '',
   disabled = false,
+  type = 'button',
 }: {
   variant?: BtnVariant;
   size?: 'sm' | 'md';
@@ -115,10 +116,11 @@ export function Btn({
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
 }) {
   const cls = [`btn`, variant, size === 'sm' ? 'sm' : '', className].filter(Boolean).join(' ');
   return (
-    <button onClick={onClick} className={cls} disabled={disabled} style={disabled ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
+    <button type={type} onClick={onClick} className={cls} disabled={disabled} style={disabled ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
       {children}
     </button>
   );
