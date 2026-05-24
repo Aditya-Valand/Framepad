@@ -68,13 +68,16 @@ export async function GET(req: NextRequest) {
 
     // Upsert user
     const existing = await sql`
-      SELECT id, role FROM users WHERE email = ${normalizedEmail} LIMIT 1
+      SELECT id, role, is_banned FROM users WHERE email = ${normalizedEmail} LIMIT 1
     `;
 
     let userId: string;
     let role: string;
 
     if (existing.length > 0) {
+      if (existing[0].is_banned) {
+        return NextResponse.redirect(new URL('/auth?error=suspended', req.url));
+      }
       userId = existing[0].id;
       role = existing[0].role;
       await sql`
@@ -97,7 +100,7 @@ export async function GET(req: NextRequest) {
     }
 
     const sessionId = crypto.randomUUID();
-    const accessToken = signAccessToken({ userId, email: normalizedEmail, role: role as 'customer' | 'admin' });
+    const accessToken = signAccessToken({ userId, email: normalizedEmail, role: role as 'customer' | 'admin', is_banned: false });
     const refreshToken = signRefreshToken(userId, sessionId);
     const refreshHash = await bcrypt.hash(refreshToken, 8);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);

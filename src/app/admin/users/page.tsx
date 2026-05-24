@@ -1,44 +1,80 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AdminShell, PageHeader, Btn, Card, Badge, PillRow, SlidePanel } from '@/components/admin';
 
-const USERS = [
-  { name: 'Priya Sharma',  email: 'priya.s@gmail.com',       city: 'Mumbai',    orders: 14, spent: '₹4,820', joined: 'Mar 12, 2024', status: 'Active' },
-  { name: 'Rohan Kapoor',  email: 'rohan.k@hey.com',          city: 'Bengaluru', orders: 9,  spent: '₹3,290', joined: 'Jul 04, 2024', status: 'Active' },
-  { name: 'Anika Reddy',   email: 'anika.r@gmail.com',        city: 'Hyderabad', orders: 22, spent: '₹8,140', joined: 'Jan 28, 2024', status: 'Active' },
-  { name: 'Vikram Singh',  email: 'vik.singh@outlook.com',    city: 'Delhi',     orders: 3,  spent: '₹620',   joined: 'Feb 11, 2025', status: 'Active' },
-  { name: 'Meera Iyer',    email: 'meera.iyer@gmail.com',     city: 'Chennai',   orders: 11, spent: '₹5,460', joined: 'Aug 19, 2024', status: 'Active' },
-  { name: 'Kabir Joshi',   email: 'kabir.j@gmail.com',        city: 'Pune',      orders: 6,  spent: '₹1,840', joined: 'Nov 02, 2024', status: 'Active' },
-  { name: 'Nisha Patel',   email: 'nisha.p@gmail.com',        city: 'Ahmedabad', orders: 4,  spent: '₹1,290', joined: 'Apr 22, 2025', status: 'Active' },
-  { name: 'Sahil Bansal',  email: 'sahil.b@hey.com',          city: 'Delhi',     orders: 1,  spent: '₹79',    joined: 'May 14, 2025', status: 'Banned' },
-  { name: 'Tanvi Sen',     email: 'tanvi.s@gmail.com',        city: 'Kolkata',   orders: 18, spent: '₹7,210', joined: 'Dec 09, 2023', status: 'Active' },
-  { name: 'Devansh Roy',   email: 'dev.roy@gmail.com',        city: 'Bengaluru', orders: 7,  spent: '₹2,440', joined: 'Jun 14, 2024', status: 'Active' },
-];
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+  is_banned: boolean;
+  ban_reason: string | null;
+  banned_at: string | null;
+  last_login_at: string | null;
+  created_at: string;
+  full_name: string | null;
+  phone: string | null;
+  city: string | null;
+  state: string | null;
+  total_designs: number | null;
+  total_orders: number | null;
+  total_spent_paise: number | null;
+}
 
-const FILTER_PILLS = [
-  { label: 'All', count: 342 },
-  { label: 'Active', count: 336 },
-  { label: 'Banned', count: 6 },
-];
+interface UserDetail {
+  user: User;
+  orders: { id: string; order_number: string; status: string; total_paise: number; created_at: string }[];
+  designs: { id: string; title: string | null; thumbnail_url: string | null; status: string; created_at: string }[];
+  stats: { designCount: number; orderCount: number; totalSpentPaise: number };
+}
 
 export default function UsersPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [counts, setCounts] = useState({ total: 0, active: 0, banned: 0 });
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState(0);
   const [search, setSearch] = useState('');
-  const [selectedUser, setSelectedUser] = useState<typeof USERS[number] | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  const filtered = USERS.filter((u) => {
-    if (activeFilter === 1 && u.status !== 'Active') return false;
-    if (activeFilter === 2 && u.status !== 'Banned') return false;
-    if (search && !u.name.toLowerCase().includes(search.toLowerCase()) &&
-        !u.email.toLowerCase().includes(search.toLowerCase()) &&
-        !u.city.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const fetchUsers = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (activeFilter === 1) params.set('banned', 'false');
+      if (activeFilter === 2) params.set('banned', 'true');
+      const res = await fetch(`/api/admin/users?${params}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      const json = await res.json();
+      setUsers(json.users || []);
+      setCounts(json.counts || { total: 0, active: 0, banned: 0 });
+    } catch (e) {
+      console.error('Fetch users error:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, [search, activeFilter]);
+
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+
+  const filterPills = [
+    { label: 'All', count: counts.total },
+    { label: 'Active', count: counts.active },
+    { label: 'Banned', count: counts.banned },
+  ];
+
+  const formatPaise = (paise: number | null) => {
+    if (!paise) return '₹0';
+    return `₹${(paise / 100).toLocaleString('en-IN')}`;
+  };
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
 
   return (
     <AdminShell>
-      <PageHeader title="Users" subtitle="342 total · 14 new this week · 6 banned">
+      <PageHeader title="Users" subtitle={`${counts.total} total · ${counts.banned} banned`}>
         <Btn variant="outline">Export CSV</Btn>
       </PageHeader>
 
@@ -53,94 +89,152 @@ export default function UsersPage() {
         />
       </div>
 
-      <PillRow items={FILTER_PILLS} active={activeFilter} onSelect={setActiveFilter} />
+      <PillRow items={filterPills} active={activeFilter} onSelect={setActiveFilter} />
 
       <Card style={{ padding: '0', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table className="tbl" style={{ minWidth: '760px' }}>
-            <thead>
-              <tr>
-                {['Customer', 'City', 'Orders', 'Spent', 'Joined', 'Status', ''].map((h) => (
-                  <th key={h}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((user) => (
-                <tr key={user.email} onClick={() => setSelectedUser(user)}>
-                  <td>
-                    <div className="who">
-                      <div className="av">{user.name[0]}</div>
-                      <div>
-                        <div className="nm">{user.name}</div>
-                        <div className="em">{user.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="num">{user.city}</td>
-                  <td className="num">{user.orders}</td>
-                  <td className="amount">{user.spent}</td>
-                  <td className="num">{user.joined}</td>
-                  <td><Badge variant={user.status === 'Banned' ? 'bad' : 'good'}>{user.status}</Badge></td>
-                  <td>
-                    <button className="icon-btn">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </button>
-                  </td>
+          {loading ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#A39080' }}>Loading users...</div>
+          ) : (
+            <table className="tbl" style={{ minWidth: '760px' }}>
+              <thead>
+                <tr>
+                  {['Customer', 'City', 'Orders', 'Spent', 'Joined', 'Status', ''].map((h) => (
+                    <th key={h}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id} onClick={() => setSelectedUserId(user.id)}>
+                    <td>
+                      <div className="who">
+                        <div className="av">{(user.full_name || user.email)[0].toUpperCase()}</div>
+                        <div>
+                          <div className="nm">{user.full_name || 'No name'}</div>
+                          <div className="em">{user.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="num">{user.city || '—'}</td>
+                    <td className="num">{user.total_orders || 0}</td>
+                    <td className="amount">{formatPaise(user.total_spent_paise)}</td>
+                    <td className="num">{formatDate(user.created_at)}</td>
+                    <td><Badge variant={user.is_banned ? 'bad' : 'good'}>{user.is_banned ? 'Banned' : 'Active'}</Badge></td>
+                    <td>
+                      <button className="icon-btn">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {users.length === 0 && (
+                  <tr><td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: '#A39080' }}>No users found</td></tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </Card>
 
       <SlidePanel
-        open={!!selectedUser}
-        onClose={() => setSelectedUser(null)}
+        open={!!selectedUserId}
+        onClose={() => setSelectedUserId(null)}
         title="User detail"
-        meta={selectedUser?.status === 'Banned' ? 'Banned' : 'Active member'}
-        footer={
-          <>
-            <Btn variant="outline" onClick={() => setSelectedUser(null)}>Close</Btn>
-            <Btn variant="primary">Edit user</Btn>
-          </>
-        }
+        meta=""
       >
-        {selectedUser && <UserDetail user={selectedUser} />}
+        {selectedUserId && <UserDetailPanel userId={selectedUserId} onUpdate={fetchUsers} onClose={() => setSelectedUserId(null)} />}
       </SlidePanel>
     </AdminShell>
   );
 }
 
-function UserDetail({ user }: { user: typeof USERS[number] }) {
+function UserDetailPanel({ userId, onUpdate, onClose }: { userId: string; onUpdate: () => void; onClose: () => void }) {
+  const [detail, setDetail] = useState<UserDetail | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showBan, setShowBan] = useState(false);
+  const [banReason, setBanReason] = useState('');
+  const [banning, setBanning] = useState(false);
 
-  const gradients = [
-    'linear-gradient(135deg,#e8d5c0,#c4a882)',
-    'linear-gradient(135deg,#c8d4f0,#a0b4e0)',
-    'linear-gradient(160deg,#c8b8a0,#8b7060)',
-    'linear-gradient(135deg,#f0c8a0,#d0a070)',
-    'linear-gradient(135deg,#d4c0e8,#b0a0d0)',
-    'linear-gradient(135deg,#a8c8a0,#78a870)',
-  ];
-  const caps = ['always you', 'besties', 'golden', '3 years', 'summer', 'goa'];
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/admin/users/${userId}`)
+      .then((r) => r.json())
+      .then((json) => setDetail(json))
+      .catch((e) => console.error('Fetch user detail error:', e))
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  const handleBan = async () => {
+    if (!banReason.trim()) return;
+    setBanning(true);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/ban`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: banReason }),
+      });
+      if (!res.ok) throw new Error('Ban failed');
+      setShowBan(false);
+      setBanReason('');
+      onUpdate();
+      onClose();
+    } catch (e) {
+      console.error('Ban error:', e);
+    } finally {
+      setBanning(false);
+    }
+  };
+
+  const handleUnban = async () => {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/unban`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) throw new Error('Unban failed');
+      onUpdate();
+      onClose();
+    } catch (e) {
+      console.error('Unban error:', e);
+    }
+  };
+
+  if (loading || !detail) {
+    return <div style={{ padding: '30px', textAlign: 'center', color: '#A39080' }}>Loading...</div>;
+  }
+
+  const { user, orders, designs, stats } = detail;
+
+  const formatPaise = (paise: number) => `₹${(paise / 100).toLocaleString('en-IN')}`;
+  const formatDate = (date: string | null) => date ? new Date(date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+  const timeAgo = (date: string | null) => {
+    if (!date) return 'Never';
+    const diff = Date.now() - new Date(date).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  };
 
   return (
     <>
       <div className="user-hero">
-        <div className="user-avatar">{user.name[0]}</div>
+        <div className="user-avatar">{(user.full_name || user.email)[0].toUpperCase()}</div>
         <div>
-          <div className="user-name">{user.name}</div>
+          <div className="user-name">{user.full_name || 'No name'}</div>
           <div className="user-email">{user.email}</div>
         </div>
       </div>
 
       <div className="user-facts">
         {[
-          { lbl: 'Phone',      val: '+91 98201 22345' },
-          { lbl: 'City',       val: user.city },
-          { lbl: 'Joined',     val: user.joined },
-          { lbl: 'Last login', val: '2 hours ago' },
+          { lbl: 'Phone', val: user.phone || '—' },
+          { lbl: 'City', val: user.city || '—' },
+          { lbl: 'Joined', val: formatDate(user.created_at) },
+          { lbl: 'Last login', val: timeAgo(user.last_login_at) },
         ].map((f) => (
           <div key={f.lbl} className="fact-item">
             <div className="fact-label">{f.lbl}</div>
@@ -151,9 +245,9 @@ function UserDetail({ user }: { user: typeof USERS[number] }) {
 
       <div className="user-stats">
         {[
-          { lbl: 'Designs', val: '38' },
-          { lbl: 'Orders',  val: String(user.orders) },
-          { lbl: 'Spent',   val: user.spent },
+          { lbl: 'Designs', val: String(stats.designCount) },
+          { lbl: 'Orders', val: String(stats.orderCount) },
+          { lbl: 'Spent', val: formatPaise(stats.totalSpentPaise) },
         ].map((s) => (
           <div key={s.lbl} className="user-stat-item">
             <div className="user-stat-label">{s.lbl}</div>
@@ -162,54 +256,70 @@ function UserDetail({ user }: { user: typeof USERS[number] }) {
         ))}
       </div>
 
-      <div className="user-section">
-        <div className="user-section-head">
-          <span>Recent orders</span>
-          <a href="/admin/orders">All →</a>
-        </div>
-        {[
-          { id: '#PM-2026-00342', badge: 'good' as const, status: 'Confirmed', amt: '₹79'  },
-          { id: '#PM-2026-00298', badge: 'good' as const, status: 'Delivered', amt: '₹349' },
-          { id: '#PM-2026-00271', badge: 'good' as const, status: 'Delivered', amt: '₹79'  },
-          { id: '#PM-2026-00244', badge: 'good' as const, status: 'Delivered', amt: '₹590' },
-          { id: '#PM-2026-00219', badge: 'good' as const, status: 'Delivered', amt: '₹79'  },
-        ].map((o) => (
-          <div key={o.id} className="order-mini">
-            <span className="order-mini-id">{o.id}</span>
-            <Badge variant={o.badge}>{o.status}</Badge>
-            <span className="order-mini-amt">{o.amt}</span>
+      {orders.length > 0 && (
+        <div className="user-section">
+          <div className="user-section-head">
+            <span>Recent orders</span>
+            <a href="/admin/orders">All →</a>
           </div>
-        ))}
-      </div>
-
-      <div className="user-section">
-        <div className="user-section-head">
-          <span>Recent designs</span>
-          <span>Last 6</span>
-        </div>
-        <div className="design-grid">
-          {gradients.map((g, i) => (
-            <div key={i} className="design-thumb">
-              <div className="design-img" style={{ background: g }} />
-              <div className="design-cap"><span>{caps[i]}</span></div>
+          {orders.map((o) => (
+            <div key={o.id} className="order-mini">
+              <span className="order-mini-id">#{o.order_number}</span>
+              <Badge variant={o.status === 'cancelled' ? 'bad' : o.status === 'delivered' ? 'good' : 'info'}>{o.status}</Badge>
+              <span className="order-mini-amt">{formatPaise(o.total_paise)}</span>
             </div>
           ))}
         </div>
-      </div>
+      )}
+
+      {designs.length > 0 && (
+        <div className="user-section">
+          <div className="user-section-head">
+            <span>Recent designs</span>
+            <span>Last {designs.length}</span>
+          </div>
+          <div className="design-grid">
+            {designs.map((d) => (
+              <div key={d.id} className="design-thumb">
+                <div className="design-img" style={d.thumbnail_url ? { backgroundImage: `url(${d.thumbnail_url})`, backgroundSize: 'cover' } : { background: 'linear-gradient(135deg,#e8d5c0,#c4a882)' }} />
+                <div className="design-cap"><span>{d.title || 'untitled'}</span></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="user-ban">
-        <Btn variant="danger" onClick={() => setShowBan(!showBan)}>Ban this user</Btn>
-        {showBan && (
-          <div className="ban-form">
-            <div className="field-group">
-              <label>Reason for ban</label>
-              <textarea placeholder="e.g. Repeated chargebacks · Abusive content uploads · Spam orders" />
+        {user.is_banned ? (
+          <>
+            <div style={{ padding: '12px', borderRadius: '10px', background: 'rgba(220,50,50,0.06)', border: '.5px solid rgba(220,50,50,0.15)', marginBottom: '12px', fontSize: '13px', color: '#8b3030' }}>
+              <strong>Banned</strong> — {user.ban_reason || 'No reason provided'}
+              {user.banned_at && <div style={{ marginTop: '4px', opacity: 0.7 }}>Since {formatDate(user.banned_at)}</div>}
             </div>
-            <div className="ban-actions">
-              <Btn variant="ghost" size="sm" onClick={() => setShowBan(false)}>Cancel</Btn>
-              <Btn variant="danger" size="sm">Confirm ban</Btn>
-            </div>
-          </div>
+            <Btn variant="outline" onClick={handleUnban}>Unban this user</Btn>
+          </>
+        ) : (
+          <>
+            <Btn variant="danger" onClick={() => setShowBan(!showBan)}>Ban this user</Btn>
+            {showBan && (
+              <div className="ban-form">
+                <div className="field-group">
+                  <label>Reason for ban</label>
+                  <textarea
+                    placeholder="e.g. Repeated chargebacks · Abusive content uploads · Spam orders"
+                    value={banReason}
+                    onChange={(e) => setBanReason(e.target.value)}
+                  />
+                </div>
+                <div className="ban-actions">
+                  <Btn variant="ghost" size="sm" onClick={() => setShowBan(false)}>Cancel</Btn>
+                  <Btn variant="danger" size="sm" onClick={handleBan} disabled={banning || !banReason.trim()}>
+                    {banning ? 'Banning…' : 'Confirm ban'}
+                  </Btn>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </>
