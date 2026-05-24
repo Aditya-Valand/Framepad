@@ -84,7 +84,7 @@ export function useImageUpload() {
  * Upload a base64 data URL to Cloudinary via our signed upload endpoint.
  * Runs async — never blocks the UI.
  */
-async function uploadToCloudinary(
+export async function uploadToCloudinary(
   dataUrl: string
 ): Promise<{ publicId: string; secureUrl: string } | null> {
   try {

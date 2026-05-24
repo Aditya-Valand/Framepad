@@ -265,6 +265,14 @@ export interface FrameData {
   imageUrl: string | null;
 }
 
+export interface BatchImage {
+  id: string;
+  dataUrl: string;
+  fileName: string;
+  status: 'pending' | 'rendering' | 'done' | 'error';
+  exportDataUrl?: string;
+}
+
 export interface AppState {
   frames: FrameData[];
   activeFrameId: string;
@@ -274,6 +282,8 @@ export interface AppState {
   currentDesignId: string | null;
   isSaving: boolean;
   lastSavedAt: Date | null;
+  // Batch mode
+  batchImages: BatchImage[];
 
   setActiveTab: (tab: SidebarTab) => void;
   setLayoutMode: (mode: LayoutMode) => void;
@@ -285,6 +295,10 @@ export interface AppState {
   setDesignId: (id: string | null) => void;
   setSaving: (saving: boolean) => void;
   setLastSavedAt: (date: Date | null) => void;
+  setBatchImages: (images: BatchImage[]) => void;
+  addBatchImages: (images: BatchImage[]) => void;
+  removeBatchImage: (id: string) => void;
+  clearBatch: () => void;
 }
 
 function createFrame(id: string): FrameData {
@@ -355,6 +369,7 @@ export const useStore = create<AppState>((set) => ({
   currentDesignId: null,
   isSaving: false,
   lastSavedAt: null,
+  batchImages: [],
 
   setActiveTab: (activeTab) => set({ activeTab }),
   setLayoutMode: (layoutMode) => set({ layoutMode }),
@@ -439,4 +454,8 @@ export const useStore = create<AppState>((set) => ({
   setDesignId: (currentDesignId) => set({ currentDesignId }),
   setSaving: (isSaving) => set({ isSaving }),
   setLastSavedAt: (lastSavedAt) => set({ lastSavedAt }),
+  setBatchImages: (batchImages) => set({ batchImages }),
+  addBatchImages: (images) => set((s) => ({ batchImages: [...s.batchImages, ...images] })),
+  removeBatchImage: (id) => set((s) => ({ batchImages: s.batchImages.filter((i) => i.id !== id) })),
+  clearBatch: () => set({ batchImages: [] }),
 }));

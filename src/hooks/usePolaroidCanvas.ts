@@ -80,6 +80,87 @@ export function renderFrameToCanvas(
   }
 }
 
+/**
+ * Async version of renderFrameToCanvas — returns a Promise that resolves
+ * when the canvas is fully rendered (including image load + overlays).
+ * Used by batch export.
+ */
+export function renderFrameToCanvasAsync(
+  frameData: FrameData,
+  canvas: HTMLCanvasElement,
+  opts?: { useImageUrl?: boolean }
+): Promise<void> {
+  return new Promise((resolve) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) { resolve(); return; }
+
+    const W = frameData.frameWidth;
+    const H = frameData.frameHeight;
+    canvas.width = W;
+    canvas.height = H;
+
+    ctx.fillStyle = frameData.frameColor;
+    if (frameData.borderRadius > 0) {
+      roundRect(ctx, 0, 0, W, H, frameData.borderRadius);
+      ctx.fill();
+    } else {
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    const imgX = frameData.borderLeft;
+    const imgY = frameData.borderTop;
+    const imgW = W - frameData.borderLeft - frameData.borderRight;
+    const imgH = H - frameData.borderTop - frameData.borderBottom;
+
+    const imageSrc = opts?.useImageUrl ? (frameData.imageUrl || null) : (frameData.imageDataUrl || null);
+
+    if (!imageSrc) {
+      ctx.fillStyle = '#F3F4F6';
+      ctx.fillRect(imgX, imgY, imgW, imgH);
+      if (frameData.templateId === 'tape-border') drawTapeOnCanvas(ctx, W, H);
+      drawRichTemplateMeta(ctx, frameData);
+      drawOverlaysSync(ctx, frameData, imgX, imgY, imgW, imgH, resolve);
+    } else {
+      const renderImg = new Image();
+      renderImg.crossOrigin = 'anonymous';
+      renderImg.onload = () => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(imgX, imgY, imgW, imgH);
+        ctx.clip();
+
+        const filterStr = buildCSSFilter(frameData.filters);
+        if (filterStr) ctx.filter = filterStr;
+
+        const natW = renderImg.naturalWidth;
+        const natH = renderImg.naturalHeight;
+        const cx = imgX + imgW / 2;
+        const cy = imgY + imgH / 2;
+        const baseScale = Math.max(imgW / natW, imgH / natH);
+        const finalScale = baseScale * frameData.imageScale;
+        const panOffsetX = (frameData.imagePanX / 100) * imgW;
+        const panOffsetY = (frameData.imagePanY / 100) * imgH;
+
+        ctx.translate(cx + panOffsetX, cy + panOffsetY);
+        if (frameData.imageRotation !== 0) {
+          ctx.rotate((frameData.imageRotation * Math.PI) / 180);
+        }
+        ctx.scale(finalScale, finalScale);
+        ctx.drawImage(renderImg, -natW / 2, -natH / 2, natW, natH);
+
+        ctx.filter = 'none';
+        ctx.restore();
+
+        if (frameData.templateId === 'tape-border') drawTapeOnCanvas(ctx, W, H);
+        drawRichTemplateMeta(ctx, frameData);
+        drawOverlaysSync(ctx, frameData, imgX, imgY, imgW, imgH, resolve);
+      };
+      renderImg.onerror = () => resolve();
+      renderImg.src = imageSrc;
+    }
+  });
+}
+
 export function usePolaroidCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderIdRef = useRef(0);

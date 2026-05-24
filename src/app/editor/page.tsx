@@ -14,6 +14,7 @@ import { TextPanel } from "@/components/panels/TextPanel";
 import { MusicPanel } from "@/components/panels/MusicPanel";
 import { ExportSuccessModal } from "@/components/ExportSuccessModal";
 import { PrivacyPage } from "@/components/PrivacyPage";
+import { BatchModal } from "@/components/BatchModal";
 
 const TABS = ["frame", "edit", "text", "music"] as const;
 type Tab = (typeof TABS)[number];
@@ -184,6 +185,7 @@ function EditorPageInner() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showBatch, setShowBatch] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const searchParams = useSearchParams();
@@ -330,6 +332,26 @@ function EditorPageInner() {
                 Save
               </button>
             )}
+            <button
+              onClick={() => setShowBatch(true)}
+              aria-label="Batch apply"
+              style={{
+                fontFamily: '"DM Sans", sans-serif',
+                fontSize: 12,
+                fontWeight: 500,
+                background: "transparent",
+                color: "#8B6F5C",
+                border: "0.5px solid rgba(139,111,92,0.3)",
+                borderRadius: 100,
+                padding: "7px 14px",
+                cursor: "pointer",
+                transition: "all .2s ease",
+                letterSpacing: ".01em",
+              }}
+              className="hover:!bg-[rgba(139,111,92,0.07)] active:scale-[0.97]"
+            >
+              Batch
+            </button>
             <ExportButton onSuccess={() => setExportSuccess(true)} />
           </div>
         </header>
@@ -561,6 +583,39 @@ function EditorPageInner() {
             <SidebarTooltip>Export PNG</SidebarTooltip>
           </div>
 
+          {/* Batch button */}
+          <div className="group" style={{ position: "relative", marginTop: 6 }}>
+            <button
+              onClick={() => setShowBatch(true)}
+              aria-label="Batch apply"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                background: "transparent",
+                border: "0.5px solid rgba(139,111,92,0.25)",
+                color: "#8B6F5C",
+                cursor: "pointer",
+                transition: "all .18s ease",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(139,111,92,0.07)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+              onMouseDown={(e) => { e.currentTarget.style.transform = "scale(0.93)"; }}
+              onMouseUp={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.7">
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+              </svg>
+            </button>
+            <SidebarTooltip>Batch</SidebarTooltip>
+          </div>
+
           {/* Privacy button */}
           <div className="group" style={{ position: "relative", marginTop: 6 }}>
             <button
@@ -690,6 +745,7 @@ function EditorPageInner() {
       </div>
 
       <ExportSuccessModal open={exportSuccess} onClose={() => setExportSuccess(false)} />
+      {showBatch && <BatchModal onClose={() => setShowBatch(false)} />}
     </>
   );
 }
