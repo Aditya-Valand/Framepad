@@ -46,7 +46,15 @@ const PILLS = [
   { label: 'Ordered', filter: 'ordered' },
 ];
 
-export default function DesignsPage() {
+export default function DesignsPageWrapper() {
+  return (
+    <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EDE6DC' }}><div className="animate-spin rounded-full h-8 w-8 border-2 border-[#8B6F5C] border-t-transparent" /></div>}>
+      <DesignsPage />
+    </Suspense>
+  );
+}
+
+function DesignsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
