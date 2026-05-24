@@ -658,6 +658,17 @@
 .admin-shell .pq-sheet-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
 .admin-shell .pq-mark-sent { display:flex; gap:8px; margin-top:12px; padding-top:12px; border-top:.5px solid var(--border); animation:admin-fadeIn .25s ease; }
 
+/* ══ SFFD RESULT BANNER ══ */
+.admin-shell .pq-result-banner { background:linear-gradient(135deg,#f6f3ef,#fff9f3); border:.5px solid rgba(139,111,92,.2); border-radius:16px; padding:18px 22px; margin-bottom:24px; animation:admin-fadeIn .3s ease; }
+.admin-shell .pq-result-head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+.admin-shell .pq-result-head strong { font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text); }
+.admin-shell .pq-result-meta { font-family:'DM Mono',monospace; font-size:11px; color:var(--brown); letter-spacing:.04em; flex:1; }
+.admin-shell .pq-result-sheets { display:flex; flex-direction:column; gap:6px; }
+.admin-shell .pq-result-sheet { display:flex; align-items:center; gap:10px; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-2); padding:6px 10px; border-radius:8px; background:rgba(255,255,255,.6); }
+.admin-shell .pq-result-idx { font-weight:500; color:var(--text); min-width:56px; }
+.admin-shell .pq-result-eff { color:var(--brown); font-weight:500; }
+.admin-shell .pq-result-link { color:var(--brown); text-decoration:underline; text-underline-offset:2px; margin-left:auto; }
+
 /* ══ DESIGNS PAGE ══ */
 .admin-shell .designs-controls { display:flex; justify-content:space-between; align-items:center; gap:14px; margin-bottom:24px; flex-wrap:wrap; }
 .admin-shell .designs-controls .pill-row { margin-bottom:0; }

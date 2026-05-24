@@ -54,6 +54,23 @@ interface Stats {
   groupCount: number;
 }
 
+interface GenerateResultSheet {
+  sheetIndex: number;
+  finish: string;
+  itemCount: number;
+  efficiency: number;
+  sheetUrl: string;
+  placedItems: { orderItemId: string; position: string }[];
+}
+
+interface GenerateResponse {
+  sheetsCreated: number;
+  itemsPlaced: number;
+  areaSavedPct: number;
+  sheets: GenerateResultSheet[];
+  message: string;
+}
+
 export default function PrintQueuePage() {
   const [groups, setGroups] = useState<QueueGroup[]>([]);
   const [sheets, setSheets] = useState<PrintSheet[]>([]);
@@ -62,6 +79,7 @@ export default function PrintQueuePage() {
   const [generating, setGenerating] = useState<string | null>(null); // key or 'all'
   const [markSent, setMarkSent] = useState<string | null>(null);
   const [shopName, setShopName] = useState('');
+  const [lastResult, setLastResult] = useState<GenerateResponse | null>(null);
 
   const fetchQueue = useCallback(async () => {
     try {
@@ -83,13 +101,16 @@ export default function PrintQueuePage() {
   const handleGenerateGroup = async (sizeSlug: string, finishSlug: string) => {
     const key = `${sizeSlug}_${finishSlug}`;
     setGenerating(key);
+    setLastResult(null);
     try {
       const res = await fetch('/api/admin/print-sheets/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ size_slug: sizeSlug, finish_slug: finishSlug }),
+        body: JSON.stringify({ finish: finishSlug }),
       });
       if (!res.ok) throw new Error('Generation failed');
+      const json = await res.json();
+      setLastResult(json);
       await fetchQueue();
     } catch (e) {
       console.error('Generate error:', e);
@@ -100,6 +121,7 @@ export default function PrintQueuePage() {
 
   const handleGenerateAll = async () => {
     setGenerating('all');
+    setLastResult(null);
     try {
       const res = await fetch('/api/admin/print-sheets/generate', {
         method: 'POST',
@@ -107,6 +129,8 @@ export default function PrintQueuePage() {
         body: JSON.stringify({ all: true }),
       });
       if (!res.ok) throw new Error('Generation failed');
+      const json = await res.json();
+      setLastResult(json);
       await fetchQueue();
     } catch (e) {
       console.error('Generate all error:', e);
@@ -185,6 +209,32 @@ export default function PrintQueuePage() {
         ))}
       </div>
 
+      {/* Generation Result Banner */}
+      {lastResult && lastResult.sheetsCreated > 0 && (
+        <div className="pq-result-banner">
+          <div className="pq-result-head">
+            <strong>✓ Generated {lastResult.sheetsCreated} sheet{lastResult.sheetsCreated > 1 ? 's' : ''}</strong>
+            <span className="pq-result-meta">
+              {lastResult.itemsPlaced} items packed · {lastResult.areaSavedPct}% paper saved (SFFD)
+            </span>
+            <Btn variant="outline" size="sm" onClick={() => setLastResult(null)}>✕</Btn>
+          </div>
+          <div className="pq-result-sheets">
+            {lastResult.sheets.map((s) => (
+              <div key={s.sheetIndex} className="pq-result-sheet">
+                <span className="pq-result-idx">Sheet {s.sheetIndex + 1}</span>
+                <Badge variant={s.finish === 'glossy' ? 'info' : 'brown'}>{s.finish}</Badge>
+                <span>{s.itemCount} items</span>
+                <span className="pq-result-eff">{s.efficiency}% filled</span>
+                {s.sheetUrl && (
+                  <a href={s.sheetUrl} target="_blank" rel="noopener noreferrer" className="pq-result-link">View PNG ↗</a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Queue Groups */}
       {groups.length > 0 && (
         <>
@@ -262,17 +312,24 @@ export default function PrintQueuePage() {
                   </Badge>
                 </div>
 
-                <div className={`admin-a4 grid-${sh.columns}x${sh.rows}`}>
-                  {Array.from({ length: sh.capacity }).map((_, i) => {
-                    const item = sh.items.find((si) => si.position === i + 1);
-                    return (
-                      <div key={i} className="slot">
-                        <div className="si" style={item?.design_snapshot_url ? { backgroundImage: `url(${item.design_snapshot_url})`, backgroundSize: 'cover' } : undefined} />
-                        <div className="sc"><span>♡</span></div>
-                      </div>
-                    );
-                  })}
-                </div>
+                {sh.sheet_url ? (
+                  <div className="pq-sheet-preview">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={sh.sheet_url} alt={`Sheet ${sh.sheet_number}`} style={{ width: '100%', borderRadius: '8px', border: '0.5px solid rgba(26,23,20,0.08)' }} />
+                  </div>
+                ) : (
+                  <div className={`admin-a4 grid-${sh.columns}x${sh.rows}`}>
+                    {Array.from({ length: sh.capacity }).map((_, i) => {
+                      const item = sh.items.find((si) => si.position === i + 1);
+                      return (
+                        <div key={i} className="slot">
+                          <div className="si" style={item?.design_snapshot_url ? { backgroundImage: `url(${item.design_snapshot_url})`, backgroundSize: 'cover' } : undefined} />
+                          <div className="sc"><span>♡</span></div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {sh.print_shop_name && sh.sent_to_shop_at && (
                   <div className="pq-sent-info">↗ Sent to <strong>{sh.print_shop_name}</strong> · {new Date(sh.sent_to_shop_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
