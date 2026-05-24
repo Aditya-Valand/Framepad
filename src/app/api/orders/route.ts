@@ -47,49 +47,73 @@ export async function POST(req: Request) {
 
   // Fetch template pricing
   const templatePricing = await sql`SELECT * FROM template_print_mapping WHERE is_active = true`;
-  const pricingMap: Record<string, { price_per_unit_paise: number; print_size_id?: string }> = {};
+  const pricingMap: Record<string, { first_print_paise: number; extra_print_paise: number; print_size_id: string }> = {};
   for (const tp of templatePricing) {
-    pricingMap[tp.template_id] = { price_per_unit_paise: tp.price_per_unit_paise };
+    pricingMap[tp.template_id] = {
+      first_print_paise: tp.first_print_paise,
+      extra_print_paise: tp.extra_print_paise,
+      print_size_id: tp.print_size_id,
+    };
   }
 
-  // Also fetch print_size_id for each template via the mapping
-  const templateSizeMapping = await sql`
-    SELECT tpm.template_id, ps.id as print_size_id
-    FROM template_print_mapping tpm
-    JOIN print_sizes ps ON ps.slug = (
-      SELECT ps2.slug FROM print_sizes ps2 WHERE ps2.id = tpm.print_size_id
-    )`;
-  for (const ts of templateSizeMapping) {
-    if (pricingMap[ts.template_id]) pricingMap[ts.template_id].print_size_id = ts.print_size_id;
+  // Fetch bundles
+  const allBundles = await sql`SELECT * FROM price_bundles WHERE is_active = true ORDER BY quantity DESC`;
+  const bundlesByTemplate: Record<string, { quantity: number; price_paise: number }[]> = {};
+  for (const b of allBundles) {
+    if (!bundlesByTemplate[b.template_id]) bundlesByTemplate[b.template_id] = [];
+    bundlesByTemplate[b.template_id].push({ quantity: b.quantity, price_paise: b.price_paise });
   }
 
-  // Calculate price server-side
-  const numDesigns = designIds.length;
-  let basePaise = 0;
-  const designPrices: { id: string; unitPrice: number; printSizeId: string | null }[] = [];
+  // Group designs by template type
+  const typeGroups: Record<string, { ids: string[]; printSizeId: string }> = {};
+  const fallbackKey = Object.keys(pricingMap)[0] || 'polaroid-classic';
 
   for (const d of designs) {
-    const tp = pricingMap[d.template_id] || { price_per_unit_paise: 7900 };
-    basePaise += tp.price_per_unit_paise;
-    designPrices.push({ id: d.id, unitPrice: tp.price_per_unit_paise, printSizeId: tp.print_size_id || null });
+    const key = pricingMap[d.template_id] ? d.template_id : fallbackKey;
+    if (!typeGroups[key]) typeGroups[key] = { ids: [], printSizeId: pricingMap[key]?.print_size_id || '' };
+    typeGroups[key].ids.push(d.id);
   }
 
-  // Quantity discount
-  const discountTiers = await sql`
-    SELECT min_qty, discount_percent FROM quantity_discounts
-    WHERE is_active = true ORDER BY min_qty DESC`;
-  const tier = discountTiers.find((t) => numDesigns >= t.min_qty);
-  const qtyDiscountPercent = tier?.discount_percent || 0;
-  const qtyDiscountPaise = Math.round(basePaise * qtyDiscountPercent / 100);
+  // Calculate: best bundle + extras, or individual pricing
+  let printsPaise = 0;
+  const designPrices: { id: string; unitPrice: number; printSizeId: string }[] = [];
+
+  for (const [templateId, group] of Object.entries(typeGroups)) {
+    const tp = pricingMap[templateId];
+    const count = group.ids.length;
+    const templateBundles = bundlesByTemplate[templateId] || [];
+    // Find best bundle (largest qty that fits)
+    const bestBundle = templateBundles.find(b => b.quantity <= count);
+
+    if (bestBundle) {
+      // Bundle covers first N items, extras use extra_print_paise
+      const extraCount = count - bestBundle.quantity;
+      const groupTotal = bestBundle.price_paise + extraCount * tp.extra_print_paise;
+      printsPaise += groupTotal;
+      // Distribute price across items for order_items records
+      const bundlePerUnit = Math.round(bestBundle.price_paise / bestBundle.quantity);
+      group.ids.forEach((id, idx) => {
+        const unitPrice = idx < bestBundle.quantity ? bundlePerUnit : tp.extra_print_paise;
+        designPrices.push({ id, unitPrice, printSizeId: group.printSizeId });
+      });
+    } else {
+      // Individual pricing: first = first_print_paise, rest = extra_print_paise
+      group.ids.forEach((id, idx) => {
+        const unitPrice = idx === 0 ? tp.first_print_paise : tp.extra_print_paise;
+        printsPaise += unitPrice;
+        designPrices.push({ id, unitPrice, printSizeId: group.printSizeId });
+      });
+    }
+  }
 
   // Finish addon
-  const finishAddon = finish.price_addon_paise * numDesigns;
+  const finishAddon = finish.price_addon_paise * designIds.length;
 
   // Gift box
   const [giftBoxSetting] = await sql`SELECT value FROM site_settings WHERE key = 'gift_box_addon_paise'`;
   const giftBoxPaise = wantGiftBox ? parseInt(String(giftBoxSetting?.value || '14900').replace(/"/g, '')) : 0;
 
-  const subtotal = basePaise - qtyDiscountPaise + finishAddon + giftBoxPaise;
+  const subtotal = printsPaise + finishAddon + giftBoxPaise;
 
   // Coupon validation
   let discountPaise = 0;
@@ -143,12 +167,11 @@ export async function POST(req: Request) {
       ) RETURNING id, order_number`;
 
     // Create order items — each design with its own pricing
-    // Use a default product_type_id (single) and the matched print_size
     const [defaultPt] = await sql`SELECT id FROM product_types WHERE slug = 'single' LIMIT 1`;
     const [defaultSize] = await sql`SELECT id FROM print_sizes WHERE is_default = true LIMIT 1`;
 
     for (const dp of designPrices) {
-      const unitAfterDiscount = Math.round(dp.unitPrice * (1 - qtyDiscountPercent / 100)) + finish.price_addon_paise;
+      const unitTotal = dp.unitPrice + finish.price_addon_paise;
       await sql`
         INSERT INTO order_items (
           order_id, design_id, product_type_id, print_finish_id, print_size_id,
@@ -156,7 +179,7 @@ export async function POST(req: Request) {
         ) VALUES (
           ${order.id}, ${dp.id}, ${defaultPt?.id || null}, ${finishId},
           ${dp.printSizeId || defaultSize?.id || null},
-          1, ${unitAfterDiscount}, ${unitAfterDiscount}
+          1, ${unitTotal}, ${unitTotal}
         )`;
     }
 

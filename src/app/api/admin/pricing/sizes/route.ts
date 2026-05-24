@@ -1,43 +1,29 @@
 import { sql } from '@/lib/db';
 import { ok, err, userRole } from '@/lib/api';
 
-// Manages quantity discount tiers
+// Manages pricing settings (gift box, free shipping threshold)
 export async function GET(req: Request) {
   if (userRole(req) !== 'admin') return err('Forbidden', 403);
 
-  const discounts = await sql`
-    SELECT * FROM quantity_discounts ORDER BY min_qty`;
+  const settings = await sql`
+    SELECT key, value, description FROM site_settings
+    WHERE key IN ('gift_box_addon_paise', 'free_shipping_threshold_paise')
+    ORDER BY key`;
 
-  return ok({ discounts });
+  const finishes = await sql`SELECT * FROM print_finishes ORDER BY slug`;
+
+  return ok({ settings, finishes });
 }
 
 export async function PUT(req: Request) {
   if (userRole(req) !== 'admin') return err('Forbidden', 403);
 
-  const { id, minQty, discountPercent, label, isActive } = await req.json();
-  if (!id) return err('ID required', 400);
+  const { key, value } = await req.json();
+  if (!key || value === undefined) return err('key and value required', 400);
 
   await sql`
-    UPDATE quantity_discounts SET
-      min_qty = COALESCE(${minQty || null}, min_qty),
-      discount_percent = COALESCE(${discountPercent ?? null}, discount_percent),
-      label = COALESCE(${label || null}, label),
-      is_active = ${isActive !== false}
-    WHERE id = ${id}`;
+    UPDATE site_settings SET value = ${String(value)}
+    WHERE key = ${key}`;
 
   return ok({ updated: true });
-}
-
-export async function POST(req: Request) {
-  if (userRole(req) !== 'admin') return err('Forbidden', 403);
-
-  const { minQty, discountPercent, label } = await req.json();
-  if (!minQty || discountPercent === undefined) return err('minQty and discountPercent required', 400);
-
-  const [row] = await sql`
-    INSERT INTO quantity_discounts (min_qty, discount_percent, label)
-    VALUES (${minQty}, ${discountPercent}, ${label || null})
-    RETURNING id`;
-
-  return ok({ id: row.id }, 201);
 }
