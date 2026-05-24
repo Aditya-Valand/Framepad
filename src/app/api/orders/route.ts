@@ -31,11 +31,16 @@ export async function POST(req: Request) {
   if (!finishId) return err('Missing finish selection', 400);
   if (!addressId) return err('Shipping address required', 400);
 
-  // Verify designs belong to user and get their template_id
-  const designs = await sql`
-    SELECT id, template_id FROM designs
+  // Verify designs belong to user and get their template_id from canvas_state
+  const rawDesigns = await sql`
+    SELECT id, template_id, canvas_state FROM designs
     WHERE id = ANY(${designIds}) AND user_id = ${uid} AND deleted_at IS NULL`;
-  if (designs.length !== designIds.length) return err('Invalid designs', 400);
+  if (rawDesigns.length !== designIds.length) return err('Invalid designs', 400);
+  // Extract template slug from canvas_state (slug like 'concert-ticket')
+  const designs = rawDesigns.map(d => ({
+    id: d.id,
+    template_id: d.canvas_state?.frameData?.templateId || d.template_id || null,
+  }));
 
   // Verify address belongs to user
   const [addr] = await sql`SELECT id FROM addresses WHERE id = ${addressId} AND user_id = ${uid}`;

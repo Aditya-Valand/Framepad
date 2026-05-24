@@ -6,8 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Logo from '@/components/ui/Logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useRazorpay } from '@/hooks/useRazorpay';
-import { DesignPreview } from '@/components/DesignPreview';
-import type { FrameData } from '@/store';
+
 
 interface Design {
   id: string;
@@ -436,24 +435,28 @@ function OrderPage() {
             </div>
           ) : (
             <>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, padding: '4px 0' }}>
-                {designs.map(d => (
-                  <div key={d.id} style={{ position: 'relative', width: 80, height: 96, borderRadius: 4, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                    {d.canvas_state?.frameData ? (
-                      <DesignPreview frameData={d.canvas_state.frameData as Partial<FrameData>} />
-                    ) : d.thumbnail_url ? (
-                      <img src={d.thumbnail_url} alt={d.title || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f0ea', color: '#A39080', fontSize: 10 }}>No preview</div>
-                    )}
-                    <button
-                      onClick={() => removeDesign(d.id)}
-                      style={{ position: 'absolute', top: 4, right: 4, width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    >
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                    </button>
-                  </div>
-                ))}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '4px 0' }}>
+                {(() => {
+                  // Group by template type for summary
+                  const typeCounts: Record<string, number> = {};
+                  for (const d of designs) {
+                    const tp = templatePricing.find(t => t.template_id === d.template_id);
+                    const name = tp?.template_name || 'Classic';
+                    typeCounts[name] = (typeCounts[name] || 0) + 1;
+                  }
+                  return Object.entries(typeCounts).map(([name, count]) => (
+                    <span key={name} style={{
+                      padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+                      background: '#fff', border: '0.5px solid rgba(26,23,20,0.08)',
+                      color: '#1A1714',
+                    }}>
+                      {name} <span style={{ color: '#8B6F5C' }}>×{count}</span>
+                    </span>
+                  ));
+                })()}
+              </div>
+              <div style={{ fontSize: 12, color: '#A39080', marginTop: 8 }}>
+                {designs.length} design{designs.length > 1 ? 's' : ''} total
               </div>
               <Link href="/designs" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 12, fontSize: 12, color: '#8B6F5C', fontWeight: 500, textDecoration: 'none' }}>
                 + Add more designs

@@ -15,10 +15,15 @@ export async function GET(req: Request) {
   if (idsParam) {
     const idList = idsParam.split(',').filter(Boolean).slice(0, 20);
     if (idList.length === 0) return ok({ designs: [] });
-    const designs = await sql`
+    const rows = await sql`
       SELECT id, title, thumbnail_url, canvas_state, template_id
       FROM designs
       WHERE id = ANY(${idList}) AND user_id = ${uid} AND deleted_at IS NULL`;
+    // Extract template slug from canvas_state for pricing
+    const designs = rows.map(d => ({
+      ...d,
+      template_id: d.canvas_state?.frameData?.templateId || d.template_id || null,
+    }));
     return ok({ designs });
   }
 
