@@ -20,14 +20,17 @@ interface Design {
 interface TemplatePricing {
   template_id: string;
   template_name: string;
-  price_per_unit_paise: number;
+  first_print_paise: number;
+  extra_print_paise: number;
   items_per_sheet: number;
 }
 
-interface QuantityDiscount {
-  min_qty: number;
-  discount_percent: number;
-  label: string;
+interface PriceBundle {
+  id: string;
+  template_id: string;
+  bundle_name: string;
+  quantity: number;
+  price_paise: number;
 }
 
 interface PrintFinish {
@@ -81,9 +84,10 @@ function OrderPage() {
 
   // Pricing data
   const [templatePricing, setTemplatePricing] = useState<TemplatePricing[]>([]);
-  const [quantityDiscounts, setQuantityDiscounts] = useState<QuantityDiscount[]>([]);
+  const [bundles, setBundles] = useState<PriceBundle[]>([]);
   const [finishes, setFinishes] = useState<PrintFinish[]>([]);
   const [giftBoxPaise, setGiftBoxPaise] = useState(14900);
+  const [sheetSaverEnabled, setSheetSaverEnabled] = useState(true);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(50000);
 
   // Selections
@@ -116,10 +120,11 @@ function OrderPage() {
       .then(r => r.json())
       .then(data => {
         setTemplatePricing(data.templatePricing || []);
-        setQuantityDiscounts(data.quantityDiscounts || []);
+        setBundles(data.bundles || []);
         setFinishes(data.finishes || []);
         setGiftBoxPaise(data.giftBoxPaise || 14900);
         setFreeShippingThreshold(data.freeShippingThresholdPaise || 50000);
+        setSheetSaverEnabled(data.sheetSaverEnabled !== false);
         if (data.finishes?.length) setSelectedFinish(data.finishes[0].id);
       })
       .catch(() => {});
@@ -155,29 +160,56 @@ function OrderPage() {
       .catch(() => {});
   }, [user]);
 
-  // Price calculation — template-based with quantity discount
+  // Price calculation — bundles + individual extra pricing
   const priceBreakdown = useMemo(() => {
     if (designs.length === 0 || !selectedFinish || templatePricing.length === 0) return null;
 
     const fn = finishes.find(f => f.id === selectedFinish);
     if (!fn) return null;
 
-    // Calculate per-design price based on template
-    let basePaise = 0;
-    const designPrices: { design: Design; price: number; templateName: string }[] = [];
+    // Group designs by template type and calculate price
+    const typeCount: Record<string, { count: number; tp: TemplatePricing }> = {};
     for (const d of designs) {
       const tp = templatePricing.find(t => t.template_id === d.template_id);
-      const unitPrice = tp?.price_per_unit_paise || 7900; // fallback to classic price
-      basePaise += unitPrice;
-      designPrices.push({ design: d, price: unitPrice, templateName: tp?.template_name || 'Classic' });
+      const fallback = templatePricing.find(t => t.template_id === 'polaroid-classic') || templatePricing[0];
+      const matched = tp || fallback;
+      const key = matched.template_id;
+      if (!typeCount[key]) typeCount[key] = { count: 0, tp: matched };
+      typeCount[key].count++;
     }
 
-    // Apply quantity discount
-    const sortedTiers = [...quantityDiscounts].sort((a, b) => b.min_qty - a.min_qty);
-    const tier = sortedTiers.find(t => designs.length >= t.min_qty);
-    const discountPercent = tier?.discount_percent || 0;
-    const tierLabel = tier?.label || 'Single';
-    const quantityDiscountPaise = Math.round(basePaise * discountPercent / 100);
+    // Calculate: find best bundle for each type, extras use extra_print_paise
+    let printsPaise = 0;
+    const breakdown: { name: string; count: number; bundleName?: string; bundleQty?: number; bundlePrice?: number; extraCount?: number; extraPrice: number; total: number }[] = [];
+    for (const [templateId, { count, tp }] of Object.entries(typeCount)) {
+      // Find bundles for this template, sorted by quantity desc
+      const templateBundles = bundles
+        .filter(b => b.template_id === templateId)
+        .sort((a, b) => b.quantity - a.quantity);
+
+      // Find the best bundle (largest that fits within count)
+      const bestBundle = templateBundles.find(b => b.quantity <= count);
+
+      let total: number;
+      if (bestBundle) {
+        // Bundle price + extras beyond bundle quantity
+        const extraCount = count - bestBundle.quantity;
+        const extraTotal = extraCount * tp.extra_print_paise;
+        total = bestBundle.price_paise + extraTotal;
+        breakdown.push({
+          name: tp.template_name, count,
+          bundleName: bestBundle.bundle_name, bundleQty: bestBundle.quantity,
+          bundlePrice: bestBundle.price_paise, extraCount, extraPrice: tp.extra_print_paise, total,
+        });
+      } else {
+        // No bundle fits — use individual pricing (first + extras)
+        const first = tp.first_print_paise;
+        const extras = (count - 1) * tp.extra_print_paise;
+        total = first + extras;
+        breakdown.push({ name: tp.template_name, count, extraPrice: tp.extra_print_paise, total });
+      }
+      printsPaise += total;
+    }
 
     // Finish addon
     const finishAddonTotal = fn.price_addon_paise * designs.length;
@@ -185,7 +217,7 @@ function OrderPage() {
     // Gift box
     const giftBoxTotal = wantGiftBox ? giftBoxPaise : 0;
 
-    const subtotal = basePaise - quantityDiscountPaise + finishAddonTotal + giftBoxTotal;
+    const subtotal = printsPaise + finishAddonTotal + giftBoxTotal;
 
     // Coupon
     const couponDiscount = couponResult?.valid ? (couponResult.discountPaise || 0) : 0;
@@ -194,8 +226,39 @@ function OrderPage() {
     const shipping = subtotal >= freeShippingThreshold ? 0 : 4900;
     const total = subtotal - couponDiscount + shipping;
 
-    return { basePaise, quantityDiscountPaise, discountPercent, tierLabel, finishAddonTotal, giftBoxTotal, subtotal, couponDiscount, shipping, total, fn, designPrices };
-  }, [designs, templatePricing, quantityDiscounts, finishes, selectedFinish, wantGiftBox, giftBoxPaise, freeShippingThreshold, couponResult]);
+    return { printsPaise, breakdown, finishAddonTotal, giftBoxTotal, subtotal, couponDiscount, shipping, total, fn };
+  }, [designs, templatePricing, bundles, finishes, selectedFinish, wantGiftBox, giftBoxPaise, freeShippingThreshold, couponResult]);
+
+  // Sheet Saver recommendation
+  const sheetSaverTips = useMemo(() => {
+    if (!sheetSaverEnabled || designs.length === 0 || templatePricing.length === 0) return [];
+    const tips: { templateName: string; current: number; sheetSize: number; needed: number; costPaise: number }[] = [];
+    const typeCount: Record<string, { count: number; tp: TemplatePricing }> = {};
+    for (const d of designs) {
+      const tp = templatePricing.find(t => t.template_id === d.template_id);
+      const fallback = templatePricing.find(t => t.template_id === 'polaroid-classic') || templatePricing[0];
+      const matched = tp || fallback;
+      if (!typeCount[matched.template_id]) typeCount[matched.template_id] = { count: 0, tp: matched };
+      typeCount[matched.template_id].count++;
+    }
+    for (const [, { count, tp }] of Object.entries(typeCount)) {
+      const remainder = count % tp.items_per_sheet;
+      if (remainder > 0 && remainder >= tp.items_per_sheet / 2) {
+        // More than half the sheet used — suggest filling it
+        const needed = tp.items_per_sheet - remainder;
+        if (needed > 0 && needed <= 3) {
+          tips.push({
+            templateName: tp.template_name,
+            current: count,
+            sheetSize: tp.items_per_sheet,
+            needed,
+            costPaise: needed * tp.extra_print_paise,
+          });
+        }
+      }
+    }
+    return tips;
+  }, [designs, templatePricing, sheetSaverEnabled]);
 
   // Validate coupon
   const handleApplyCoupon = async () => {
@@ -565,10 +628,18 @@ function OrderPage() {
             boxShadow: '0 4px 20px rgba(26,23,20,0.04)',
           }}>
             <h3 style={{ fontSize: 13, fontWeight: 600, color: '#1A1714', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price Breakdown</h3>
-            <PriceLine label={`${designs.length} print${designs.length > 1 ? 's' : ''}`} value={priceBreakdown.basePaise} />
-            {priceBreakdown.quantityDiscountPaise > 0 && (
-              <PriceLine label={`${priceBreakdown.tierLabel} discount (${priceBreakdown.discountPercent}% off)`} value={-priceBreakdown.quantityDiscountPaise} green />
-            )}
+            {priceBreakdown.breakdown.map((b, i) => (
+              <div key={i}>
+                <PriceLine
+                  label={b.bundleName
+                    ? `${b.bundleName} (${b.bundleQty}pc)${b.extraCount ? ` + ${b.extraCount} extra × ${formatPrice(b.extraPrice)}` : ''}`
+                    : b.count === 1
+                      ? `${b.name} (1 print)`
+                      : `${b.name} (1st + ${b.count - 1} × ${formatPrice(b.extraPrice)})`}
+                  value={b.total}
+                />
+              </div>
+            ))}
             {priceBreakdown.finishAddonTotal > 0 && (
               <PriceLine label={`${priceBreakdown.fn.name} finish (+${formatPrice(priceBreakdown.fn.price_addon_paise)}/ea)`} value={priceBreakdown.finishAddonTotal} />
             )}
@@ -583,6 +654,24 @@ function OrderPage() {
             <PriceLine label="Shipping" value={priceBreakdown.shipping} free={priceBreakdown.shipping === 0} />
             <div style={{ borderTop: '1px solid rgba(26,23,20,0.12)', margin: '8px 0' }} />
             <PriceLine label="Total" value={priceBreakdown.total} bold large />
+          </div>
+        )}
+
+        {/* Sheet Saver Tip */}
+        {sheetSaverTips.length > 0 && (
+          <div style={{
+            marginTop: 16, padding: '12px 16px', borderRadius: 10,
+            background: 'linear-gradient(135deg, #F0FFF4, #E6FFFA)',
+            border: '0.5px solid rgba(45,138,78,0.2)',
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#2d8a4e', marginBottom: 6 }}>
+              💡 Sheet Saver Tip
+            </div>
+            {sheetSaverTips.map((tip, i) => (
+              <div key={i} style={{ fontSize: 11, color: '#1A1714', lineHeight: 1.6 }}>
+                Add {tip.needed} more {tip.templateName} for just {formatPrice(tip.costPaise)} to complete your print sheet & save more!
+              </div>
+            ))}
           </div>
         )}
 
