@@ -53,6 +53,17 @@ export default function DesignsPage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [fetching, setFetching] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const fetchDesigns = useCallback(async (page = 1) => {
     setFetching(true);
@@ -118,10 +129,39 @@ export default function DesignsPage() {
             </p>
           </div>
           <div className="dp-head-actions">
-            <Link href="/editor" className="dp-btn primary">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 5v14M5 12h14"/></svg>
-              New Design
-            </Link>
+            {selectMode ? (
+              <>
+                <span style={{ fontSize: 13, color: '#5C4A3A', fontWeight: 500 }}>
+                  {selected.size} selected
+                </span>
+                <button
+                  className="dp-btn"
+                  onClick={() => { setSelectMode(false); setSelected(new Set()); }}
+                >
+                  Cancel
+                </button>
+                {selected.size > 0 && (
+                  <Link
+                    href={`/order?ids=${Array.from(selected).join(',')}`}
+                    className="dp-btn primary"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                    Order {selected.size} print{selected.size > 1 ? 's' : ''}
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <button className="dp-btn" onClick={() => setSelectMode(true)}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                  Select &amp; Order
+                </button>
+                <Link href="/editor" className="dp-btn primary">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 5v14M5 12h14"/></svg>
+                  New Design
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -162,7 +202,14 @@ export default function DesignsPage() {
             )}
 
             {filtered.map((d) => (
-              <DesignCard key={d.id} design={d} onDelete={(id) => setDeleteTarget(id)} />
+              <DesignCard
+                key={d.id}
+                design={d}
+                onDelete={(id) => setDeleteTarget(id)}
+                selectMode={selectMode}
+                isSelected={selected.has(d.id)}
+                onToggleSelect={toggleSelect}
+              />
             ))}
           </div>
         )}
@@ -223,13 +270,40 @@ export default function DesignsPage() {
   );
 }
 
-function DesignCard({ design: d, onDelete }: { design: Design; onDelete: (id: string) => void }) {
+function DesignCard({ design: d, onDelete, selectMode, isSelected, onToggleSelect }: {
+  design: Design;
+  onDelete: (id: string) => void;
+  selectMode: boolean;
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
+}) {
   const formattedDate = new Date(d.updated_at).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
   });
 
   return (
-    <div className="dp-card">
+    <div
+      className="dp-card"
+      onClick={selectMode ? () => onToggleSelect(d.id) : undefined}
+      style={{ cursor: selectMode ? 'pointer' : undefined, position: 'relative' }}
+    >
+      {/* Selection checkbox overlay */}
+      {selectMode && (
+        <div style={{
+          position: 'absolute', top: 8, left: 8, zIndex: 10,
+          width: 22, height: 22, borderRadius: '50%',
+          background: isSelected ? '#8B6F5C' : 'rgba(255,252,248,0.9)',
+          border: isSelected ? '2px solid #8B6F5C' : '2px solid rgba(26,23,20,0.2)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'all 0.15s ease',
+        }}>
+          {isSelected && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          )}
+        </div>
+      )}
       {/* Hover buttons */}
       <div className="card-acts">
         <Link

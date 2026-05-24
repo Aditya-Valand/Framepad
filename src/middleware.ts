@@ -12,8 +12,16 @@ function getAccessSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
+// Routes that bypass auth entirely (have their own verification)
+const PUBLIC_API = ['/api/payments/webhook', '/api/pricing'];
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // Skip auth for public/webhook routes
+  if (PUBLIC_API.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
 
   const isProtectedPage = PROTECTED_PAGES.some((p) => pathname.startsWith(p));
   const isProtectedApi  = AUTH_REQUIRED_API.some((p) => pathname.startsWith(p));

@@ -9,6 +9,19 @@ export async function GET(req: Request) {
   if (!uid) return err('Unauthorized', 401);
 
   const url = new URL(req.url);
+
+  // Support fetching by specific IDs (for order page)
+  const idsParam = url.searchParams.get('ids');
+  if (idsParam) {
+    const idList = idsParam.split(',').filter(Boolean).slice(0, 20);
+    if (idList.length === 0) return ok({ designs: [] });
+    const designs = await sql`
+      SELECT id, title, thumbnail_url, canvas_state
+      FROM designs
+      WHERE id = ANY(${idList}) AND user_id = ${uid} AND deleted_at IS NULL`;
+    return ok({ designs });
+  }
+
   const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
   const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit') || '20')));
   const offset = (page - 1) * limit;
