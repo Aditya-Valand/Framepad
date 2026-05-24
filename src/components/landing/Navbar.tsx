@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/store/cart";
 
 function ProfileDropdown({
   initials, onLogout, onClose,
@@ -118,6 +119,7 @@ export default function Navbar() {
 
   const { user, loading, logout, initials } = useAuth();
   const pathname = usePathname();
+  const cartCount = useCart(s => s.items.length);
 
   useEffect(() => {
     const sections = ["templates", "moments", "how", "pricing"]
@@ -220,6 +222,33 @@ export default function Navbar() {
         {/* Right — auth state */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, justifySelf: "end" }}>
 
+          {/* Desktop cart button */}
+          {cartCount > 0 && (
+            <Link
+              href="/order"
+              className="hidden lg:flex"
+              style={{
+                position: "relative", width: 36, height: 36, borderRadius: "50%",
+                background: "rgba(139,111,92,0.08)", border: ".5px solid rgba(26,23,20,0.1)",
+                alignItems: "center", justifyContent: "center",
+                textDecoration: "none", transition: "background .15s",
+              }}
+              title={`Cart (${cartCount} items)`}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5C4A3A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+              </svg>
+              <span style={{
+                position: "absolute", top: -2, right: -2,
+                width: 16, height: 16, borderRadius: "50%",
+                background: "#8B6F5C", color: "#fff",
+                fontSize: 9, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>{cartCount}</span>
+            </Link>
+          )}
+
           {/* Desktop auth area */}
           <div className="hidden lg:flex" style={{ alignItems: "center", gap: 12 }}>
             {loading ? (
@@ -279,6 +308,32 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* Mobile cart button */}
+          {cartCount > 0 && (
+            <Link
+              href="/order"
+              className="flex lg:hidden"
+              style={{
+                position: "relative", width: 38, height: 38, borderRadius: "50%",
+                background: "rgba(255,255,255,0.4)", border: ".5px solid rgba(26,23,20,0.12)",
+                alignItems: "center", justifyContent: "center",
+                textDecoration: "none",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5C4A3A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+              </svg>
+              <span style={{
+                position: "absolute", top: -1, right: -1,
+                width: 16, height: 16, borderRadius: "50%",
+                background: "#8B6F5C", color: "#fff",
+                fontSize: 9, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>{cartCount}</span>
+            </Link>
+          )}
+
           {/* Mobile toggle */}
           <button
             className="flex lg:hidden items-center justify-center"
@@ -329,6 +384,15 @@ export default function Navbar() {
 
         {!loading && user ? (
           <>
+            {cartCount > 0 && (
+              <Link
+                href="/order" onClick={closeMenu}
+                style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300, color: "var(--text)", textDecoration: "none", padding: "14px 0", borderBottom: ".5px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+              >
+                Cart
+                <span style={{ fontSize: 13, fontFamily: "'DM Sans', sans-serif", background: "#8B6F5C", color: "#fff", borderRadius: 100, padding: "2px 10px", fontWeight: 600 }}>{cartCount}</span>
+              </Link>
+            )}
             <Link
               href="/account" onClick={closeMenu}
               style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300, color: "var(--text)", textDecoration: "none", padding: "14px 0", borderBottom: ".5px solid var(--border)" }}

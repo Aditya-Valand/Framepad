@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/landing/Navbar';
 import { useAuth } from '@/hooks/useAuth';
 import { DesignPreview } from '@/components/DesignPreview';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { useCart } from '@/store/cart';
 import type { FrameData } from '@/store';
 
 interface Design {
@@ -48,6 +49,8 @@ const PILLS = [
 export default function DesignsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const cart = useCart();
   const [designs, setDesigns] = useState<Design[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -89,6 +92,18 @@ export default function DesignsPage() {
     }
     fetchDesigns();
   }, [user, authLoading, router, fetchDesigns]);
+
+  // Enter modify mode if redirected from order page
+  useEffect(() => {
+    if (searchParams.get('modify') === 'true') {
+      setSelectMode(true);
+      const cartIds = cart.getDesignIds();
+      if (cartIds.length > 0) {
+        setSelected(new Set(cartIds));
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const handleDelete = async (id: string) => {
     const res = await fetch(`/api/designs/${id}`, { method: 'DELETE' });
@@ -141,17 +156,30 @@ export default function DesignsPage() {
                   Cancel
                 </button>
                 {selected.size > 0 && (
-                  <Link
-                    href={`/order?ids=${Array.from(selected).join(',')}`}
+                  <button
                     className="dp-btn primary"
+                    onClick={() => {
+                      cart.setItems(Array.from(selected));
+                      router.push('/order');
+                    }}
                   >
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                     Order {selected.size} print{selected.size > 1 ? 's' : ''}
-                  </Link>
+                  </button>
                 )}
               </>
             ) : (
               <>
+                {cart.items.length > 0 && (
+                  <button
+                    className="dp-btn primary"
+                    onClick={() => router.push('/order')}
+                    style={{ position: 'relative' }}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                    Cart ({cart.items.length})
+                  </button>
+                )}
                 <button className="dp-btn" onClick={() => setSelectMode(true)}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                   Select &amp; Order

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Logo from '@/components/ui/Logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useRazorpay } from '@/hooks/useRazorpay';
+import { useCart } from '@/store/cart';
 
 
 interface Design {
@@ -76,6 +77,7 @@ function OrderPage() {
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const { openPayment } = useRazorpay();
+  const cart = useCart();
 
   // Design selection
   const [designs, setDesigns] = useState<Design[]>([]);
@@ -129,12 +131,20 @@ function OrderPage() {
       .catch(() => {});
   }, []);
 
-  // Fetch designs by IDs from URL
+  // Fetch designs from cart store (URL params as fallback)
   useEffect(() => {
-    const ids = searchParams.get('ids');
-    if (!ids) { setLoadingDesigns(false); return; }
-    const idList = ids.split(',').filter(Boolean);
+    // Priority: URL params > cart store
+    const urlIds = searchParams.get('ids');
+    const idList = urlIds
+      ? urlIds.split(',').filter(Boolean)
+      : cart.getDesignIds();
+
     if (idList.length === 0) { setLoadingDesigns(false); return; }
+
+    // Sync URL params into cart if they came from URL
+    if (urlIds && idList.length > 0) {
+      cart.setItems(idList);
+    }
 
     fetch(`/api/designs?ids=${idList.join(',')}`)
       .then(r => r.json())
@@ -297,6 +307,7 @@ function OrderPage() {
   // Remove design
   const removeDesign = (id: string) => {
     setDesigns(prev => prev.filter(d => d.id !== id));
+    cart.removeItem(id);
   };
 
   // Submit order
@@ -376,6 +387,7 @@ function OrderPage() {
           });
 
           if (verifyRes.ok) {
+            cart.clearCart();
             router.push(`/order/${orderId}?success=true`);
           } else {
             setError('Payment verification failed. Contact support if amount was deducted.');
@@ -458,9 +470,15 @@ function OrderPage() {
               <div style={{ fontSize: 12, color: '#A39080', marginTop: 8 }}>
                 {designs.length} design{designs.length > 1 ? 's' : ''} total
               </div>
-              <Link href="/designs" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 12, fontSize: 12, color: '#8B6F5C', fontWeight: 500, textDecoration: 'none' }}>
-                + Add more designs
-              </Link>
+              <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+                <Link href="/designs?modify=true" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#8B6F5C', fontWeight: 500, textDecoration: 'none' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Modify selection
+                </Link>
+                <Link href="/designs" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#8B6F5C', fontWeight: 500, textDecoration: 'none' }}>
+                  + Add more designs
+                </Link>
+              </div>
             </>
           )}
         </Section>
