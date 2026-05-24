@@ -7,12 +7,24 @@ interface TemplatePricing {
   id: string;
   template_id: string;
   template_name: string;
+  print_size_id: string;
   size_slug: string;
   size_name: string;
   items_per_sheet: number;
   first_print_paise: number;
   extra_print_paise: number;
   is_active: boolean;
+}
+
+interface PrintSize {
+  id: string;
+  slug: string;
+  name: string;
+  width_mm: number;
+  height_mm: number;
+  items_per_sheet: number | null;
+  columns: number | null;
+  rows: number | null;
 }
 
 interface Bundle {
@@ -42,11 +54,12 @@ interface SiteSetting {
 export default function AdminPricingPage() {
   const [templates, setTemplates] = useState<TemplatePricing[]>([]);
   const [bundles, setBundles] = useState<Bundle[]>([]);
+  const [printSizes, setPrintSizes] = useState<PrintSize[]>([]);
   const [finishes, setFinishes] = useState<PrintFinish[]>([]);
   const [settings, setSettings] = useState<SiteSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ firstPrintPaise: 0, extraPrintPaise: 0, itemsPerSheet: 6 });
+  const [editForm, setEditForm] = useState({ firstPrintPaise: 0, extraPrintPaise: 0, itemsPerSheet: 6, printSizeId: '' });
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'individual' | 'bundles' | 'settings'>('individual');
   // Bundle form
@@ -63,6 +76,7 @@ export default function AdminPricingPage() {
       const settingsData = await settingsRes.json();
       setTemplates(pricingData.templatePricing || []);
       setBundles(pricingData.bundles || []);
+      setPrintSizes(pricingData.printSizes || []);
       setFinishes(settingsData.finishes || []);
       setSettings(settingsData.settings || []);
     } catch { /* */ }
@@ -77,6 +91,7 @@ export default function AdminPricingPage() {
       firstPrintPaise: t.first_print_paise,
       extraPrintPaise: t.extra_print_paise,
       itemsPerSheet: t.items_per_sheet,
+      printSizeId: t.print_size_id,
     });
   };
 
@@ -91,6 +106,7 @@ export default function AdminPricingPage() {
         firstPrintPaise: editForm.firstPrintPaise,
         extraPrintPaise: editForm.extraPrintPaise,
         itemsPerSheet: editForm.itemsPerSheet,
+        printSizeId: editForm.printSizeId,
       }),
     });
     setEditingId(null);
@@ -221,7 +237,27 @@ export default function AdminPricingPage() {
                       {editingId === t.template_id ? (
                         <>
                           <td><strong>{t.template_name}</strong></td>
-                          <td>{t.size_name}</td>
+                          <td>
+                            <select
+                              value={editForm.printSizeId}
+                              onChange={e => {
+                                const sz = printSizes.find(s => s.id === e.target.value);
+                                setEditForm(p => ({
+                                  ...p,
+                                  printSizeId: e.target.value,
+                                  itemsPerSheet: sz?.items_per_sheet || p.itemsPerSheet,
+                                }));
+                              }}
+                              className="admin-input-sm"
+                              style={{ width: 'auto', height: 30 }}
+                            >
+                              {printSizes.map(s => (
+                                <option key={s.id} value={s.id}>
+                                  {s.name} ({s.width_mm}×{s.height_mm}mm)
+                                </option>
+                              ))}
+                            </select>
+                          </td>
                           <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                               <span style={{ fontSize: 11, color: '#A39080' }}>1/</span>

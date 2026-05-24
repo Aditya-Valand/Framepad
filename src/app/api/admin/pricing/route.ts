@@ -16,18 +16,26 @@ export async function GET(req: Request) {
 
   const finishes = await sql`SELECT * FROM print_finishes`;
 
+  const printSizes = await sql`
+    SELECT ps.id, ps.slug, ps.name, ps.width_mm, ps.height_mm,
+           psc.items_per_sheet, psc.columns, psc.rows
+    FROM print_sizes ps
+    LEFT JOIN print_sheet_configs psc ON psc.print_size_id = ps.id AND psc.paper_size = 'A4'
+    WHERE ps.is_active = true
+    ORDER BY ps.name`;
+
   const settings = await sql`
     SELECT key, value, description FROM site_settings
     WHERE key IN ('gift_box_addon_paise', 'free_shipping_threshold_paise', 'sheet_saver_enabled')`;
 
-  return ok({ templatePricing, bundles, finishes, settings });
+  return ok({ templatePricing, bundles, finishes, printSizes, settings });
 }
 
 // Update template pricing
 export async function PUT(req: Request) {
   if (userRole(req) !== 'admin') return err('Forbidden', 403);
 
-  const { templateId, firstPrintPaise, extraPrintPaise, itemsPerSheet, isActive } = await req.json();
+  const { templateId, firstPrintPaise, extraPrintPaise, itemsPerSheet, isActive, printSizeId } = await req.json();
   if (!templateId) return err('templateId required', 400);
 
   await sql`
@@ -35,6 +43,7 @@ export async function PUT(req: Request) {
       first_print_paise = COALESCE(${firstPrintPaise || null}, first_print_paise),
       extra_print_paise = COALESCE(${extraPrintPaise || null}, extra_print_paise),
       items_per_sheet = COALESCE(${itemsPerSheet || null}, items_per_sheet),
+      print_size_id = COALESCE(${printSizeId || null}, print_size_id),
       is_active = ${isActive !== false},
       updated_at = NOW()
     WHERE template_id = ${templateId}`;
