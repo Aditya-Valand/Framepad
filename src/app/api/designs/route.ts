@@ -16,7 +16,7 @@ export async function GET(req: Request) {
     const idList = idsParam.split(',').filter(Boolean).slice(0, 20);
     if (idList.length === 0) return ok({ designs: [] });
     const designs = await sql`
-      SELECT id, title, thumbnail_url, canvas_state
+      SELECT id, title, thumbnail_url, canvas_state, template_id
       FROM designs
       WHERE id = ANY(${idList}) AND user_id = ${uid} AND deleted_at IS NULL`;
     return ok({ designs });

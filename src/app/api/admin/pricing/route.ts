@@ -4,60 +4,74 @@ import { ok, err, userRole } from '@/lib/api';
 export async function GET(req: Request) {
   if (userRole(req) !== 'admin') return err('Forbidden', 403);
 
-  const productTypes = await sql`SELECT * FROM product_types ORDER BY sort_order`;
-  const sizes = await sql`SELECT * FROM print_sizes ORDER BY price_addon_paise`;
+  const templatePricing = await sql`
+    SELECT tpm.*, ps.slug as size_slug, ps.name as size_name,
+           ps.width_mm, ps.height_mm
+    FROM template_print_mapping tpm
+    JOIN print_sizes ps ON ps.id = tpm.print_size_id
+    ORDER BY tpm.template_name`;
+
+  const quantityDiscounts = await sql`
+    SELECT * FROM quantity_discounts ORDER BY min_qty`;
+
   const finishes = await sql`SELECT * FROM print_finishes`;
 
-  return ok({ productTypes, sizes, finishes });
+  const settings = await sql`
+    SELECT key, value FROM site_settings
+    WHERE key IN ('gift_box_addon_paise', 'free_shipping_threshold_paise')`;
+
+  return ok({ templatePricing, quantityDiscounts, finishes, settings });
 }
 
-export async function POST(req: Request) {
-  if (userRole(req) !== 'admin') return err('Forbidden', 403);
-
-  const { slug, name, description, quantity, basePricePaise, discountPercentage,
-          hasGiftBox, hasGiftMessage, hasTissueWrap, sortOrder } = await req.json();
-
-  if (!slug || !name || !quantity || !basePricePaise)
-    return err('slug, name, quantity, basePricePaise required', 400);
-
-  const [tier] = await sql`
-    INSERT INTO product_types (slug, name, description, quantity, base_price_paise,
-      discount_percentage, has_gift_box, has_gift_message, has_tissue_wrap, sort_order)
-    VALUES (${slug}, ${name}, ${description || null}, ${quantity}, ${basePricePaise},
-      ${discountPercentage || 0}, ${!!hasGiftBox}, ${!!hasGiftMessage}, ${!!hasTissueWrap}, ${sortOrder || 0})
-    RETURNING id`;
-
-  return ok({ id: tier.id }, 201);
-}
-
+// Update template pricing
 export async function PUT(req: Request) {
   if (userRole(req) !== 'admin') return err('Forbidden', 403);
 
-  const { id, name, description, quantity, basePricePaise, discountPercentage,
-          hasGiftBox, hasGiftMessage, hasTissueWrap, sortOrder, isActive } = await req.json();
-
-  if (!id) return err('ID required', 400);
+  const { templateId, pricePerUnitPaise, itemsPerSheet, isActive } = await req.json();
+  if (!templateId) return err('templateId required', 400);
 
   await sql`
-    UPDATE product_types SET
-      name = ${name}, description = ${description || null},
-      quantity = ${quantity}, base_price_paise = ${basePricePaise},
-      discount_percentage = ${discountPercentage || 0},
-      has_gift_box = ${!!hasGiftBox}, has_gift_message = ${!!hasGiftMessage},
-      has_tissue_wrap = ${!!hasTissueWrap}, sort_order = ${sortOrder || 0},
-      is_active = ${isActive !== false}
-    WHERE id = ${id}`;
+    UPDATE template_print_mapping SET
+      price_per_unit_paise = COALESCE(${pricePerUnitPaise || null}, price_per_unit_paise),
+      items_per_sheet = COALESCE(${itemsPerSheet || null}, items_per_sheet),
+      is_active = ${isActive !== false},
+      updated_at = NOW()
+    WHERE template_id = ${templateId}`;
 
   return ok({ updated: true });
+}
+
+// Create new template mapping
+export async function POST(req: Request) {
+  if (userRole(req) !== 'admin') return err('Forbidden', 403);
+
+  const { templateId, templateName, printSizeSlug, pricePerUnitPaise, itemsPerSheet } = await req.json();
+  if (!templateId || !templateName || !printSizeSlug || !pricePerUnitPaise)
+    return err('templateId, templateName, printSizeSlug, pricePerUnitPaise required', 400);
+
+  const [size] = await sql`SELECT id FROM print_sizes WHERE slug = ${printSizeSlug}`;
+  if (!size) return err('Invalid print size slug', 400);
+
+  const [row] = await sql`
+    INSERT INTO template_print_mapping (template_id, template_name, print_size_id, price_per_unit_paise, items_per_sheet)
+    VALUES (${templateId}, ${templateName}, ${size.id}, ${pricePerUnitPaise}, ${itemsPerSheet || 6})
+    ON CONFLICT (template_id) DO UPDATE SET
+      template_name = EXCLUDED.template_name,
+      print_size_id = EXCLUDED.print_size_id,
+      price_per_unit_paise = EXCLUDED.price_per_unit_paise,
+      items_per_sheet = EXCLUDED.items_per_sheet,
+      updated_at = NOW()
+    RETURNING id`;
+
+  return ok({ id: row.id }, 201);
 }
 
 export async function DELETE(req: Request) {
   if (userRole(req) !== 'admin') return err('Forbidden', 403);
 
-  const { id } = await req.json();
-  if (!id) return err('ID required', 400);
+  const { templateId } = await req.json();
+  if (!templateId) return err('templateId required', 400);
 
-  // Soft-delete by deactivating
-  await sql`UPDATE product_types SET is_active = false WHERE id = ${id}`;
+  await sql`UPDATE template_print_mapping SET is_active = false WHERE template_id = ${templateId}`;
   return ok({ deactivated: true });
 }

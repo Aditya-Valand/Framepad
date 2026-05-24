@@ -23,38 +23,73 @@ export async function POST(req: Request) {
   if (!uid) return err('Unauthorized', 401);
 
   const body = await req.json();
-  const { designIds, productTypeId, sizeId, finishId, addressId, couponId, isGift, giftMessage } = body;
+  const { designIds, finishId, addressId, couponId, wantGiftBox, isGift, giftMessage } = body;
 
   // Validate inputs
   if (!Array.isArray(designIds) || designIds.length === 0 || designIds.length > 20)
     return err('1-20 designs required', 400);
-  if (!productTypeId || !sizeId || !finishId) return err('Missing print options', 400);
+  if (!finishId) return err('Missing finish selection', 400);
   if (!addressId) return err('Shipping address required', 400);
 
-  // Verify designs belong to user
+  // Verify designs belong to user and get their template_id
   const designs = await sql`
-    SELECT id FROM designs WHERE id = ANY(${designIds}) AND user_id = ${uid} AND deleted_at IS NULL`;
+    SELECT id, template_id FROM designs
+    WHERE id = ANY(${designIds}) AND user_id = ${uid} AND deleted_at IS NULL`;
   if (designs.length !== designIds.length) return err('Invalid designs', 400);
 
   // Verify address belongs to user
   const [addr] = await sql`SELECT id FROM addresses WHERE id = ${addressId} AND user_id = ${uid}`;
   if (!addr) return err('Invalid address', 400);
 
-  // Fetch pricing data
-  const [productType] = await sql`SELECT * FROM product_types WHERE id = ${productTypeId} AND is_active = true`;
-  if (!productType) return err('Invalid product type', 400);
-
-  const [size] = await sql`SELECT * FROM print_sizes WHERE id = ${sizeId} AND is_active = true`;
+  // Fetch finish
   const [finish] = await sql`SELECT * FROM print_finishes WHERE id = ${finishId} AND is_active = true`;
-  if (!size || !finish) return err('Invalid size or finish', 400);
+  if (!finish) return err('Invalid finish', 400);
 
-  // Calculate price server-side (authoritative)
+  // Fetch template pricing
+  const templatePricing = await sql`SELECT * FROM template_print_mapping WHERE is_active = true`;
+  const pricingMap: Record<string, { price_per_unit_paise: number; print_size_id?: string }> = {};
+  for (const tp of templatePricing) {
+    pricingMap[tp.template_id] = { price_per_unit_paise: tp.price_per_unit_paise };
+  }
+
+  // Also fetch print_size_id for each template via the mapping
+  const templateSizeMapping = await sql`
+    SELECT tpm.template_id, ps.id as print_size_id
+    FROM template_print_mapping tpm
+    JOIN print_sizes ps ON ps.slug = (
+      SELECT ps2.slug FROM print_sizes ps2 WHERE ps2.id = tpm.print_size_id
+    )`;
+  for (const ts of templateSizeMapping) {
+    if (pricingMap[ts.template_id]) pricingMap[ts.template_id].print_size_id = ts.print_size_id;
+  }
+
+  // Calculate price server-side
   const numDesigns = designIds.length;
-  const tiersNeeded = Math.ceil(numDesigns / productType.quantity);
-  const basePaise = productType.base_price_paise * tiersNeeded;
-  const sizeAddon = size.price_addon_paise * numDesigns;
+  let basePaise = 0;
+  const designPrices: { id: string; unitPrice: number; printSizeId: string | null }[] = [];
+
+  for (const d of designs) {
+    const tp = pricingMap[d.template_id] || { price_per_unit_paise: 7900 };
+    basePaise += tp.price_per_unit_paise;
+    designPrices.push({ id: d.id, unitPrice: tp.price_per_unit_paise, printSizeId: tp.print_size_id || null });
+  }
+
+  // Quantity discount
+  const discountTiers = await sql`
+    SELECT min_qty, discount_percent FROM quantity_discounts
+    WHERE is_active = true ORDER BY min_qty DESC`;
+  const tier = discountTiers.find((t) => numDesigns >= t.min_qty);
+  const qtyDiscountPercent = tier?.discount_percent || 0;
+  const qtyDiscountPaise = Math.round(basePaise * qtyDiscountPercent / 100);
+
+  // Finish addon
   const finishAddon = finish.price_addon_paise * numDesigns;
-  const subtotal = basePaise + sizeAddon + finishAddon;
+
+  // Gift box
+  const [giftBoxSetting] = await sql`SELECT value FROM site_settings WHERE key = 'gift_box_addon_paise'`;
+  const giftBoxPaise = wantGiftBox ? parseInt(String(giftBoxSetting?.value || '14900').replace(/"/g, '')) : 0;
+
+  const subtotal = basePaise - qtyDiscountPaise + finishAddon + giftBoxPaise;
 
   // Coupon validation
   let discountPaise = 0;
@@ -67,7 +102,6 @@ export async function POST(req: Request) {
         AND (valid_until IS NULL OR valid_until >= NOW())`;
 
     if (coupon) {
-      // Check limits
       const [usage] = await sql`
         SELECT COUNT(*)::int as n FROM coupon_usages
         WHERE coupon_id = ${coupon.id} AND user_id = ${uid}`;
@@ -90,11 +124,10 @@ export async function POST(req: Request) {
 
   // Shipping
   const [setting] = await sql`SELECT value FROM site_settings WHERE key = 'free_shipping_threshold_paise'`;
-  const freeThreshold = setting?.value ? parseInt(JSON.stringify(setting.value).replace(/"/g, '')) : 50000;
+  const freeThreshold = setting?.value ? parseInt(String(setting.value).replace(/"/g, '')) : 50000;
   const shippingPaise = subtotal >= freeThreshold ? 0 : 4900;
 
   const totalPaise = subtotal - discountPaise + shippingPaise;
-  const unitPricePaise = Math.round(totalPaise / numDesigns);
 
   // Create order in transaction
   try {
@@ -109,15 +142,21 @@ export async function POST(req: Request) {
         ${isGift ? 'gift' : 'standard'}, ${addressId}, ${validCouponId}, ${!!isGift}
       ) RETURNING id, order_number`;
 
-    // Create order items
-    for (const designId of designIds) {
+    // Create order items — each design with its own pricing
+    // Use a default product_type_id (single) and the matched print_size
+    const [defaultPt] = await sql`SELECT id FROM product_types WHERE slug = 'single' LIMIT 1`;
+    const [defaultSize] = await sql`SELECT id FROM print_sizes WHERE is_default = true LIMIT 1`;
+
+    for (const dp of designPrices) {
+      const unitAfterDiscount = Math.round(dp.unitPrice * (1 - qtyDiscountPercent / 100)) + finish.price_addon_paise;
       await sql`
         INSERT INTO order_items (
           order_id, design_id, product_type_id, print_finish_id, print_size_id,
           quantity, unit_price_paise, total_price_paise
         ) VALUES (
-          ${order.id}, ${designId}, ${productTypeId}, ${finishId}, ${sizeId},
-          1, ${unitPricePaise}, ${unitPricePaise}
+          ${order.id}, ${dp.id}, ${defaultPt?.id || null}, ${finishId},
+          ${dp.printSizeId || defaultSize?.id || null},
+          1, ${unitAfterDiscount}, ${unitAfterDiscount}
         )`;
     }
 

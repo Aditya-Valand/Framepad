@@ -2,25 +2,39 @@ import { sql } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const productTypes = await sql`
-    SELECT id, slug, name, description, quantity, base_price_paise,
-           has_gift_box, has_gift_message, has_tissue_wrap,
-           discount_percentage, sort_order
-    FROM product_types
+  // Template → price mapping (auto-detected from design)
+  const templatePricing = await sql`
+    SELECT template_id, template_name, price_per_unit_paise, items_per_sheet
+    FROM template_print_mapping
     WHERE is_active = true
-    ORDER BY sort_order`;
+    ORDER BY template_name`;
 
-  const sizes = await sql`
-    SELECT id, slug, name, width_mm, height_mm, orientation,
-           price_addon_paise, is_default
-    FROM print_sizes
+  // Quantity discount tiers
+  const quantityDiscounts = await sql`
+    SELECT min_qty, discount_percent, label
+    FROM quantity_discounts
     WHERE is_active = true
-    ORDER BY price_addon_paise`;
+    ORDER BY min_qty`;
 
+  // Print finishes (glossy/matte)
   const finishes = await sql`
     SELECT id, slug, name, description, price_addon_paise
     FROM print_finishes
     WHERE is_active = true`;
 
-  return NextResponse.json({ productTypes, sizes, finishes });
+  // Site settings for gift box + shipping
+  const settings = await sql`
+    SELECT key, value FROM site_settings
+    WHERE key IN ('gift_box_addon_paise', 'free_shipping_threshold_paise')`;
+
+  const settingsMap: Record<string, string> = {};
+  for (const s of settings) settingsMap[s.key] = s.value;
+
+  return NextResponse.json({
+    templatePricing,
+    quantityDiscounts,
+    finishes,
+    giftBoxPaise: parseInt(settingsMap.gift_box_addon_paise || '14900'),
+    freeShippingThresholdPaise: parseInt(settingsMap.free_shipping_threshold_paise || '50000'),
+  });
 }

@@ -14,28 +14,20 @@ interface Design {
   title: string;
   thumbnail_url: string | null;
   canvas_state: { version: number; frameData: Record<string, unknown> } | null;
+  template_id: string | null;
 }
 
-interface ProductType {
-  id: string;
-  slug: string;
-  name: string;
-  description: string | null;
-  quantity: number;
-  base_price_paise: number;
-  discount_percentage: number;
-  has_gift_box: boolean;
-  sort_order: number;
+interface TemplatePricing {
+  template_id: string;
+  template_name: string;
+  price_per_unit_paise: number;
+  items_per_sheet: number;
 }
 
-interface PrintSize {
-  id: string;
-  slug: string;
-  name: string;
-  width_mm: number;
-  height_mm: number;
-  price_addon_paise: number;
-  is_default: boolean;
+interface QuantityDiscount {
+  min_qty: number;
+  discount_percent: number;
+  label: string;
 }
 
 interface PrintFinish {
@@ -87,16 +79,16 @@ function OrderPage() {
   const [designs, setDesigns] = useState<Design[]>([]);
   const [loadingDesigns, setLoadingDesigns] = useState(true);
 
-  // Pricing options
-  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
-  const [sizes, setSizes] = useState<PrintSize[]>([]);
+  // Pricing data
+  const [templatePricing, setTemplatePricing] = useState<TemplatePricing[]>([]);
+  const [quantityDiscounts, setQuantityDiscounts] = useState<QuantityDiscount[]>([]);
   const [finishes, setFinishes] = useState<PrintFinish[]>([]);
+  const [giftBoxPaise, setGiftBoxPaise] = useState(14900);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(50000);
 
   // Selections
-  const [selectedProductType, setSelectedProductType] = useState<string>('');
-  const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedFinish, setSelectedFinish] = useState<string>('');
-
+  const [wantGiftBox, setWantGiftBox] = useState(false);
   // Address
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string>('');
@@ -123,14 +115,11 @@ function OrderPage() {
     fetch('/api/pricing')
       .then(r => r.json())
       .then(data => {
-        setProductTypes(data.productTypes || []);
-        setSizes(data.sizes || []);
+        setTemplatePricing(data.templatePricing || []);
+        setQuantityDiscounts(data.quantityDiscounts || []);
         setFinishes(data.finishes || []);
-        // Set defaults
-        if (data.sizes?.length) {
-          const def = data.sizes.find((s: PrintSize) => s.is_default) || data.sizes[0];
-          setSelectedSize(def.id);
-        }
+        setGiftBoxPaise(data.giftBoxPaise || 14900);
+        setFreeShippingThreshold(data.freeShippingThresholdPaise || 50000);
         if (data.finishes?.length) setSelectedFinish(data.finishes[0].id);
       })
       .catch(() => {});
@@ -147,30 +136,11 @@ function OrderPage() {
       .then(r => r.json())
       .then(data => {
         setDesigns(data.designs || []);
-        // Auto-select best product type based on count
-        if (data.designs?.length && productTypes.length) {
-          autoSelectProductType(data.designs.length);
-        }
       })
       .catch(() => {})
       .finally(() => setLoadingDesigns(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
-
-  // Auto-select product type when designs or productTypes change
-  useEffect(() => {
-    if (designs.length && productTypes.length && !selectedProductType) {
-      autoSelectProductType(designs.length);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [designs.length, productTypes.length]);
-
-  function autoSelectProductType(numDesigns: number) {
-    // Pick smallest tier that covers all designs
-    const sorted = [...productTypes].sort((a, b) => a.quantity - b.quantity);
-    const fit = sorted.find(t => t.quantity >= numDesigns) || sorted[sorted.length - 1];
-    if (fit) setSelectedProductType(fit.id);
-  }
 
   // Fetch addresses
   useEffect(() => {
@@ -185,25 +155,47 @@ function OrderPage() {
       .catch(() => {});
   }, [user]);
 
-  // Price calculation
+  // Price calculation — template-based with quantity discount
   const priceBreakdown = useMemo(() => {
-    const pt = productTypes.find(t => t.id === selectedProductType);
-    const sz = sizes.find(s => s.id === selectedSize);
+    if (designs.length === 0 || !selectedFinish || templatePricing.length === 0) return null;
+
     const fn = finishes.find(f => f.id === selectedFinish);
-    if (!pt || !sz || !fn) return null;
+    if (!fn) return null;
 
-    const numDesigns = designs.length;
-    const tiersNeeded = Math.ceil(numDesigns / pt.quantity);
-    const basePaise = pt.base_price_paise * tiersNeeded;
-    const sizeAddonTotal = sz.price_addon_paise * numDesigns;
-    const finishAddonTotal = fn.price_addon_paise * numDesigns;
-    const subtotal = basePaise + sizeAddonTotal + finishAddonTotal;
-    const discount = couponResult?.valid ? (couponResult.discountPaise || 0) : 0;
-    const shipping = subtotal >= 50000 ? 0 : 4900;
-    const total = subtotal - discount + shipping;
+    // Calculate per-design price based on template
+    let basePaise = 0;
+    const designPrices: { design: Design; price: number; templateName: string }[] = [];
+    for (const d of designs) {
+      const tp = templatePricing.find(t => t.template_id === d.template_id);
+      const unitPrice = tp?.price_per_unit_paise || 7900; // fallback to classic price
+      basePaise += unitPrice;
+      designPrices.push({ design: d, price: unitPrice, templateName: tp?.template_name || 'Classic' });
+    }
 
-    return { basePaise, sizeAddonTotal, finishAddonTotal, subtotal, discount, shipping, total, tiersNeeded, pt, sz, fn };
-  }, [productTypes, sizes, finishes, selectedProductType, selectedSize, selectedFinish, designs.length, couponResult]);
+    // Apply quantity discount
+    const sortedTiers = [...quantityDiscounts].sort((a, b) => b.min_qty - a.min_qty);
+    const tier = sortedTiers.find(t => designs.length >= t.min_qty);
+    const discountPercent = tier?.discount_percent || 0;
+    const tierLabel = tier?.label || 'Single';
+    const quantityDiscountPaise = Math.round(basePaise * discountPercent / 100);
+
+    // Finish addon
+    const finishAddonTotal = fn.price_addon_paise * designs.length;
+
+    // Gift box
+    const giftBoxTotal = wantGiftBox ? giftBoxPaise : 0;
+
+    const subtotal = basePaise - quantityDiscountPaise + finishAddonTotal + giftBoxTotal;
+
+    // Coupon
+    const couponDiscount = couponResult?.valid ? (couponResult.discountPaise || 0) : 0;
+
+    // Shipping
+    const shipping = subtotal >= freeShippingThreshold ? 0 : 4900;
+    const total = subtotal - couponDiscount + shipping;
+
+    return { basePaise, quantityDiscountPaise, discountPercent, tierLabel, finishAddonTotal, giftBoxTotal, subtotal, couponDiscount, shipping, total, fn, designPrices };
+  }, [designs, templatePricing, quantityDiscounts, finishes, selectedFinish, wantGiftBox, giftBoxPaise, freeShippingThreshold, couponResult]);
 
   // Validate coupon
   const handleApplyCoupon = async () => {
@@ -249,7 +241,7 @@ function OrderPage() {
   const handleSubmit = async () => {
     setError('');
     if (designs.length === 0) { setError('Select at least one design'); return; }
-    if (!selectedProductType || !selectedSize || !selectedFinish) { setError('Select print options'); return; }
+    if (!selectedFinish) { setError('Select a finish'); return; }
 
     const addressId = selectedAddress;
     const isNewAddressForm = showNewAddress || addresses.length === 0;
@@ -276,11 +268,10 @@ function OrderPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           designIds: designs.map(d => d.id),
-          productTypeId: selectedProductType,
-          sizeId: selectedSize,
           finishId: selectedFinish,
           addressId: finalAddressId,
           couponId: couponResult?.valid ? couponResult.couponId : null,
+          wantGiftBox,
           isGift,
           giftMessage: isGift ? giftMessage : null,
         }),
@@ -410,71 +401,15 @@ function OrderPage() {
 
         {/* STEP 2: Print Options */}
         <Section title="Print Options" step={2}>
-          {/* Product Type (Tier) */}
-          <Label>Package</Label>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {productTypes.map(pt => (
-              <button
-                key={pt.id}
-                onClick={() => setSelectedProductType(pt.id)}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '12px 16px', borderRadius: 8,
-                  border: selectedProductType === pt.id ? '2px solid #8B6F5C' : '1px solid rgba(26,23,20,0.1)',
-                  background: selectedProductType === pt.id ? 'rgba(139,111,92,0.04)' : '#fff',
-                  cursor: 'pointer', textAlign: 'left', width: '100%',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                <div>
-                  <span style={{ fontSize: 14, fontWeight: 500, color: '#1A1714' }}>{pt.name}</span>
-                  {pt.description && <p style={{ fontSize: 12, color: '#A39080', margin: '2px 0 0' }}>{pt.description}</p>}
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#1A1714' }}>
-                    {formatPrice(pt.base_price_paise)}
-                  </span>
-                  {pt.discount_percentage > 0 && (
-                    <span style={{ display: 'block', fontSize: 11, color: '#4CAF50', fontWeight: 500 }}>
-                      {pt.discount_percentage}% off
-                    </span>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Size */}
-          <Label style={{ marginTop: 20 }}>Print Size</Label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {sizes.map(sz => (
-              <button
-                key={sz.id}
-                onClick={() => setSelectedSize(sz.id)}
-                style={{
-                  padding: '8px 14px', borderRadius: 6, fontSize: 13,
-                  border: selectedSize === sz.id ? '2px solid #8B6F5C' : '1px solid rgba(26,23,20,0.1)',
-                  background: selectedSize === sz.id ? 'rgba(139,111,92,0.04)' : '#fff',
-                  cursor: 'pointer', transition: 'all 0.15s ease',
-                }}
-              >
-                <span style={{ fontWeight: 500, color: '#1A1714' }}>{sz.name}</span>
-                {sz.price_addon_paise > 0 && (
-                  <span style={{ fontSize: 11, color: '#A39080', marginLeft: 4 }}>+{formatPrice(sz.price_addon_paise)}/ea</span>
-                )}
-              </button>
-            ))}
-          </div>
-
           {/* Finish */}
-          <Label style={{ marginTop: 20 }}>Finish</Label>
+          <Label>Finish</Label>
           <div style={{ display: 'flex', gap: 8 }}>
             {finishes.map(fn => (
               <button
                 key={fn.id}
                 onClick={() => setSelectedFinish(fn.id)}
                 style={{
-                  padding: '8px 14px', borderRadius: 6, fontSize: 13,
+                  padding: '10px 16px', borderRadius: 8, fontSize: 13,
                   border: selectedFinish === fn.id ? '2px solid #8B6F5C' : '1px solid rgba(26,23,20,0.1)',
                   background: selectedFinish === fn.id ? 'rgba(139,111,92,0.04)' : '#fff',
                   cursor: 'pointer', transition: 'all 0.15s ease',
@@ -484,9 +419,37 @@ function OrderPage() {
                 {fn.price_addon_paise > 0 && (
                   <span style={{ fontSize: 11, color: '#A39080', marginLeft: 4 }}>+{formatPrice(fn.price_addon_paise)}/ea</span>
                 )}
+                {fn.description && <p style={{ fontSize: 11, color: '#A39080', margin: '2px 0 0' }}>{fn.description}</p>}
               </button>
             ))}
           </div>
+
+          {/* Gift Box addon */}
+          <div style={{ marginTop: 16, padding: '12px 14px', borderRadius: 8, border: '1px solid rgba(26,23,20,0.06)', background: '#fff' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 13, color: '#1A1714' }}>
+              <input type="checkbox" checked={wantGiftBox} onChange={e => setWantGiftBox(e.target.checked)} style={{ accentColor: '#8B6F5C' }} />
+              <div>
+                <span style={{ fontWeight: 500 }}>Add Gift Box</span>
+                <span style={{ fontSize: 12, color: '#A39080', marginLeft: 8 }}>+{formatPrice(giftBoxPaise)}</span>
+                <p style={{ fontSize: 11, color: '#A39080', margin: '2px 0 0' }}>Premium box with tissue paper & ribbon</p>
+              </div>
+            </label>
+          </div>
+
+          {/* Auto-detected info */}
+          {designs.length > 0 && templatePricing.length > 0 && (
+            <div style={{ marginTop: 14, padding: '10px 12px', borderRadius: 6, background: 'rgba(139,111,92,0.04)', fontSize: 11, color: '#5C4A3A' }}>
+              <span style={{ fontWeight: 500 }}>Print sizes auto-detected from your designs:</span>
+              <div style={{ marginTop: 4, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {Array.from(new Set(designs.map(d => {
+                  const tp = templatePricing.find(t => t.template_id === d.template_id);
+                  return tp?.template_name || 'Classic';
+                }))).map(name => (
+                  <span key={name} style={{ padding: '2px 8px', borderRadius: 4, background: 'rgba(139,111,92,0.08)', fontSize: 11 }}>{name}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </Section>
 
         {/* STEP 3: Shipping Address */}
@@ -602,17 +565,20 @@ function OrderPage() {
             boxShadow: '0 4px 20px rgba(26,23,20,0.04)',
           }}>
             <h3 style={{ fontSize: 13, fontWeight: 600, color: '#1A1714', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price Breakdown</h3>
-            <PriceLine label={`${designs.length} print${designs.length > 1 ? 's' : ''} × ${priceBreakdown.pt.name}${priceBreakdown.tiersNeeded > 1 ? ` (×${priceBreakdown.tiersNeeded})` : ''}`} value={priceBreakdown.basePaise} />
+            <PriceLine label={`${designs.length} print${designs.length > 1 ? 's' : ''}`} value={priceBreakdown.basePaise} />
+            {priceBreakdown.quantityDiscountPaise > 0 && (
+              <PriceLine label={`${priceBreakdown.tierLabel} discount (${priceBreakdown.discountPercent}% off)`} value={-priceBreakdown.quantityDiscountPaise} green />
+            )}
             {priceBreakdown.finishAddonTotal > 0 && (
               <PriceLine label={`${priceBreakdown.fn.name} finish (+${formatPrice(priceBreakdown.fn.price_addon_paise)}/ea)`} value={priceBreakdown.finishAddonTotal} />
             )}
-            {priceBreakdown.sizeAddonTotal > 0 && (
-              <PriceLine label={`${priceBreakdown.sz.name} size (+${formatPrice(priceBreakdown.sz.price_addon_paise)}/ea)`} value={priceBreakdown.sizeAddonTotal} />
+            {priceBreakdown.giftBoxTotal > 0 && (
+              <PriceLine label="Gift Box" value={priceBreakdown.giftBoxTotal} />
             )}
             <div style={{ borderTop: '0.5px solid rgba(26,23,20,0.08)', margin: '8px 0' }} />
             <PriceLine label="Subtotal" value={priceBreakdown.subtotal} bold />
-            {priceBreakdown.discount > 0 && (
-              <PriceLine label={`Coupon discount`} value={-priceBreakdown.discount} green />
+            {priceBreakdown.couponDiscount > 0 && (
+              <PriceLine label="Coupon discount" value={-priceBreakdown.couponDiscount} green />
             )}
             <PriceLine label="Shipping" value={priceBreakdown.shipping} free={priceBreakdown.shipping === 0} />
             <div style={{ borderTop: '1px solid rgba(26,23,20,0.12)', margin: '8px 0' }} />
