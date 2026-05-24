@@ -25,6 +25,13 @@ import { createCanvas, loadImage, CanvasRenderingContext2D } from 'canvas'
 import { v2 as cloudinary } from 'cloudinary'
 import { sql } from '@/lib/db'
 
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
+
 // ============================================================
 // CONSTANTS
 // ============================================================
@@ -64,6 +71,7 @@ export interface PrintItem {
   widthMm:             number    // from print_sheet_configs.item_width_mm
   heightMm:            number    // from print_sheet_configs.item_height_mm
   finish:              'glossy' | 'matte'
+  sizeSlug:            string    // print_sizes.slug (e.g. 'instax-wide', 'concert')
   templateSlug:        string    // for logging / notes
   orderNumber:         string
 }
@@ -114,7 +122,8 @@ export async function fetchPendingItems(): Promise<PrintItem[]> {
   const rows = await sql`
     SELECT
       oi.id                    AS order_item_id,
-      oi.design_snapshot_url,
+      COALESCE(oi.design_snapshot_url, oi.print_ready_url, d.export_url, d.thumbnail_url)
+                               AS design_snapshot_url,
       oi.print_status,
       pf.slug                  AS finish,
       ps.slug                  AS size_slug,
@@ -135,8 +144,7 @@ export async function fetchPendingItems(): Promise<PrintItem[]> {
     LEFT JOIN templates t  ON t.id   = d.template_id
     WHERE oi.print_status = 'pending'
       AND oi.print_sheet_id IS NULL
-      AND oi.design_snapshot_url IS NOT NULL
-      AND o.status = 'confirmed'
+      AND o.status IN ('confirmed', 'processing')
     ORDER BY pf.slug, oi.created_at ASC`
 
   // Expand quantity — one PrintItem per physical print needed
@@ -145,10 +153,11 @@ export async function fetchPendingItems(): Promise<PrintItem[]> {
     for (let q = 0; q < (row.quantity as number); q++) {
       items.push({
         orderItemId:       row.order_item_id as string,
-        designSnapshotUrl: row.design_snapshot_url as string,
+        designSnapshotUrl: (row.design_snapshot_url as string) || '',
         widthMm:           Number(row.width_mm),
         heightMm:          Number(row.height_mm),
         finish:            row.finish as 'glossy' | 'matte',
+        sizeSlug:          row.size_slug as string,
         templateSlug:      (row.template_slug as string) ?? 'unknown',
         orderNumber:       row.order_number as string,
       })
@@ -353,6 +362,7 @@ async function drawItem(ctx: CanvasRenderingContext2D, item: PlacedItem) {
   const h = px(item.heightMm)
 
   try {
+    if (!item.designSnapshotUrl) throw new Error('No image URL')
     const img = await loadImage(item.designSnapshotUrl)
     ctx.drawImage(img, x, y, w, h)
   } catch (err) {
@@ -363,7 +373,7 @@ async function drawItem(ctx: CanvasRenderingContext2D, item: PlacedItem) {
     ctx.fillStyle = '#B5A99E'
     ctx.font      = `${px(3.5)}px sans-serif`
     ctx.textAlign = 'center'
-    ctx.fillText('IMAGE LOAD FAILED', x + w / 2, y + h / 2)
+    ctx.fillText('IMAGE PENDING', x + w / 2, y + h / 2)
     ctx.fillText(item.orderItemId.slice(0, 8), x + w / 2, y + h / 2 + px(5))
   }
 
@@ -505,7 +515,7 @@ async function persistSheetResults(
       'generated', NOW()
     FROM print_finishes pf, print_sizes ps
     WHERE pf.slug = ${sheet.finish}
-      AND ps.slug = ${sheet.items[0]?.templateSlug ?? 'classic'}
+      AND ps.slug = ${sheet.items[0]?.sizeSlug ?? 'classic'}
     RETURNING id`
 
   // 2. Insert print_sheet_items — one row per placed item

@@ -33,13 +33,14 @@ export async function POST(req: Request) {
 
   // Verify designs belong to user and get their template_id from canvas_state
   const rawDesigns = await sql`
-    SELECT id, template_id, canvas_state FROM designs
+    SELECT id, template_id, canvas_state, export_url, thumbnail_url FROM designs
     WHERE id = ANY(${designIds}) AND user_id = ${uid} AND deleted_at IS NULL`;
   if (rawDesigns.length !== designIds.length) return err('Invalid designs', 400);
   // Extract template slug from canvas_state (slug like 'concert-ticket')
   const designs = rawDesigns.map(d => ({
     id: d.id,
     template_id: d.canvas_state?.frameData?.templateId || d.template_id || null,
+    snapshotUrl: (d.export_url || d.thumbnail_url || null) as string | null,
   }));
 
   // Verify address belongs to user
@@ -177,14 +178,15 @@ export async function POST(req: Request) {
 
     for (const dp of designPrices) {
       const unitTotal = dp.unitPrice + finish.price_addon_paise;
+      const design = designs.find(d => d.id === dp.id);
       await sql`
         INSERT INTO order_items (
           order_id, design_id, product_type_id, print_finish_id, print_size_id,
-          quantity, unit_price_paise, total_price_paise
+          quantity, unit_price_paise, total_price_paise, design_snapshot_url
         ) VALUES (
           ${order.id}, ${dp.id}, ${defaultPt?.id || null}, ${finishId},
           ${dp.printSizeId || defaultSize?.id || null},
-          1, ${unitTotal}, ${unitTotal}
+          1, ${unitTotal}, ${unitTotal}, ${design?.snapshotUrl || null}
         )`;
     }
 

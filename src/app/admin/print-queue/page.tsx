@@ -173,6 +173,22 @@ export default function PrintQueuePage() {
     }
   };
 
+  const [regenerating, setRegenerating] = useState<string | null>(null);
+  const handleRegenerate = async (sheetId: string) => {
+    setRegenerating(sheetId);
+    try {
+      const res = await fetch(`/api/admin/print-sheets/${sheetId}/regenerate`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Regenerate failed');
+      await fetchQueue();
+    } catch (e) {
+      console.error('Regenerate error:', e);
+    } finally {
+      setRegenerating(null);
+    }
+  };
+
   if (loading) {
     return (
       <AdminShell>
@@ -336,6 +352,10 @@ export default function PrintQueuePage() {
                 )}
 
                 <div className="pq-sheet-actions">
+                  <Btn variant="outline" size="sm" onClick={() => handleRegenerate(sh.id)} disabled={regenerating === sh.id}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15A9 9 0 115.64 5.64L1 10"/><polyline points="1 4 1 10 7 10"/></svg>
+                    {regenerating === sh.id ? 'Regenerating…' : 'Regenerate'}
+                  </Btn>
                   <Btn variant="outline" size="sm" onClick={() => handleDownloadSheet(sh.id)}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                     Download PDF

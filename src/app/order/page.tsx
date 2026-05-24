@@ -716,6 +716,69 @@ function OrderPage() {
         >
           {submitting ? 'Processing...' : priceBreakdown ? `Pay ${formatPrice(priceBreakdown.total)}` : 'Select options to continue'}
         </button>
+
+        {/* DEV: Bypass payment button */}
+        <button
+          onClick={async () => {
+            setSubmitting(true);
+            setError('');
+            try {
+              // Create order first
+              let finalAddressId = selectedAddress;
+              if (showNewAddress) {
+                const addrRes = await fetch('/api/account/addresses', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(newAddr),
+                });
+                if (!addrRes.ok) { setError('Failed to save address'); setSubmitting(false); return; }
+                const addrData = await addrRes.json();
+                finalAddressId = addrData.id;
+              }
+              const orderRes = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  designIds: designs.map(d => d.id),
+                  finishId: selectedFinish,
+                  addressId: finalAddressId,
+                  couponId: couponResult?.valid ? couponResult.couponId : null,
+                  wantGiftBox,
+                  isGift,
+                  giftMessage: isGift ? giftMessage : null,
+                }),
+              });
+              if (!orderRes.ok) {
+                const data = await orderRes.json();
+                setError(data.error || 'Failed to create order');
+                setSubmitting(false);
+                return;
+              }
+              const { id: orderId } = await orderRes.json();
+
+              // Bypass payment
+              const bypassRes = await fetch(`/api/orders/${orderId}/bypass-payment`, { method: 'POST' });
+              if (bypassRes.ok) {
+                cart.clearCart();
+                router.push(`/order/${orderId}?success=true`);
+              } else {
+                setError('Bypass failed');
+              }
+            } catch {
+              setError('Bypass failed');
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+          disabled={submitting || designs.length === 0 || !priceBreakdown}
+          style={{
+            width: '100%', marginTop: 10, padding: '12px 24px', borderRadius: 12,
+            background: 'transparent', color: '#D32F2F',
+            fontSize: 12, fontWeight: 500, border: '1px dashed rgba(211,47,47,0.4)', cursor: 'pointer',
+          }}
+        >
+          ⚡ DEV: Skip Payment &amp; Confirm Order
+        </button>
       </main>
     </div>
   );
