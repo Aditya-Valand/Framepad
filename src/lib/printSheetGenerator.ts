@@ -10,27 +10,18 @@
  *   - Opens a new sheet only when the current one is full
  *   - Groups by finish (glossy / matte) — never mixes on one sheet
  *
- * Why SFFD over simple "one size per sheet"?
- *   Example: 2 Classic (70×85) + 1 Instax Wide (86×108)
- *   Old way  → 2 sheets (1 for classic, 1 for wide)
- *   SFFD way → 1 sheet  (wide goes in row 1, classics fill row 2)
- *   Saves ~50% paper cost on mixed orders.
- *
- * Output: Cloudinary URL of the print-ready PNG per sheet
- *
- * Install: npm install canvas @neondatabase/serverless cloudinary
+ * Rendering approach:
+ *   - Each design has a pixel-perfect PNG pre-rendered by the browser
+ *     and uploaded to Cloudinary as `export_url` on save.
+ *   - The sheet generator simply downloads those PNGs and places them
+ *     at the correct position/size on the A4 canvas — no server-side
+ *     design rendering needed.
  */
 
-import { createCanvas, loadImage, CanvasRenderingContext2D } from 'canvas'
-import { v2 as cloudinary } from 'cloudinary'
+import { createCanvas, loadImage, type CanvasRenderingContext2D } from 'canvas'
 import { sql } from '@/lib/db'
-
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key:    process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+import path from 'path'
+import fs from 'fs'
 
 // ============================================================
 // CONSTANTS
@@ -39,26 +30,23 @@ cloudinary.config({
 const DPI         = 300
 const MM_TO_PX    = DPI / 25.4          // 11.811 px/mm
 
-// A4 physical dimensions
 const A4_W_MM     = 210
 const A4_H_MM     = 297
 
-// Safe printable area (5mm margin each side)
 const MARGIN_MM   = 5
-const GAP_MM      = 3                   // gap between items (for cutting)
-const USABLE_W_MM = A4_W_MM  - MARGIN_MM * 2   // 200mm
-const USABLE_H_MM = A4_H_MM  - MARGIN_MM * 2   // 287mm
+const GAP_MM      = 3
+const USABLE_W_MM = A4_W_MM - MARGIN_MM * 2   // 200mm
+const USABLE_H_MM = A4_H_MM - MARGIN_MM * 2   // 287mm
 
-// Cut mark style
-const CUT_LEN_MM  = 4                   // length of corner cut mark lines
-const CUT_GAP_MM  = 1                   // gap between item edge and cut mark
+const CUT_LEN_MM  = 4
+const CUT_GAP_MM  = 1
 
-// Canvas pixel dimensions at 300 DPI
-const A4_W_PX     = Math.round(A4_W_MM * MM_TO_PX)   // 2480px
-const A4_H_PX     = Math.round(A4_H_MM * MM_TO_PX)   // 3508px
+const A4_W_PX     = Math.round(A4_W_MM * MM_TO_PX)   // 2480
+const A4_H_PX     = Math.round(A4_H_MM * MM_TO_PX)   // 3508
 
-// Convert mm → px (rounded)
-const px = (mm: number) => Math.round(mm * MM_TO_PX)
+const mmPx = (mm: number) => Math.round(mm * MM_TO_PX)
+
+const SHEETS_DIR = path.join(process.cwd(), '.next', 'print-sheets')
 
 
 // ============================================================
@@ -66,26 +54,27 @@ const px = (mm: number) => Math.round(mm * MM_TO_PX)
 // ============================================================
 
 export interface PrintItem {
-  orderItemId:         string
-  designSnapshotUrl:   string    // Cloudinary URL of the polaroid PNG
-  widthMm:             number    // from print_sheet_configs.item_width_mm
-  heightMm:            number    // from print_sheet_configs.item_height_mm
-  finish:              'glossy' | 'matte'
-  sizeSlug:            string    // print_sizes.slug (e.g. 'instax-wide', 'concert')
-  templateSlug:        string    // for logging / notes
-  orderNumber:         string
+  orderItemId:    string
+  designId:       string
+  exportUrl:      string | null   // pre-rendered PNG on Cloudinary
+  widthMm:        number
+  heightMm:       number
+  finish:         'glossy' | 'matte'
+  sizeSlug:       string
+  templateSlug:   string
+  orderNumber:    string
 }
 
 interface PlacedItem extends PrintItem {
-  xMm:         number   // position from left edge of A4
-  yMm:         number   // position from top edge of A4
+  xMm:         number
+  yMm:         number
   sheetIndex:  number
 }
 
 interface Shelf {
-  yMm:         number   // top of this shelf
-  heightMm:    number   // tallest item on this shelf
-  nextXMm:     number   // next available x position on this shelf
+  yMm:         number
+  heightMm:    number
+  nextXMm:     number
 }
 
 interface Sheet {
@@ -94,40 +83,40 @@ interface Sheet {
   items:       PlacedItem[]
   shelves:     Shelf[]
   usedAreaMm2: number
-  totalAreaMm2: number  // USABLE_W_MM * USABLE_H_MM
+  totalAreaMm2: number
 }
 
 export interface GenerateResult {
   sheets:        SheetResult[]
   totalSheets:   number
   itemsPlaced:   number
-  areaSavedPct:  number   // vs naive one-size-per-sheet
+  areaSavedPct:  number
 }
 
 export interface SheetResult {
   sheetIndex:     number
+  sheetDbId:      string
+  sheetUrl:       string
   finish:         string
   itemCount:      number
-  efficiency:     number   // % of usable area filled
-  sheetUrl:       string   // Cloudinary URL of the generated PNG
+  efficiency:     number
   placedItems:    { orderItemId: string; position: string }[]
 }
 
 
 // ============================================================
-// STEP 1 — FETCH PENDING ITEMS FROM DB
+// STEP 1 — FETCH PENDING ITEMS (with export_url from designs)
 // ============================================================
 
 export async function fetchPendingItems(): Promise<PrintItem[]> {
   const rows = await sql`
     SELECT
       oi.id                    AS order_item_id,
-      COALESCE(oi.design_snapshot_url, oi.print_ready_url, d.export_url, d.thumbnail_url)
-                               AS design_snapshot_url,
-      oi.print_status,
+      oi.design_id,
+      COALESCE(d.export_url, oi.design_snapshot_url, d.thumbnail_url)
+                               AS export_url,
       pf.slug                  AS finish,
       ps.slug                  AS size_slug,
-      ps.name                  AS size_name,
       psc.item_width_mm        AS width_mm,
       psc.item_height_mm       AS height_mm,
       t.slug                   AS template_slug,
@@ -147,19 +136,19 @@ export async function fetchPendingItems(): Promise<PrintItem[]> {
       AND o.status IN ('confirmed', 'processing')
     ORDER BY pf.slug, oi.created_at ASC`
 
-  // Expand quantity — one PrintItem per physical print needed
   const items: PrintItem[] = []
   for (const row of rows) {
     for (let q = 0; q < (row.quantity as number); q++) {
       items.push({
-        orderItemId:       row.order_item_id as string,
-        designSnapshotUrl: (row.design_snapshot_url as string) || '',
-        widthMm:           Number(row.width_mm),
-        heightMm:          Number(row.height_mm),
-        finish:            row.finish as 'glossy' | 'matte',
-        sizeSlug:          row.size_slug as string,
-        templateSlug:      (row.template_slug as string) ?? 'unknown',
-        orderNumber:       row.order_number as string,
+        orderItemId:  row.order_item_id as string,
+        designId:     (row.design_id as string) || '',
+        exportUrl:    (row.export_url as string) || null,
+        widthMm:      Number(row.width_mm),
+        heightMm:     Number(row.height_mm),
+        finish:       row.finish as 'glossy' | 'matte',
+        sizeSlug:     row.size_slug as string,
+        templateSlug: (row.template_slug as string) ?? 'unknown',
+        orderNumber:  row.order_number as string,
       })
     }
   }
@@ -168,13 +157,12 @@ export async function fetchPendingItems(): Promise<PrintItem[]> {
 
 
 // ============================================================
-// STEP 2 — BIN PACKING ALGORITHM (Shelf First Fit Decreasing)
+// STEP 2 — BIN PACKING (Shelf First Fit Decreasing)
 // ============================================================
 
 export function packIntoSheets(items: PrintItem[]): Sheet[] {
   if (items.length === 0) return []
 
-  // GROUP BY FINISH — never mix glossy and matte on same sheet
   const byFinish = new Map<string, PrintItem[]>()
   for (const item of items) {
     const group = byFinish.get(item.finish) ?? []
@@ -186,23 +174,16 @@ export function packIntoSheets(items: PrintItem[]): Sheet[] {
   let sheetIndex = 0
 
   for (const [finish, groupItems] of byFinish) {
-
-    // SORT: largest area first → better packing efficiency
     const sorted = [...groupItems].sort(
       (a, b) => (b.widthMm * b.heightMm) - (a.widthMm * a.heightMm)
     )
 
     const sheets: Sheet[] = []
-
     const newSheet = (): Sheet => ({
       index:        sheetIndex++,
       finish:       finish as 'glossy' | 'matte',
       items:        [],
-      shelves:      [{
-        yMm:      MARGIN_MM,
-        heightMm: 0,
-        nextXMm:  MARGIN_MM,
-      }],
+      shelves:      [{ yMm: MARGIN_MM, heightMm: 0, nextXMm: MARGIN_MM }],
       usedAreaMm2:  0,
       totalAreaMm2: USABLE_W_MM * USABLE_H_MM,
     })
@@ -211,296 +192,118 @@ export function packIntoSheets(items: PrintItem[]): Sheet[] {
 
     for (const item of sorted) {
       let placed = false
-
-      // Try to fit in an existing sheet
       for (const sheet of sheets) {
         const pos = findPosition(sheet, item)
-        if (pos) {
-          placeOnSheet(sheet, item, pos)
-          placed = true
-          break
-        }
+        if (pos) { placeOnSheet(sheet, item, pos); placed = true; break }
       }
-
-      // No existing sheet had room — open a new one
       if (!placed) {
         const sheet = newSheet()
         sheets.push(sheet)
         const pos = findPosition(sheet, item)
-        if (pos) {
-          placeOnSheet(sheet, item, pos)
-        } else {
-          // Item is physically too large for an A4 sheet — skip with warning
-          console.warn(
-            `Item ${item.orderItemId} (${item.widthMm}×${item.heightMm}mm) ` +
-            `is too large for A4 usable area (${USABLE_W_MM}×${USABLE_H_MM}mm) — skipped`
-          )
-        }
+        if (pos) placeOnSheet(sheet, item, pos)
+        else console.warn(`Item ${item.orderItemId} too large for A4 — skipped`)
       }
     }
-
     allSheets.push(...sheets)
   }
-
   return allSheets
 }
 
-/**
- * Find the best available position for an item on a sheet.
- * Returns { xMm, yMm } or null if item doesn't fit anywhere.
- *
- * Strategy: shelf-based
- *   1. Try to append to an existing shelf (items fit left→right)
- *   2. If shelf is full width-wise, try to open a new shelf below
- *   3. If no shelf fits, return null
- */
-function findPosition(
-  sheet: Sheet,
-  item: PrintItem
-): { xMm: number; yMm: number } | null {
-
-  const iw = item.widthMm
-  const ih = item.heightMm
-
-  // Item itself is too large for the usable area
+function findPosition(sheet: Sheet, item: PrintItem): { xMm: number; yMm: number } | null {
+  const iw = item.widthMm, ih = item.heightMm
   if (iw > USABLE_W_MM || ih > USABLE_H_MM) return null
 
   for (const shelf of sheet.shelves) {
-    const rightEdge = shelf.nextXMm + iw
-    const bottomEdge = shelf.yMm + Math.max(shelf.heightMm, ih)
-
-    const fitsWidth  = rightEdge <= A4_W_MM - MARGIN_MM
-    const fitsHeight = bottomEdge <= A4_H_MM - MARGIN_MM
-
-    if (fitsWidth && fitsHeight) {
+    if (shelf.nextXMm + iw <= A4_W_MM - MARGIN_MM &&
+        shelf.yMm + Math.max(shelf.heightMm, ih) <= A4_H_MM - MARGIN_MM) {
       return { xMm: shelf.nextXMm, yMm: shelf.yMm }
     }
   }
 
-  // Try opening a new shelf below the last shelf
-  const lastShelf = sheet.shelves[sheet.shelves.length - 1]
-  const newShelfY = lastShelf.yMm + lastShelf.heightMm + GAP_MM
-  const bottomEdge = newShelfY + ih
-
-  if (bottomEdge <= A4_H_MM - MARGIN_MM) {
-    // New shelf fits — add it and place at the start
-    sheet.shelves.push({
-      yMm:      newShelfY,
-      heightMm: 0,
-      nextXMm:  MARGIN_MM,
-    })
-    return { xMm: MARGIN_MM, yMm: newShelfY }
+  const last = sheet.shelves[sheet.shelves.length - 1]
+  const newY = last.yMm + last.heightMm + GAP_MM
+  if (newY + ih <= A4_H_MM - MARGIN_MM) {
+    sheet.shelves.push({ yMm: newY, heightMm: 0, nextXMm: MARGIN_MM })
+    return { xMm: MARGIN_MM, yMm: newY }
   }
-
-  return null  // Sheet is full
+  return null
 }
 
-/** Commit an item to a position on a sheet, updating shelf state. */
-function placeOnSheet(
-  sheet: Sheet,
-  item: PrintItem,
-  pos: { xMm: number; yMm: number }
-) {
-  // Find the shelf this position belongs to
+function placeOnSheet(sheet: Sheet, item: PrintItem, pos: { xMm: number; yMm: number }) {
   const shelf = sheet.shelves.find(s => s.yMm === pos.yMm)!
-
-  const placed: PlacedItem = {
-    ...item,
-    xMm:        pos.xMm,
-    yMm:        pos.yMm,
-    sheetIndex: sheet.index,
-  }
-
+  const placed: PlacedItem = { ...item, xMm: pos.xMm, yMm: pos.yMm, sheetIndex: sheet.index }
   sheet.items.push(placed)
   sheet.usedAreaMm2 += item.widthMm * item.heightMm
-
-  // Advance shelf cursor
-  shelf.nextXMm   = pos.xMm + item.widthMm + GAP_MM
-  shelf.heightMm  = Math.max(shelf.heightMm, item.heightMm)
+  shelf.nextXMm = pos.xMm + item.widthMm + GAP_MM
+  shelf.heightMm = Math.max(shelf.heightMm, item.heightMm)
 }
 
 
 // ============================================================
-// STEP 3 — RENDER SHEET TO 300 DPI PNG
+// STEP 3 — RENDER A4 SHEET (download pre-rendered PNGs + compose)
 // ============================================================
 
 export async function renderSheet(sheet: Sheet): Promise<Buffer> {
   const canvas = createCanvas(A4_W_PX, A4_H_PX)
-  const ctx    = canvas.getContext('2d')
+  const ctx = canvas.getContext('2d')
 
-  // --- WHITE BACKGROUND ---
+  // White background
   ctx.fillStyle = '#FFFFFF'
   ctx.fillRect(0, 0, A4_W_PX, A4_H_PX)
 
-  // --- PRINTABLE AREA BOUNDARY (light grey, for reference only) ---
+  // Printable area boundary (light dashed, for reference)
   ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)'
-  ctx.lineWidth   = 0.5
-  ctx.setLineDash([px(2), px(2)])
-  ctx.strokeRect(px(MARGIN_MM), px(MARGIN_MM), px(USABLE_W_MM), px(USABLE_H_MM))
+  ctx.lineWidth = 0.5
+  ctx.setLineDash([mmPx(2), mmPx(2)])
+  ctx.strokeRect(mmPx(MARGIN_MM), mmPx(MARGIN_MM), mmPx(USABLE_W_MM), mmPx(USABLE_H_MM))
   ctx.setLineDash([])
 
-  // --- DRAW EACH ITEM ---
+  // Draw each design at its position
   for (const item of sheet.items) {
-    await drawItem(ctx, item)
-    drawCutMarks(ctx, item)
+    const x = mmPx(item.xMm)
+    const y = mmPx(item.yMm)
+    const w = mmPx(item.widthMm)
+    const h = mmPx(item.heightMm)
+
+    try {
+      if (!item.exportUrl) throw new Error('No export URL')
+      const img = await loadImage(item.exportUrl)
+      ctx.drawImage(img, x, y, w, h)
+    } catch (err) {
+      // Placeholder — print shop will see this needs attention
+      console.error(`Failed to load export for ${item.orderItemId}:`, err)
+      ctx.fillStyle = '#F5F0E8'
+      ctx.fillRect(x, y, w, h)
+      ctx.fillStyle = '#B5A99E'
+      ctx.font = `${mmPx(3.5)}px sans-serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('EXPORT MISSING', x + w / 2, y + h / 2 - mmPx(2))
+      ctx.font = `${mmPx(2.5)}px sans-serif`
+      ctx.fillText(item.orderItemId.slice(0, 8), x + w / 2, y + h / 2 + mmPx(3))
+    }
+
+    // Subtle border for cutting reference
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)'
+    ctx.lineWidth = 0.5
+    ctx.strokeRect(x, y, w, h)
+
+    // Cut marks at corners
+    drawCutMarks(ctx, x, y, w, h)
   }
 
-  // --- SHEET INFO FOOTER (outside printable area, bottom margin) ---
+  // Footer info
   drawSheetFooter(ctx, sheet)
 
   return canvas.toBuffer('image/png')
 }
 
-/**
- * Draw a single polaroid image at its position on the canvas.
- * Falls back to a placeholder rectangle if image fails to load.
- */
-async function drawItem(ctx: CanvasRenderingContext2D, item: PlacedItem) {
-  const x = px(item.xMm)
-  const y = px(item.yMm)
-  const w = px(item.widthMm)
-  const h = px(item.heightMm)
-
-  try {
-    if (!item.designSnapshotUrl) throw new Error('No image URL')
-    const img = await loadImage(item.designSnapshotUrl)
-    ctx.drawImage(img, x, y, w, h)
-  } catch (err) {
-    // Placeholder if image fails — print shop will see this
-    console.error(`Failed to load image for ${item.orderItemId}:`, err)
-    ctx.fillStyle = '#F5F0E8'
-    ctx.fillRect(x, y, w, h)
-    ctx.fillStyle = '#B5A99E'
-    ctx.font      = `${px(3.5)}px sans-serif`
-    ctx.textAlign = 'center'
-    ctx.fillText('IMAGE PENDING', x + w / 2, y + h / 2)
-    ctx.fillText(item.orderItemId.slice(0, 8), x + w / 2, y + h / 2 + px(5))
-  }
-
-  // Thin border around each item (1px, very subtle — helps cutting)
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)'
-  ctx.lineWidth   = 0.5
-  ctx.strokeRect(x, y, w, h)
-}
-
-/**
- * Draw L-shaped cut marks at all 4 corners of an item.
- * Cut marks are OUTSIDE the item boundary (in the gap area).
- * They are solid black lines — visible to the person cutting.
- *
- *  ┌╴           ╶┐
- *  │             │   ← L-shaped marks at each corner
- *
- *  └╴           ╶┘
- */
-function drawCutMarks(ctx: CanvasRenderingContext2D, item: PlacedItem) {
-  const x  = px(item.xMm)
-  const y  = px(item.yMm)
-  const w  = px(item.widthMm)
-  const h  = px(item.heightMm)
-  const cl = px(CUT_LEN_MM)   // cut line length in px
-  const cg = px(CUT_GAP_MM)   // gap between item and cut mark
-
-  ctx.strokeStyle = '#000000'
-  ctx.lineWidth   = Math.round(0.25 * MM_TO_PX)  // 0.25mm line
-  ctx.setLineDash([])
-
-  // Helper: draw one L-mark
-  const L = (
-    cornerX: number, cornerY: number,
-    hDir: 1 | -1,    // horizontal direction: 1 = right, -1 = left
-    vDir: 1 | -1     // vertical direction:   1 = down,  -1 = up
-  ) => {
-    ctx.beginPath()
-    // Horizontal arm
-    ctx.moveTo(cornerX, cornerY)
-    ctx.lineTo(cornerX + hDir * cl, cornerY)
-    ctx.stroke()
-    ctx.beginPath()
-    // Vertical arm
-    ctx.moveTo(cornerX, cornerY)
-    ctx.lineTo(cornerX, cornerY + vDir * cl)
-    ctx.stroke()
-  }
-
-  // TOP-LEFT corner mark (outside item, above and to the left)
-  L(x - cg, y - cg, -1, -1)
-
-  // TOP-RIGHT corner mark
-  L(x + w + cg, y - cg, 1, -1)
-
-  // BOTTOM-LEFT corner mark
-  L(x - cg, y + h + cg, -1, 1)
-
-  // BOTTOM-RIGHT corner mark
-  L(x + w + cg, y + h + cg, 1, 1)
-}
-
-/** Small info strip in the bottom margin — sheet number, count, date */
-function drawSheetFooter(ctx: CanvasRenderingContext2D, sheet: Sheet) {
-  const footerY  = A4_H_PX - px(MARGIN_MM) + px(1.5)
-  const fontSize = px(2.5)
-
-  ctx.fillStyle  = '#9A8878'
-  ctx.font       = `${fontSize}px monospace`
-  ctx.textAlign  = 'left'
-
-  const efficiency = ((sheet.usedAreaMm2 / sheet.totalAreaMm2) * 100).toFixed(1)
-  const date       = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-
-  ctx.fillText(
-    `POLAMUSE · Sheet ${String(sheet.index + 1).padStart(3, '0')} · ` +
-    `${sheet.items.length} items · ${sheet.finish.toUpperCase()} · ` +
-    `Efficiency: ${efficiency}% · ${date}`,
-    px(MARGIN_MM), footerY
-  )
-
-  // Order numbers on the right
-  const orderNums = [...new Set(sheet.items.map(i => i.orderNumber))].join('  ')
-  ctx.textAlign = 'right'
-  ctx.fillText(`Orders: ${orderNums}`, A4_W_PX - px(MARGIN_MM), footerY)
-}
-
 
 // ============================================================
-// STEP 4 — UPLOAD TO CLOUDINARY
+// STEP 4 — PERSIST TO DB (local file, no Cloudinary for sheets)
 // ============================================================
 
-async function uploadSheetToCloudinary(
-  buffer: Buffer,
-  sheetId: string
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder:         'polamuse/print-sheets',
-        public_id:      `sheet-${sheetId}`,
-        resource_type:  'image',
-        format:         'png',
-        // Store at full quality — this is a print file
-        quality:        100,
-        transformation: [],   // no transformations — keep exact pixels
-      },
-      (err, result) => {
-        if (err || !result) return reject(err ?? new Error('Upload failed'))
-        resolve(result.secure_url)
-      }
-    )
-    stream.end(buffer)
-  })
-}
-
-
-// ============================================================
-// STEP 5 — WRITE RESULTS TO DB
-// ============================================================
-
-async function persistSheetResults(
-  sheet: Sheet,
-  sheetUrl: string,
-  configId: string
-): Promise<string> {
-  // 1. Insert print_sheet row
+async function persistSheet(sheet: Sheet, sheetUrl: string, configId: string): Promise<string> {
   const [dbSheet] = await sql`
     INSERT INTO print_sheets (
       print_finish_id, print_size_id, config_id, paper_size,
@@ -518,148 +321,193 @@ async function persistSheetResults(
       AND ps.slug = ${sheet.items[0]?.sizeSlug ?? 'classic'}
     RETURNING id`
 
-  // 2. Insert print_sheet_items — one row per placed item
   for (let i = 0; i < sheet.items.length; i++) {
-    const item     = sheet.items[i]
-    const col      = Math.round((item.xMm - MARGIN_MM) / (item.widthMm + GAP_MM))
-    const rowIndex = sheet.shelves.findIndex(s => s.yMm === item.yMm)
-
+    const it = sheet.items[i]
+    const col = Math.round((it.xMm - MARGIN_MM) / (it.widthMm + GAP_MM))
+    const rowIdx = sheet.shelves.findIndex(s => s.yMm === it.yMm)
     await sql`
-      INSERT INTO print_sheet_items
-        (sheet_id, order_item_id, position, col, row, design_snapshot_url)
-      VALUES
-        (${dbSheet.id}, ${item.orderItemId}, ${i + 1}, ${col}, ${rowIndex}, ${item.designSnapshotUrl})`
+      INSERT INTO print_sheet_items (sheet_id, order_item_id, position, col, row, design_snapshot_url)
+      VALUES (${dbSheet.id}, ${it.orderItemId}, ${i + 1}, ${col}, ${rowIdx}, ${it.exportUrl || 'pending'})`
   }
 
-  // 3. Update order_items — mark as assigned
-  const orderItemIds = sheet.items.map(i => i.orderItemId)
+  const ids = sheet.items.map(i => i.orderItemId)
   await sql`
-    UPDATE order_items
-    SET
-      print_status   = 'assigned_to_sheet',
-      print_sheet_id = ${dbSheet.id},
-      updated_at     = NOW()
-    WHERE id = ANY(${orderItemIds})`
+    UPDATE order_items SET print_status = 'assigned_to_sheet', print_sheet_id = ${dbSheet.id}, updated_at = NOW()
+    WHERE id = ANY(${ids})`
 
   return dbSheet.id as string
 }
 
 
 // ============================================================
-// MAIN ENTRY POINT — call this from admin API
+// MAIN ENTRY POINT
 // ============================================================
 
-/**
- * generatePrintSheets()
- *
- * Fetches all pending print items, packs them optimally onto
- * minimum number of A4 sheets, renders 300 DPI PNGs with cut
- * marks, uploads to Cloudinary, and updates the DB.
- *
- * Called from: POST /api/admin/print-sheets/generate
- *
- * @param finishFilter  Optional — only process 'glossy' or 'matte'
- * @returns             Summary of sheets generated
- */
 export async function generatePrintSheets(
   finishFilter?: 'glossy' | 'matte'
 ): Promise<GenerateResult> {
   console.log('🖨️  Starting print sheet generation...')
 
-  // 1. Fetch all pending items
   let items = await fetchPendingItems()
-  if (finishFilter) {
-    items = items.filter(i => i.finish === finishFilter)
-  }
+  if (finishFilter) items = items.filter(i => i.finish === finishFilter)
 
   if (items.length === 0) {
-    console.log('No pending items to print.')
     return { sheets: [], totalSheets: 0, itemsPlaced: 0, areaSavedPct: 0 }
   }
 
-  console.log(`📦 ${items.length} items to pack (${
-    items.filter(i => i.finish === 'glossy').length
-  } glossy, ${
-    items.filter(i => i.finish === 'matte').length
-  } matte)`)
-
-  // 2. Pack into sheets using SFFD algorithm
-  const sheets = packIntoSheets(items)
-
-  console.log(`📄 Packed into ${sheets.length} sheets`)
-
-  // Log packing summary
-  for (const sheet of sheets) {
-    const eff = ((sheet.usedAreaMm2 / sheet.totalAreaMm2) * 100).toFixed(1)
-    console.log(
-      `  Sheet ${sheet.index + 1}: ${sheet.items.length} items · ` +
-      `${sheet.finish} · ${eff}% efficiency`
-    )
-    for (const item of sheet.items) {
-      console.log(
-        `    [${item.templateSlug}] ${item.widthMm}×${item.heightMm}mm ` +
-        `@ (${item.xMm.toFixed(1)}, ${item.yMm.toFixed(1)})mm ` +
-        `→ Order ${item.orderNumber}`
-      )
-    }
+  // Warn about items missing export URLs
+  const missing = items.filter(i => !i.exportUrl)
+  if (missing.length > 0) {
+    console.warn(`⚠️  ${missing.length} items have no export_url — they will show placeholders`)
   }
 
-  // 3. Render, upload, and persist each sheet
-  const results: SheetResult[] = []
+  console.log(`📦 ${items.length} items to pack`)
 
-  // Fetch one config_id to use for DB insert (use first sheet's finish+size)
+  const sheets = packIntoSheets(items)
+  console.log(`📄 Packed into ${sheets.length} sheets`)
+
+  // Ensure output directory
+  if (!fs.existsSync(SHEETS_DIR)) fs.mkdirSync(SHEETS_DIR, { recursive: true })
+
   const [configRow] = await sql`
-    SELECT psc.id FROM print_sheet_configs psc
-    JOIN print_sizes ps ON ps.id = psc.print_size_id
-    WHERE psc.paper_size = 'A4'
-    LIMIT 1`
+    SELECT psc.id FROM print_sheet_configs psc WHERE psc.paper_size = 'A4' LIMIT 1`
   const configId = configRow?.id ?? ''
+
+  const results: SheetResult[] = []
 
   for (const sheet of sheets) {
     console.log(`  Rendering sheet ${sheet.index + 1}/${sheets.length}...`)
 
-    // Render PNG
     const buffer = await renderSheet(sheet)
 
-    // Upload to Cloudinary
-    const tempId  = `temp-${Date.now()}-${sheet.index}`
-    const sheetUrl = await uploadSheetToCloudinary(buffer, tempId)
+    const filename = `sheet-${Date.now()}-${sheet.index}.png`
+    const filepath = path.join(SHEETS_DIR, filename)
+    fs.writeFileSync(filepath, buffer)
 
-    // Save to DB
-    const sheetId = await persistSheetResults(sheet, sheetUrl, configId)
+    const sheetUrl = `/api/admin/print-sheets/download/${filename}`
+    const sheetDbId = await persistSheet(sheet, sheetUrl, configId)
 
-    const efficiency = Number(
-      ((sheet.usedAreaMm2 / sheet.totalAreaMm2) * 100).toFixed(1)
-    )
-
+    const efficiency = Number(((sheet.usedAreaMm2 / sheet.totalAreaMm2) * 100).toFixed(1))
     results.push({
       sheetIndex:  sheet.index,
+      sheetDbId,
+      sheetUrl,
       finish:      sheet.finish,
       itemCount:   sheet.items.length,
       efficiency,
-      sheetUrl,
-      placedItems: sheet.items.map(item => ({
-        orderItemId: item.orderItemId,
-        position:    `(${item.xMm.toFixed(1)}, ${item.yMm.toFixed(1)})mm`,
+      placedItems: sheet.items.map(it => ({
+        orderItemId: it.orderItemId,
+        position: `(${it.xMm.toFixed(1)}, ${it.yMm.toFixed(1)})mm`,
       })),
     })
-
-    console.log(`  ✓ Sheet ${sheet.index + 1} → ${sheetUrl}`)
+    console.log(`  ✓ Sheet ${sheet.index + 1} saved → ${filename}`)
   }
 
-  // Calculate area saved vs naive "one size per sheet" approach
-  const naiveSheets  = items.length  // worst case: 1 item per sheet
-  const actualSheets = sheets.length
-  const areaSavedPct = Number(
-    (((naiveSheets - actualSheets) / naiveSheets) * 100).toFixed(1)
+  const areaSavedPct = items.length > 1
+    ? Number((((items.length - sheets.length) / items.length) * 100).toFixed(1))
+    : 0
+
+  console.log(`✅ Done. ${sheets.length} sheets. Paper saved: ~${areaSavedPct}%`)
+  return { sheets: results, totalSheets: sheets.length, itemsPlaced: items.length, areaSavedPct }
+}
+
+
+// ============================================================
+// REGENERATE A SINGLE SHEET
+// ============================================================
+
+export async function regenerateSheet(sheetId: string): Promise<{ success: boolean; sheetUrl?: string }> {
+  const sheetItems = await sql`
+    SELECT
+      psi.order_item_id,
+      oi.design_id,
+      COALESCE(d.export_url, oi.design_snapshot_url, d.thumbnail_url) AS export_url,
+      ps.slug AS size_slug,
+      pf.slug AS finish,
+      psc.item_width_mm AS width_mm,
+      psc.item_height_mm AS height_mm,
+      t.slug AS template_slug,
+      o.order_number
+    FROM print_sheet_items psi
+    JOIN order_items oi ON oi.id = psi.order_item_id
+    JOIN orders o ON o.id = oi.order_id
+    JOIN print_sizes ps ON ps.id = oi.print_size_id
+    JOIN print_finishes pf ON pf.id = oi.print_finish_id
+    JOIN print_sheet_configs psc ON psc.print_size_id = ps.id AND psc.paper_size = 'A4'
+    LEFT JOIN designs d ON d.id = oi.design_id
+    LEFT JOIN templates t ON t.id = d.template_id
+    WHERE psi.sheet_id = ${sheetId}
+    ORDER BY psi.position`
+
+  if (sheetItems.length === 0) return { success: false }
+
+  const items: PrintItem[] = sheetItems.map(row => ({
+    orderItemId:  row.order_item_id as string,
+    designId:     (row.design_id as string) || '',
+    exportUrl:    (row.export_url as string) || null,
+    widthMm:      Number(row.width_mm),
+    heightMm:     Number(row.height_mm),
+    finish:       row.finish as 'glossy' | 'matte',
+    sizeSlug:     row.size_slug as string,
+    templateSlug: (row.template_slug as string) ?? 'unknown',
+    orderNumber:  row.order_number as string,
+  }))
+
+  const sheets = packIntoSheets(items)
+  if (sheets.length === 0) return { success: false }
+
+  if (!fs.existsSync(SHEETS_DIR)) fs.mkdirSync(SHEETS_DIR, { recursive: true })
+  const buffer = await renderSheet(sheets[0])
+  const filename = `sheet-${Date.now()}-regen.png`
+  fs.writeFileSync(path.join(SHEETS_DIR, filename), buffer)
+
+  const sheetUrl = `/api/admin/print-sheets/download/${filename}`
+  await sql`
+    UPDATE print_sheets SET sheet_url = ${sheetUrl}, generated_at = NOW(), updated_at = NOW()
+    WHERE id = ${sheetId}`
+
+  return { success: true, sheetUrl }
+}
+
+
+// ============================================================
+// HELPERS
+// ============================================================
+
+function drawCutMarks(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  const cl = mmPx(CUT_LEN_MM)
+  const cg = mmPx(CUT_GAP_MM)
+
+  ctx.strokeStyle = '#000000'
+  ctx.lineWidth = Math.round(0.25 * MM_TO_PX)
+  ctx.setLineDash([])
+
+  const L = (cx: number, cy: number, hDir: 1 | -1, vDir: 1 | -1) => {
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + hDir * cl, cy); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy + vDir * cl); ctx.stroke()
+  }
+
+  L(x - cg, y - cg, -1, -1)
+  L(x + w + cg, y - cg, 1, -1)
+  L(x - cg, y + h + cg, -1, 1)
+  L(x + w + cg, y + h + cg, 1, 1)
+}
+
+function drawSheetFooter(ctx: CanvasRenderingContext2D, sheet: Sheet) {
+  const footerY = A4_H_PX - mmPx(MARGIN_MM) + mmPx(1.5)
+  const fontSize = mmPx(2.5)
+  ctx.fillStyle = '#9A8878'
+  ctx.font = `${fontSize}px monospace`
+  ctx.textAlign = 'left'
+
+  const eff = ((sheet.usedAreaMm2 / sheet.totalAreaMm2) * 100).toFixed(1)
+  const date = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  ctx.fillText(
+    `POLAMUSE · Sheet ${String(sheet.index + 1).padStart(3, '0')} · ${sheet.items.length} items · ${sheet.finish.toUpperCase()} · Efficiency: ${eff}% · ${date}`,
+    mmPx(MARGIN_MM), footerY
   )
 
-  console.log(`\n✅ Done. ${actualSheets} sheets generated. Paper saved: ~${areaSavedPct}%`)
-
-  return {
-    sheets:       results,
-    totalSheets:  actualSheets,
-    itemsPlaced:  items.length,
-    areaSavedPct,
-  }
+  const orderNums = [...new Set(sheet.items.map(i => i.orderNumber))].join('  ')
+  ctx.textAlign = 'right'
+  ctx.fillText(`Orders: ${orderNums}`, A4_W_PX - mmPx(MARGIN_MM), footerY)
 }

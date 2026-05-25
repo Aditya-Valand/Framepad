@@ -7,6 +7,7 @@ import { BatchPreviewCard } from './BatchPreviewCard';
 import { useBatchExport } from '@/hooks/useBatchExport';
 import { useAuth } from '@/hooks/useAuth';
 import { uploadToCloudinary } from '@/hooks/useImageUpload';
+import { uploadBatchExports } from '@/hooks/useDesignSave';
 import { POLAROID_TEMPLATES, FILTER_PRESETS } from '@/store';
 
 const MAX_BATCH = 20;
@@ -149,8 +150,14 @@ export function BatchModal({ onClose }: BatchModalProps) {
         body: JSON.stringify({ designs }),
       });
       if (res.ok) {
+        const { ids } = await res.json();
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
+
+        // Upload rendered exports to Cloudinary in background
+        if (ids && ids.length > 0) {
+          uploadBatchExports(designs, ids).catch(() => {});
+        }
       }
     } catch {
       // silent

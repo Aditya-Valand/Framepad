@@ -27,7 +27,7 @@ export function DesignPreview({ frameData }: { frameData: Partial<FrameData> }) 
       ref={canvasRef}
       width={fw}
       height={fh}
-      style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 4 }}
+      style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 4, maxWidth: '100%' }}
     />
   );
 }
