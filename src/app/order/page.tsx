@@ -448,24 +448,36 @@ function OrderPage() {
           ) : (
             <>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '4px 0' }}>
-                {(() => {
-                  // Group by template type for summary
-                  const typeCounts: Record<string, number> = {};
-                  for (const d of designs) {
-                    const tp = templatePricing.find(t => t.template_id === d.template_id);
-                    const name = tp?.template_name || 'Classic';
-                    typeCounts[name] = (typeCounts[name] || 0) + 1;
-                  }
-                  return Object.entries(typeCounts).map(([name, count]) => (
-                    <span key={name} style={{
-                      padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
-                      background: '#fff', border: '0.5px solid rgba(26,23,20,0.08)',
-                      color: '#1A1714',
-                    }}>
-                      {name} <span style={{ color: '#8B6F5C' }}>×{count}</span>
-                    </span>
-                  ));
-                })()}
+                {designs.map((d) => {
+                  const tp = templatePricing.find(t => t.template_id === d.template_id);
+                  const typeName = tp?.template_name || 'Classic';
+                  return (
+                  <span key={d.id} style={{
+                    padding: '7px 10px 7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+                    background: '#fff', border: '0.5px solid rgba(26,23,20,0.08)',
+                    color: '#1A1714', display: 'inline-flex', alignItems: 'center', gap: 8,
+                  }}>
+                    {d.title || 'Untitled'}
+                    <span style={{ fontSize: 11, color: '#A39080', fontWeight: 400 }}>{typeName}</span>
+                    <button
+                      onClick={() => removeDesign(d.id)}
+                      style={{
+                        width: 18, height: 18, borderRadius: '50%',
+                        background: 'rgba(26,23,20,0.06)', border: 'none',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', padding: 0, transition: 'background .15s',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(192,90,58,0.12)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(26,23,20,0.06)'; }}
+                      title="Remove from cart"
+                    >
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7A6E65" strokeWidth="2.5" strokeLinecap="round">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </span>
+                  );
+                })}
               </div>
               <div style={{ fontSize: 12, color: '#A39080', marginTop: 8 }}>
                 {designs.length} design{designs.length > 1 ? 's' : ''} total

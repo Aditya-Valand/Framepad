@@ -223,29 +223,32 @@ export default function Navbar() {
         <div style={{ display: "flex", alignItems: "center", gap: 12, justifySelf: "end" }}>
 
           {/* Desktop cart button */}
-          {cartCount > 0 && (
+          {!loading && user && (
             <Link
               href="/order"
               className="hidden lg:flex"
               style={{
                 position: "relative", width: 36, height: 36, borderRadius: "50%",
-                background: "rgba(139,111,92,0.08)", border: ".5px solid rgba(26,23,20,0.1)",
+                background: cartCount > 0 ? "rgba(139,111,92,0.12)" : "rgba(139,111,92,0.05)",
+                border: ".5px solid rgba(26,23,20,0.1)",
                 alignItems: "center", justifyContent: "center",
                 textDecoration: "none", transition: "background .15s",
               }}
-              title={`Cart (${cartCount} items)`}
+              title={cartCount > 0 ? `Cart (${cartCount} items)` : 'Cart'}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5C4A3A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                 <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
               </svg>
-              <span style={{
-                position: "absolute", top: -2, right: -2,
-                width: 16, height: 16, borderRadius: "50%",
-                background: "#8B6F5C", color: "#fff",
-                fontSize: 9, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>{cartCount}</span>
+              {cartCount > 0 && (
+                <span style={{
+                  position: "absolute", top: -2, right: -2,
+                  width: 16, height: 16, borderRadius: "50%",
+                  background: "#8B6F5C", color: "#fff",
+                  fontSize: 9, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>{cartCount}</span>
+              )}
             </Link>
           )}
 
@@ -309,13 +312,14 @@ export default function Navbar() {
           </div>
 
           {/* Mobile cart button */}
-          {cartCount > 0 && (
+          {!loading && user && (
             <Link
               href="/order"
               className="flex lg:hidden"
               style={{
                 position: "relative", width: 38, height: 38, borderRadius: "50%",
-                background: "rgba(255,255,255,0.4)", border: ".5px solid rgba(26,23,20,0.12)",
+                background: cartCount > 0 ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.3)",
+                border: ".5px solid rgba(26,23,20,0.12)",
                 alignItems: "center", justifyContent: "center",
                 textDecoration: "none",
               }}
@@ -324,13 +328,15 @@ export default function Navbar() {
                 <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                 <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
               </svg>
-              <span style={{
-                position: "absolute", top: -1, right: -1,
-                width: 16, height: 16, borderRadius: "50%",
-                background: "#8B6F5C", color: "#fff",
-                fontSize: 9, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>{cartCount}</span>
+              {cartCount > 0 && (
+                <span style={{
+                  position: "absolute", top: -1, right: -1,
+                  width: 16, height: 16, borderRadius: "50%",
+                  background: "#8B6F5C", color: "#fff",
+                  fontSize: 9, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>{cartCount}</span>
+              )}
             </Link>
           )}
 

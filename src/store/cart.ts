@@ -8,6 +8,7 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[];
+  _hasHydrated: boolean;
   addItem: (designId: string) => void;
   removeItem: (designId: string) => void;
   setItems: (designIds: string[]) => void;
@@ -20,6 +21,7 @@ export const useCart = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      _hasHydrated: false,
 
       addItem: (designId) => {
         const { items } = get();
@@ -44,6 +46,9 @@ export const useCart = create<CartStore>()(
     }),
     {
       name: 'polamuse-cart',
+      onRehydrateStorage: () => () => {
+        useCart.setState({ _hasHydrated: true });
+      },
     }
   )
 );

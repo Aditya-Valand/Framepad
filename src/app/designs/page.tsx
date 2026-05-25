@@ -163,6 +163,16 @@ function DesignsPage() {
                 >
                   Cancel
                 </button>
+                <button
+                  className="dp-btn"
+                  onClick={() => {
+                    cart.setItems(Array.from(selected));
+                    setSelectMode(false);
+                  }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                  Update Cart
+                </button>
                 {selected.size > 0 && (
                   <button
                     className="dp-btn primary"
@@ -175,6 +185,13 @@ function DesignsPage() {
                     Order {selected.size} print{selected.size > 1 ? 's' : ''}
                   </button>
                 )}
+                <button
+                  className="dp-btn"
+                  onClick={() => { cart.clearCart(); setSelected(new Set()); setSelectMode(false); }}
+                  style={{ color: '#C05A3A', borderColor: 'rgba(192,90,58,0.3)' }}
+                >
+                  Empty Cart
+                </button>
               </>
             ) : (
               <>
