@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '{print $NF}')",
+      "Bash(Get-ChildItem -Path \"D:\\\\downloads\\\\Framepad-main\\\\Framepad-main\" -Recurse -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(ConvertTo-Csv -NoTypeInformation)",
+      "Bash(Out-String)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "PowerShell(Stop-Process *)",
+      "Bash(taskkill.exe /PID 63888 /F)",
+      "Bash(taskkill.exe /PID 80332 /F)",
+      "Bash(cmd.exe *)",
+      "Bash(npm run *)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

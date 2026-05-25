@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polamuse Admin — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<style>
+.settings{max-width:760px}
+.warning-banner{display:none;background:linear-gradient(90deg,#FBEDD9,#FFF6E8);border:.5px solid #E8C898;border-radius:14px;padding:14px 18px;margin-bottom:22px;align-items:center;gap:12px}
+.warning-banner.show{display:flex;animation:slideDown .35s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.warning-banner .ic{width:32px;height:32px;border-radius:10px;background:var(--warn);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.warning-banner .txt{flex:1}
+.warning-banner .ttl{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.warning-banner .ds{font-size:12px;color:var(--text-2);font-weight:300;line-height:1.4}
+
+.sec-card{background:#fff;border:.5px solid var(--border);border-radius:18px;padding:24px 28px;margin-bottom:18px}
+.sec-h{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:.5px solid var(--border)}
+.sec-h .ic{width:32px;height:32px;border-radius:10px;background:var(--cream-soft);color:var(--brown);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-h .ttl{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;font-style:italic;line-height:1.1;letter-spacing:-.005em}
+.sec-h .ttl em{color:var(--brown);font-style:italic}
+
+.row{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;padding:14px 0;border-bottom:.5px solid var(--border)}
+.row:last-child{border-bottom:none}
+.row .left .lbl{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;letter-spacing:.005em}
+.row .left .desc{font-size:12px;color:var(--text-2);font-weight:300;line-height:1.5}
+.row .ctrl{flex-shrink:0}
+.row .ctrl input,.row .ctrl select{height:38px;border:.5px solid var(--border);border-radius:10px;background:#fff;padding:0 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;min-width:140px}
+.row .ctrl input:focus,.row .ctrl select:focus{border-color:var(--brown)}
+.row .ctrl input[type=number]{text-align:right}
+
+.email-row{display:flex;gap:8px;align-items:center}
+.email-row input{min-width:240px}
+
+.actions{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(242,237,228,0) 0%,var(--cream) 30%);padding:30px 0 8px;margin-top:14px;display:flex;justify-content:flex-end;gap:10px}
+
+.tag-mono{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--text-3);text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="admin">
+  <aside class="sidebar">
+    <div class="sb-brand"><span class="mark"></span>Pola<em>muse</em><span class="tag">admin</span></div>
+    <nav class="sb-nav">
+      <a class="sb-item" href="Polamuse Admin Dashboard.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a class="sb-item" href="Polamuse Admin Orders.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h18l-2 14H5L3 5z"/><path d="M8 9h8"/></svg>Orders</a>
+      <a class="sb-item" href="Polamuse Admin Print Queue.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print Queue<span class="count">23</span></a>
+      <a class="sb-item" href="Polamuse Admin Users.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Users</a>
+      <a class="sb-item" href="Polamuse Admin Analytics.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18M7 14l4-4 4 4 5-7"/></svg>Analytics</a>
+      <a class="sb-item" href="Polamuse Admin Coupons.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM15 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM9 12h6"/></svg>Coupons</a>
+      <a class="sb-item active" href="Polamuse Admin Settings.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user"><div class="sb-avatar">A</div><div class="who"><div class="name">Aanya Mehta</div><div class="role">admin</div></div></div>
+      <a class="sb-logout" href="Polamuse Auth.html">Log out <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>Settings</h1>
+        <p class="sub">Site, orders, pricing and notification configuration.</p>
+      </div>
+      <div class="head-actions">
+        <span class="tag-mono">Last saved · 22 May, 16:04</span>
+      </div>
+    </div>
+
+    <div class="settings">
+
+      <!-- Banners -->
+      <div class="warning-banner" id="ordersWarn">
+        <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="txt"><div class="ttl">Orders are paused</div><div class="ds">Customers see a "back soon" message at checkout. Toggle below to resume taking orders.</div></div>
+      </div>
+
+      <div class="warning-banner" id="maintWarn">
+        <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="txt"><div class="ttl">Maintenance mode is ON</div><div class="ds">All visitors see the maintenance page instead of the site.</div></div>
+      </div>
+
+      <!-- ORDERS -->
+      <section class="sec-card">
+        <div class="sec-h">
+          <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5h18l-2 14H5L3 5z"/><path d="M8 9h8"/></svg></div>
+          <div class="ttl"><em>Orders</em> & pricing</div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">Accept new orders</div>
+            <div class="desc">When off, customers see a polite "back soon" message at checkout. Existing orders are not affected.</div>
+          </div>
+          <div class="ctrl"><div class="toggle on" data-warn="ordersWarn" data-warn-when="off"></div></div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">Free shipping above</div>
+            <div class="desc">Orders at or above this amount ship free. Set to 0 to always charge shipping.</div>
+          </div>
+          <div class="ctrl"><input type="number" value="499" min="0"></div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">Estimated delivery</div>
+            <div class="desc">Shown on the product page and order confirmation email.</div>
+          </div>
+          <div class="ctrl"><input type="text" value="3–5 days"></div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">Default order currency</div>
+            <div class="desc">Used for new product prices and payment processing.</div>
+          </div>
+          <div class="ctrl">
+            <select>
+              <option>INR · ₹ Indian Rupee</option>
+              <option>USD · $ US Dollar</option>
+              <option>GBP · £ British Pound</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- SITE -->
+      <section class="sec-card">
+        <div class="sec-h">
+          <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+          <div class="ttl"><em>Site</em></div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">Maintenance mode</div>
+            <div class="desc">Shows the maintenance page to everyone except logged-in admins.</div>
+          </div>
+          <div class="ctrl"><div class="toggle danger" data-warn="maintWarn" data-warn-when="on"></div></div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">Free PNG download enabled</div>
+            <div class="desc">Allow users to download their designs as PNG without ordering a print.</div>
+          </div>
+          <div class="ctrl"><div class="toggle on"></div></div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">Max designs per user</div>
+            <div class="desc">Per account, saved across sessions. Set 0 for unlimited.</div>
+          </div>
+          <div class="ctrl"><input type="number" value="100" min="0"></div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">Guest checkout</div>
+            <div class="desc">Let visitors order without creating an account.</div>
+          </div>
+          <div class="ctrl"><div class="toggle on"></div></div>
+        </div>
+      </section>
+
+      <!-- NOTIFICATIONS -->
+      <section class="sec-card">
+        <div class="sec-h">
+          <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div class="ttl"><em>Notifications</em></div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">From email</div>
+            <div class="desc">Order receipts, shipping updates and password resets are sent from this address.</div>
+          </div>
+          <div class="ctrl email-row">
+            <input type="email" value="hello@polamuse.in">
+            <button class="btn outline sm" id="testEmail">Send test →</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">WhatsApp tracking updates</div>
+            <div class="desc">Notify customers on WhatsApp when status changes to Shipped or Delivered.</div>
+          </div>
+          <div class="ctrl"><div class="toggle on"></div></div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">Daily admin digest</div>
+            <div class="desc">A summary of yesterday's orders, sent to your inbox at 9 AM IST.</div>
+          </div>
+          <div class="ctrl"><div class="toggle on"></div></div>
+        </div>
+
+        <div class="row">
+          <div class="left">
+            <div class="lbl">Low print stock alerts</div>
+            <div class="desc">Email when print queue exceeds a threshold so you can batch-generate sheets.</div>
+          </div>
+          <div class="ctrl"><div class="toggle"></div></div>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button class="btn outline">Discard changes</button>
+        <button class="btn primary" id="saveAll">Save all settings →</button>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+// Toggles with optional warning banner
+document.querySelectorAll('.toggle').forEach(t => {
+  t.addEventListener('click', () => {
+    t.classList.toggle('on');
+    const warnId = t.dataset.warn;
+    if(!warnId) return;
+    const wantOn = t.dataset.warnWhen === 'on';
+    const showWarn = wantOn ? t.classList.contains('on') : !t.classList.contains('on');
+    document.getElementById(warnId).classList.toggle('show', showWarn);
+  });
+});
+
+// Test email toast
+document.getElementById('testEmail').addEventListener('click', () => {
+  const btn = document.getElementById('testEmail');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span style="color:var(--good)">✓ Test sent</span>';
+  btn.disabled = true;
+  setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1800);
+});
+
+// Save flash
+document.getElementById('saveAll').addEventListener('click', () => {
+  const b = document.getElementById('saveAll');
+  const orig = b.innerHTML;
+  b.innerHTML = '✓ Saved';
+  setTimeout(() => b.innerHTML = orig, 1600);
+});
+</script>
+</body>
+</html>

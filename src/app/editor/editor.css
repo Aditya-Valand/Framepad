@@ -1,0 +1,142 @@
+/* ── Editor route styles ── */
+/* Imported by editor/layout.tsx — scoped to the /editor segment */
+
+body {
+  font-family: 'DM Sans', Inter, system-ui, -apple-system, sans-serif !important;
+  background: #EDE6DC !important;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Suppress landing-page grain overlay */
+body::before {
+  display: none !important;
+}
+
+/* Disable tap highlight */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Range sliders ── */
+input[type="range"] {
+  --fill: 50%;
+  height: 4px;
+  border-radius: 100px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 100px;
+  background: linear-gradient(
+    to right,
+    #8B6F5C 0%,
+    #8B6F5C var(--fill, 50%),
+    rgba(26, 23, 20, 0.1) var(--fill, 50%),
+    rgba(26, 23, 20, 0.1) 100%
+  );
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 0 0 2px #8B6F5C, 0 2px 6px rgba(139, 111, 92, 0.28);
+  margin-top: -6px;
+  border: none;
+  transition: box-shadow .15s ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2px #7A6050, 0 2px 8px rgba(139, 111, 92, 0.38);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(139, 111, 92, 0.25), 0 0 0 2px #8B6F5C;
+}
+
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 100px;
+  background: rgba(26, 23, 20, 0.1);
+  border: none;
+}
+
+input[type="range"]::-moz-range-progress {
+  height: 4px;
+  border-radius: 100px;
+  background: #8B6F5C;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 0 0 2px #8B6F5C, 0 2px 6px rgba(139, 111, 92, 0.28);
+  border: none;
+}
+
+/* ── Color inputs ── */
+input[type="color"] {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+/* ── Focus rings ── */
+button:focus-visible,
+input[type="range"]:focus-visible {
+  outline: 2px solid rgba(139, 111, 92, 0.45);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus:not(:focus-visible),
+input[type="range"]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Scrollbar hide ── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Right panel — thin scrollbar ── */
+aside ::-webkit-scrollbar {
+  width: 3px;
+}
+aside ::-webkit-scrollbar-track {
+  background: transparent;
+}
+aside ::-webkit-scrollbar-thumb {
+  background: rgba(139, 111, 92, 0.18);
+  border-radius: 10px;
+}
+aside ::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 111, 92, 0.35);
+}

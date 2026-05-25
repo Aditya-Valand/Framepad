@@ -1,3 +1,5 @@
+'use client';
+
 import { useRef, useEffect, useState, useCallback } from 'react';
 
 interface CropModalProps {
@@ -53,7 +55,7 @@ export function CropModal({ imageDataUrl, aspectW, aspectH, initialPanX = 0, ini
   useEffect(() => {
     const update = () => {
       const vw = window.innerWidth - 32;
-      const vh = window.innerHeight - 180; // leave room for header/buttons
+      const vh = window.innerHeight - 160; // leave room for header + hint + safe area
       const scaleX = vw / aspectW;
       const scaleY = vh / aspectH;
       const s = Math.min(scaleX, scaleY);
@@ -194,29 +196,47 @@ export function CropModal({ imageDataUrl, aspectW, aspectH, initialPanX = 0, ini
   const displayH = nat.h * baseScale * imgScale;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90">
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      background: 'rgba(0,0,0,0.92)',
+      paddingTop: 'env(safe-area-inset-top, 0px)',
+      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+    }}>
       {/* Header */}
-      <div className="w-full flex items-center justify-between px-4 py-3" style={{ color: '#fff' }}>
+      <div style={{
+        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '12px 20px', flexShrink: 0,
+      }}>
         <button
           onClick={onClose}
-          className="text-sm font-medium px-3 py-1.5 rounded-full"
-          style={{ background: 'rgba(255,255,255,0.15)' }}
+          style={{
+            background: 'rgba(255,255,255,0.15)', color: '#fff',
+            border: 'none', borderRadius: 100, padding: '8px 18px',
+            fontSize: 14, fontWeight: 500, cursor: 'pointer',
+            fontFamily: "'DM Sans', sans-serif",
+          }}
         >
           Cancel
         </button>
-        <span className="text-sm font-medium" style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '0.05em' }}>
+        <span style={{ color: '#fff', fontSize: 13, fontWeight: 600, letterSpacing: '0.08em', fontFamily: "'DM Sans', sans-serif" }}>
           CROP
         </span>
         <button
           onClick={handleConfirm}
-          className="text-sm font-semibold px-3 py-1.5 rounded-full"
-          style={{ background: '#8B6F5C', color: '#fff' }}
+          style={{
+            background: '#8B6F5C', color: '#fff',
+            border: 'none', borderRadius: 100, padding: '8px 18px',
+            fontSize: 14, fontWeight: 600, cursor: 'pointer',
+            fontFamily: "'DM Sans', sans-serif",
+          }}
         >
           Done
         </button>
       </div>
 
-      {/* Crop window */}
+      {/* Crop window — vertically centered in remaining space */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, width: '100%' }}>
       <div
         style={{
           width: cw,
@@ -279,9 +299,10 @@ export function CropModal({ imageDataUrl, aspectW, aspectH, initialPanX = 0, ini
       </div>
 
       {/* Hint */}
-      <p className="mt-3 text-xs" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter, sans-serif' }}>
+      <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, fontFamily: "'DM Sans', sans-serif", margin: 0 }}>
         Drag to reposition · Pinch to zoom
       </p>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useStore } from '../store';
+import { useStore } from '@/store';
 
 const MAX_SIZE_BYTES = 10 * 1024 * 1024;
 const COMPRESS_THRESHOLD = 3 * 1024 * 1024;
@@ -64,8 +64,53 @@ export function useImageUpload() {
         imagePanY: 0,
         imageScale: 1,
       });
+
+      // Upload to Cloudinary in background (non-blocking)
+      uploadToCloudinary(dataUrl).then((result) => {
+        if (result) {
+          updateFrame(activeFrameId, {
+            cloudinaryId: result.publicId,
+            imageUrl: result.secureUrl,
+          });
+        }
+      });
     }
   }, [processFile, activeFrameId, updateFrame]);
 
   return { uploadFile };
+}
+
+/**
+ * Upload a base64 data URL to Cloudinary via our signed upload endpoint.
+ * Runs async — never blocks the UI.
+ */
+export async function uploadToCloudinary(
+  dataUrl: string
+): Promise<{ publicId: string; secureUrl: string } | null> {
+  try {
+    const signRes = await fetch('/api/uploads/sign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folder: 'polamuse/uploads' }),
+    });
+    if (!signRes.ok) return null;
+
+    const { signature, timestamp, apiKey, uploadUrl } = await signRes.json();
+
+    const formData = new FormData();
+    formData.append('file', dataUrl);
+    formData.append('signature', signature);
+    formData.append('timestamp', timestamp);
+    formData.append('api_key', apiKey);
+    formData.append('folder', 'polamuse/uploads');
+
+    const uploadRes = await fetch(uploadUrl, { method: 'POST', body: formData });
+    if (!uploadRes.ok) return null;
+
+    const result = await uploadRes.json();
+    return { publicId: result.public_id, secureUrl: result.secure_url };
+  } catch {
+    // Silently fail — local mode continues to work
+    return null;
+  }
 }

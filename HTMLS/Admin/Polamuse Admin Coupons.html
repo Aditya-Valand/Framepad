@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polamuse Admin — Coupons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<style>
+.code-cell{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.08em;color:var(--brown);background:var(--brown-soft);padding:5px 10px;border-radius:6px;display:inline-block}
+
+/* USAGE BAR */
+.usage{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-2);letter-spacing:.02em}
+.usage-track{width:70px;height:5px;background:var(--cream-soft);border-radius:100px;overflow:hidden}
+.usage-fill{height:100%;background:var(--brown);border-radius:100px}
+
+/* CREATE PANEL */
+.type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:var(--cream-soft);padding:4px;border-radius:100px;border:.5px solid var(--border)}
+.type-pill{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;padding:9px 8px;border:none;background:transparent;border-radius:100px;cursor:pointer;color:var(--text-2);transition:all .15s;line-height:1;display:flex;align-items:center;justify-content:center;gap:5px}
+.type-pill:hover{color:var(--text)}
+.type-pill.active{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(26,23,20,.08)}
+
+.input-affix{position:relative}
+.input-affix .pre{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:13px;color:var(--text-3);pointer-events:none}
+.input-affix .post{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);letter-spacing:.04em}
+.input-affix input{padding-left:30px}
+.input-affix.post-only input{padding-right:60px;padding-left:14px}
+
+.two-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-top:.5px solid var(--border)}
+.toggle-row .lbl{font-size:13px;font-weight:500}
+.toggle-row .desc{font-size:11.5px;color:var(--text-2);font-weight:300;margin-top:2px;line-height:1.4}
+
+.upper-input input{text-transform:uppercase;letter-spacing:.06em;font-family:'DM Mono',monospace}
+.gen-link{font-family:'DM Mono',monospace;font-size:10px;color:var(--brown);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+.no-result{color:var(--text-3);font-style:italic;font-family:'DM Sans',sans-serif}
+
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.toolbar .input.search{flex:1;min-width:240px;max-width:380px}
+</style>
+</head>
+<body>
+
+<div class="admin">
+  <aside class="sidebar">
+    <div class="sb-brand"><span class="mark"></span>Pola<em>muse</em><span class="tag">admin</span></div>
+    <nav class="sb-nav">
+      <a class="sb-item" href="Polamuse Admin Dashboard.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a class="sb-item" href="Polamuse Admin Orders.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h18l-2 14H5L3 5z"/><path d="M8 9h8"/></svg>Orders</a>
+      <a class="sb-item" href="Polamuse Admin Print Queue.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print Queue<span class="count">23</span></a>
+      <a class="sb-item" href="Polamuse Admin Users.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Users</a>
+      <a class="sb-item" href="Polamuse Admin Analytics.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18M7 14l4-4 4 4 5-7"/></svg>Analytics</a>
+      <a class="sb-item active" href="Polamuse Admin Coupons.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM15 9a3 3 0 016 0v6a3 3 0 01-6 0V9zM9 12h6"/></svg>Coupons</a>
+      <a class="sb-item" href="Polamuse Admin Settings.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</a>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user"><div class="sb-avatar">A</div><div class="who"><div class="name">Aanya Mehta</div><div class="role">admin</div></div></div>
+      <a class="sb-logout" href="Polamuse Auth.html">Log out <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1>Coupons</h1>
+        <p class="sub">12 total · 8 active · 1,240 redemptions this period</p>
+      </div>
+      <div class="head-actions">
+        <button class="btn primary" id="newBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg>Create coupon</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input class="input search" type="search" placeholder="Search coupon code…">
+      <select class="select"><option>All types</option><option>% Discount</option><option>Fixed amount</option><option>Free shipping</option></select>
+    </div>
+
+    <div class="pill-row">
+      <button class="pill active">All<span class="count">12</span></button>
+      <button class="pill">Active<span class="count">8</span></button>
+      <button class="pill">Expired<span class="count">3</span></button>
+      <button class="pill">Disabled<span class="count">1</span></button>
+    </div>
+
+    <div class="card" style="padding:6px 6px 14px">
+      <table class="tbl">
+        <thead>
+          <tr><th>Code</th><th>Type</th><th>Value</th><th>Used / Limit</th><th>Valid until</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="code-cell">FIRST10</span></td><td>% Discount</td><td class="amount">10% off</td><td><span class="usage">214 / 1000<span class="usage-track"><span class="usage-fill" style="width:21%"></span></span></span></td><td class="num">Dec 31, 2026</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td></tr>
+
+          <tr><td><span class="code-cell">PRINT79</span></td><td>Fixed amount</td><td class="amount">₹79 off</td><td><span class="usage">88 / —<span class="usage-track"><span class="usage-fill" style="width:42%"></span></span></span></td><td class="num">Jul 30, 2026</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td></tr>
+
+          <tr><td><span class="code-cell">FREESHIP</span></td><td>Free shipping</td><td class="amount">—</td><td><span class="usage">462 / 2000<span class="usage-track"><span class="usage-fill" style="width:23%"></span></span></span></td><td class="num">Dec 31, 2026</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td></tr>
+
+          <tr><td><span class="code-cell">DIWALI25</span></td><td>% Discount</td><td class="amount">25% off</td><td><span class="usage">312 / 500<span class="usage-track"><span class="usage-fill" style="width:62%"></span></span></span></td><td class="num">Jun 15, 2026</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td></tr>
+
+          <tr><td><span class="code-cell">BUNDLE100</span></td><td>Fixed amount</td><td class="amount">₹100 off</td><td><span class="usage">76 / 250<span class="usage-track"><span class="usage-fill" style="width:30%"></span></span></span></td><td class="num">Aug 01, 2026</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td></tr>
+
+          <tr><td><span class="code-cell">WEDDING50</span></td><td>% Discount</td><td class="amount">50% off</td><td><span class="usage">8 / 100<span class="usage-track"><span class="usage-fill" style="width:8%"></span></span></span></td><td class="num">Mar 31, 2027</td><td><span class="badge good">Active</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td></tr>
+
+          <tr><td><span class="code-cell">VALENTINE</span></td><td>% Discount</td><td class="amount">15% off</td><td><span class="usage">428 / 500<span class="usage-track"><span class="usage-fill" style="width:86%"></span></span></span></td><td class="num">Feb 28, 2026</td><td><span class="badge muted">Expired</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td></tr>
+
+          <tr><td><span class="code-cell">LAUNCH20</span></td><td>% Discount</td><td class="amount">20% off</td><td><span class="usage">1000 / 1000<span class="usage-track"><span class="usage-fill" style="width:100%"></span></span></span></td><td class="num">Apr 01, 2026</td><td><span class="badge muted">Expired</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td></tr>
+
+          <tr><td><span class="code-cell">TEST5</span></td><td>% Discount</td><td class="amount">5% off</td><td><span class="usage">0 / 100<span class="usage-track"><span class="usage-fill" style="width:0%"></span></span></span></td><td class="num">Dec 31, 2026</td><td><span class="badge bad">Disabled</span></td><td><button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- CREATE PANEL -->
+<div class="panel-backdrop" id="backdrop"></div>
+<aside class="panel" id="panel" role="dialog">
+  <div class="panel-head">
+    <div>
+      <div class="ttl">New coupon</div>
+      <div class="meta">Create a discount code</div>
+    </div>
+    <button class="panel-close" id="pClose">×</button>
+  </div>
+  <div class="panel-body">
+
+    <div class="field-group upper-input">
+      <label>Coupon code <span class="gen-link" id="genCode">↻ Generate</span></label>
+      <input type="text" id="couponCode" placeholder="SUMMER15" maxlength="20">
+      <div class="hint">Customers will type this at checkout. 4–20 chars, A–Z and numbers only.</div>
+    </div>
+
+    <div class="field-group">
+      <label>Type</label>
+      <div class="type-row" id="typeRow">
+        <button class="type-pill active" data-type="percent">% Discount</button>
+        <button class="type-pill" data-type="fixed">Fixed amount</button>
+        <button class="type-pill" data-type="ship">Free shipping</button>
+      </div>
+    </div>
+
+    <div class="field-group" id="valueField">
+      <label id="valueLabel">Discount %</label>
+      <div class="input-affix post-only">
+        <input type="number" id="valueInput" value="10" min="1">
+        <span class="post" id="valuePost">% off</span>
+      </div>
+      <div class="hint" id="valueHint">Percentage off the order subtotal. Capped at 90%.</div>
+    </div>
+
+    <div class="two-fields">
+      <div class="field-group">
+        <label>Min order amount</label>
+        <div class="input-affix">
+          <span class="pre">₹</span>
+          <input type="number" placeholder="0">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Per-user limit</label>
+        <input type="number" placeholder="1">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Total usage limit</label>
+      <input type="number" placeholder="Leave blank for unlimited">
+      <div class="hint">Coupon becomes inactive once this many redemptions happen.</div>
+    </div>
+
+    <div class="two-fields">
+      <div class="field-group">
+        <label>Valid from</label>
+        <input type="date" value="2026-05-23">
+      </div>
+      <div class="field-group">
+        <label>Valid until</label>
+        <input type="date" value="2026-12-31">
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="lbl">Activate immediately</div>
+        <div class="desc">Customers can use this coupon as soon as you save.</div>
+      </div>
+      <div class="toggle on" data-toggle></div>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="lbl">First-time customers only</div>
+        <div class="desc">Restrict to users with zero previous orders.</div>
+      </div>
+      <div class="toggle" data-toggle></div>
+    </div>
+
+  </div>
+  <div class="panel-foot">
+    <button class="btn outline" id="pCancel">Cancel</button>
+    <button class="btn primary">Save coupon →</button>
+  </div>
+</aside>
+
+<script>
+const panel = document.getElementById('panel');
+const backdrop = document.getElementById('backdrop');
+function openP(){ document.body.classList.add('panel-open'); }
+function closeP(){ document.body.classList.remove('panel-open'); }
+document.getElementById('newBtn').addEventListener('click', openP);
+document.getElementById('pClose').addEventListener('click', closeP);
+document.getElementById('pCancel').addEventListener('click', closeP);
+backdrop.addEventListener('click', closeP);
+document.addEventListener('keydown', e => e.key === 'Escape' && closeP());
+
+// uppercase code
+const codeInp = document.getElementById('couponCode');
+codeInp.addEventListener('input', () => { codeInp.value = codeInp.value.toUpperCase().replace(/[^A-Z0-9]/g,''); });
+document.getElementById('genCode').addEventListener('click', () => {
+  const adj = ['MUSE','FRAME','PRINT','POLA','HOLD','HEART','SHINE','GLOW'];
+  codeInp.value = adj[Math.floor(Math.random()*adj.length)] + Math.floor(Math.random()*90+10);
+});
+
+// type pills
+const typeRow = document.getElementById('typeRow');
+const valueField = document.getElementById('valueField');
+const valueLabel = document.getElementById('valueLabel');
+const valuePost = document.getElementById('valuePost');
+const valueInput = document.getElementById('valueInput');
+const valueHint = document.getElementById('valueHint');
+const valuePreWrap = valueField.querySelector('.input-affix');
+typeRow.querySelectorAll('.type-pill').forEach(b => b.addEventListener('click', () => {
+  typeRow.querySelectorAll('.type-pill').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  const t = b.dataset.type;
+  if(t === 'percent'){
+    valueField.style.display='';
+    valueLabel.textContent='Discount %';
+    valuePost.textContent='% off';
+    valuePreWrap.classList.remove('post-only');
+    valuePreWrap.classList.add('post-only');
+    valueInput.value=10; valueHint.textContent='Percentage off the order subtotal. Capped at 90%.';
+  } else if(t === 'fixed'){
+    valueField.style.display='';
+    valueLabel.textContent='Discount amount';
+    valuePost.textContent='off order';
+    valueInput.value=79; valueHint.textContent='Flat rupee amount off the order subtotal.';
+  } else {
+    valueField.style.display='none';
+  }
+}));
+
+// toggles
+document.querySelectorAll('[data-toggle]').forEach(t => t.addEventListener('click', () => t.classList.toggle('on')));
+
+// pills
+document.querySelectorAll('.pill-row .pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('.pill-row .pill').forEach(x => x.classList.remove('active'));
+  p.classList.add('active');
+}));
+</script>
+</body>
+</html>
