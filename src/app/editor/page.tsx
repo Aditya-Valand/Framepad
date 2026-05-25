@@ -368,6 +368,38 @@ function EditorPageInner() {
           {panelContent}
         </BottomSheet>
 
+        {/* Print nudge strip */}
+        <a
+          href="/designs"
+          style={{
+            flexShrink: 0,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "9px 20px",
+            background: "linear-gradient(90deg, #2A1F1A 0%, #3D2B22 100%)",
+            borderTop: "0.5px solid rgba(255,255,255,0.05)",
+            textDecoration: "none",
+          }}
+        >
+          <span style={{
+            fontFamily: '"Cormorant Garamond", serif',
+            fontSize: 14, fontStyle: "italic", fontWeight: 300,
+            color: "#F2EDE4", letterSpacing: ".02em",
+          }}>
+            Hold it in your hands
+          </span>
+          <span style={{
+            fontFamily: '"DM Sans", sans-serif',
+            fontSize: 10.5, fontWeight: 500, letterSpacing: ".08em",
+            textTransform: "uppercase", color: "rgba(196,168,130,0.85)",
+            display: "flex", alignItems: "center", gap: 4,
+          }}>
+            Order print
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        </a>
+
         {/* Bottom tab nav */}
         <nav
           aria-label="Editor tools"
@@ -740,6 +772,48 @@ function EditorPageInner() {
             overscrollBehavior: "contain",
           }}>
             {panelContent}
+          </div>
+
+          {/* Order Print CTA */}
+          <div style={{
+            flexShrink: 0,
+            padding: "14px 16px",
+            borderTop: "0.5px solid rgba(26,23,20,0.07)",
+            background: "rgba(251,248,244,0.8)",
+          }}>
+            <a
+              href="/designs"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "11px 14px",
+                background: "linear-gradient(135deg, #2A1F1A 0%, #3D2B22 100%)",
+                borderRadius: 12,
+                textDecoration: "none",
+                transition: "opacity .18s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+            >
+              <div>
+                <div style={{
+                  fontFamily: '"Cormorant Garamond", serif',
+                  fontSize: 15, fontStyle: "italic", fontWeight: 300,
+                  color: "#F2EDE4", lineHeight: 1.2, marginBottom: 2,
+                }}>
+                  Hold it in your hands
+                </div>
+                <div style={{
+                  fontFamily: '"DM Mono", monospace',
+                  fontSize: 9.5, letterSpacing: ".1em", textTransform: "uppercase",
+                  color: "rgba(242,237,228,0.45)",
+                }}>
+                  Order a print · from ₹149
+                </div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(242,237,228,0.5)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
           </div>
         </aside>
       </div>
