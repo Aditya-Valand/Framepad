@@ -1,5 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  themeColor: "#F5F0EB",
+};
 
 export const metadata: Metadata = {
   title: "Polamuse — Made by you. Felt by them.",
@@ -34,7 +38,6 @@ export const metadata: Metadata = {
     images: ["https://polamuse.netlify.app/og-image.jpg"],
   },
   other: {
-    "theme-color": "#F5F0EB",
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "default",
     "apple-mobile-web-app-title": "Polamuse",
