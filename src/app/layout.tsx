@@ -1,9 +1,5 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import "./globals.css";
-
-export const viewport: Viewport = {
-  themeColor: "#F5F0EB",
-};
 
 export const metadata: Metadata = {
   title: "Polamuse — Made by you. Felt by them.",
