@@ -24,6 +24,8 @@ export function PolaroidView() {
   const [dragActive, setDragActive] = useState(false);
   const [overTrash, setOverTrash] = useState(false);
   const trashZoneRef = useRef<HTMLDivElement>(null);
+  // RAF handle for gesture updateFrame batching — caps store writes to 60fps
+  const gestureRafRef = useRef(0);
 
   // Calculate scale to fit canvas in container
   useEffect(() => {
@@ -147,11 +149,11 @@ export function PolaroidView() {
       if (g.dragging && e.pointerId === g.dragId) {
         const dx = e.clientX - g.startX;
         const dy = e.clientY - g.startY;
-        const newPanX = g.origPanX + (dx / imgAreaW()) * 100;
-        const newPanY = g.origPanY + (dy / imgAreaH()) * 100;
-        updateFrame(activeFrameId, {
-          imagePanX: Math.max(-300, Math.min(300, newPanX)),
-          imagePanY: Math.max(-300, Math.min(300, newPanY)),
+        const newPanX = Math.max(-300, Math.min(300, g.origPanX + (dx / imgAreaW()) * 100));
+        const newPanY = Math.max(-300, Math.min(300, g.origPanY + (dy / imgAreaH()) * 100));
+        cancelAnimationFrame(gestureRafRef.current);
+        gestureRafRef.current = requestAnimationFrame(() => {
+          updateFrame(activeFrameId, { imagePanX: newPanX, imagePanY: newPanY });
         });
       }
 
@@ -185,19 +187,28 @@ export function PolaroidView() {
             const curPanOffY = (g.origPanYp / 100) * areaH;
             const newPanOffX = relMidX - (relMidX - curPanOffX) * scaleFactor;
             const newPanOffY = relMidY - (relMidY - curPanOffY) * scaleFactor;
-            updateFrame(activeFrameId, {
-              imageScale: newScale,
-              imagePanX: Math.max(-300, Math.min(300, (newPanOffX / areaW) * 100)),
-              imagePanY: Math.max(-300, Math.min(300, (newPanOffY / areaH) * 100)),
+            const clampedPanX = Math.max(-300, Math.min(300, (newPanOffX / areaW) * 100));
+            const clampedPanY = Math.max(-300, Math.min(300, (newPanOffY / areaH) * 100));
+            cancelAnimationFrame(gestureRafRef.current);
+            gestureRafRef.current = requestAnimationFrame(() => {
+              updateFrame(activeFrameId, {
+                imageScale: newScale,
+                imagePanX: clampedPanX,
+                imagePanY: clampedPanY,
+              });
             });
           } else {
-            updateFrame(activeFrameId, { imageScale: newScale });
+            cancelAnimationFrame(gestureRafRef.current);
+            gestureRafRef.current = requestAnimationFrame(() => {
+              updateFrame(activeFrameId, { imageScale: newScale });
+            });
           }
         }
       }
     };
 
     const onUp = (e: PointerEvent) => {
+      cancelAnimationFrame(gestureRafRef.current);
       g.pointers.delete(e.pointerId);
       if (e.pointerId === g.dragId) g.dragging = false;
       if (g.pointers.size < 2) g.pinching = false;
