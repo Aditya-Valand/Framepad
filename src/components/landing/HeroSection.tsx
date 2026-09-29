@@ -9,10 +9,8 @@ export default function HeroSection() {
         position: "relative",
         overflow: "hidden",
         display: "flex",
-        alignItems: "flex-start",
+        alignItems: "center",
         justifyContent: "center",
-        paddingTop: "max(120px, calc(80px + 5vh))",
-        paddingBottom: 60,
       }}
     >
       <div

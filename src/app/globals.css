@@ -50,20 +50,12 @@ body {
   -webkit-font-smoothing: antialiased;
   /* PWA: prevent overscroll bounce and pull-to-refresh */
   overscroll-behavior: none;
-  /* Safe area awareness */
-  padding-top:    env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
   /* Prevent tap flash on all interactive elements */
   -webkit-tap-highlight-color: transparent;
 }
 
-/* PWA standalone: hide any residual browser chrome */
+/* PWA standalone */
 @media (display-mode: standalone) {
-  body {
-    /* Remove safe-area-inset-top padding on landing page (editor handles it) */
-    padding-top: 0;
-  }
-  /* Prevent link underlines looking "web-like" in standalone */
   a { -webkit-touch-callout: none; }
 }
 
