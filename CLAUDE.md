@@ -15,24 +15,44 @@ No test suite is configured.
 
 ## Architecture
 
-**Framepad** (branded "Polamuse") is a client-side Polaroid/instant photo frame editor. All processing happens in the browser — there is no backend.
+**Framepad** (branded "Polamuse") is a Polaroid/instant photo frame editor with a full e-commerce backend for ordering printed photos.
 
-**Stack:** Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Zustand 5
+**Stack:** Next.js 16 canary (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Zustand 5 · Neon Postgres (`@neondatabase/serverless`) · Cloudinary (image hosting) · Razorpay (payments) · Resend (transactional email)
 
 ### Routes
 
 | Route | Purpose |
 |-------|---------|
 | `/` | Landing page (hero, templates, pricing sections) |
-| `/editor` | Main photo editor |
-| `/auth` | Auth page (scaffolded, no real auth) |
-| `/order` | Order/checkout page (scaffolded) |
+| `/editor` | Main photo editor — client-side canvas rendering |
+| `/designs` | Saved designs gallery (authenticated) |
+| `/order` | Cart → checkout → payment flow (authenticated) |
+| `/order/[id]` | Order detail/tracking |
+| `/account` | User profile & addresses |
+| `/auth` | Login/signup/forgot-password/reset-password |
+| `/admin` | Admin dashboard (orders, print queue, pricing, coupons, users, analytics, settings, announcements) |
 
-There is also a legacy `src/editor/App.tsx` — this is unused dead code, the active route is `src/app/editor/page.tsx`.
+There is a legacy `src/editor/App.tsx` — this is unused dead code, the active route is `src/app/editor/page.tsx`.
+
+### Backend (API Routes)
+
+All API routes live under `src/app/api/`. Patterns:
+
+- **Auth:** JWT access+refresh tokens in httpOnly cookies. `src/middleware.ts` verifies tokens and injects `x-user-id`, `x-user-role`, `x-user-email` headers. API route handlers read identity from these headers via helpers in `src/lib/api.ts` (`userId()`, `userRole()`, `userEmail()`).
+- **Database:** Neon serverless Postgres via `sql` tagged template from `src/lib/db.ts`. No ORM — raw SQL throughout.
+- **Validation:** Zod schemas in `src/lib/validations.ts`.
+- **Uploads:** Cloudinary signed uploads via `src/lib/cloudinary.ts` and `/api/uploads/sign`.
+- **Payments:** Razorpay integration via `src/lib/razorpay.ts`, webhook at `/api/payments/webhook`.
+- **Email:** Resend via `src/lib/resend.ts`, React Email templates in `src/components/emails/`.
+- **Print fulfillment:** `src/lib/printSheetGenerator.ts` bin-packs ordered designs onto A4 sheets at 300 DPI using the `canvas` (node-canvas) package.
+
+Admin routes (`/api/admin/*`) require `role === 'admin'` enforced in middleware.
 
 ### State Management
 
-A single Zustand store at `src/store/index.ts` manages all editor state. Key exported constants: `POLAROID_TEMPLATES` (13 template presets) and `FILTER_PRESETS` (6 filter presets: none, vintage, film, sepia, bw, faded). Key types: `FrameData`, `TemplateId`, `FilterValues`.
+Two Zustand stores:
+- `src/store/index.ts` — editor state. Key exports: `POLAROID_TEMPLATES` (template presets), `FILTER_PRESETS` (filter presets: none, vintage, film, sepia, bw, faded). Key types: `FrameData`, `TemplateId`, `FilterValues`.
+- `src/store/cart.ts` — shopping cart with `persist` middleware (localStorage).
 
 ### Editor Layout
 
@@ -45,16 +65,20 @@ Control panels: `src/components/panels/` — `FramePanel`, `EditPanel`, `TextPan
 
 ### Canvas Rendering
 
-`src/hooks/usePolaroidCanvas.ts` is the most complex file. It draws directly to a `<canvas>` element using the 2D Context API (not a third-party canvas library): composites the frame color, image (with pan/zoom/rotate and CSS filter effects), text overlays, and Spotify scan code. It also owns PNG export.
+`src/hooks/usePolaroidCanvas.ts` is the most complex file. It draws directly to a `<canvas>` element using the 2D Context API: composites frame color, image (with pan/zoom/rotate and CSS filter effects), text overlays, and Spotify scan code. It also owns PNG export.
 
 Supporting hooks:
 - `useImageUpload` — File → dataURL
-- `useImageColors` — extracts a palette from the uploaded photo (used to populate "From photo" colour swatches)
-- `useTransparentSpotifyCode` — fetches from `scannables.scdn.co`, then uses an OffscreenCanvas to remove the white background for the "transparent" background variant
+- `useImageColors` — extracts a palette from the uploaded photo (populates "From photo" colour swatches)
+- `useTransparentSpotifyCode` — fetches from `scannables.scdn.co`, strips white background via OffscreenCanvas
+- `useDesignSave` — persists designs to backend (Cloudinary + DB)
+- `useBatchExport` — multi-design export
+- `useAuth` — auth state, login/signup/logout
+- `useRazorpay` — payment flow
 
 ### Export Mechanism
 
-PNG export uses a hidden-element handshake. `PolaroidView.tsx` wires its `exportPNG` callback to `document.getElementById('export-btn-inner').onclick`. The UI export buttons (mobile header, desktop sidebar) find that element and call `.click()` on it. The `<span id="export-btn-inner">` lives inside the mobile `ExportButton` component. Never rename or remove this element.
+PNG export uses a hidden-element handshake. `PolaroidView.tsx` wires its `exportPNG` callback to `document.getElementById('export-btn-inner').onclick`. The UI export buttons find that element and call `.click()` on it. The `<span id="export-btn-inner">` lives inside the mobile `ExportButton` component. Never rename or remove this element.
 
 ### Hydration
 
@@ -62,14 +86,13 @@ PNG export uses a hidden-element handshake. `PolaroidView.tsx` wires its `export
 
 ### Editor CSS Scope
 
-`src/app/editor/editor.css` is imported via `src/app/editor/layout.tsx`, scoping it to the `/editor` route segment. It:
-- Overrides landing-page body styles (font, background, grain overlay)
-- Defines the custom range slider track (fill colour driven by a `--fill` CSS variable set inline)
-- Adds the `.scrollbar-hide` utility and a thin brand-coloured scrollbar for `<aside>` elements
+`src/app/editor/editor.css` is imported via `src/app/editor/layout.tsx`, scoping it to the `/editor` route segment. It overrides landing-page body styles, defines the custom range slider track (fill colour driven by `--fill` CSS variable), and adds `.scrollbar-hide`.
+
+The admin panel similarly has `src/app/admin/admin.css` imported via its own layout.
 
 ### Styling Approach
 
-The editor uses **Tailwind for layout/responsive classes** and **inline styles for all visual properties** (colour, shadow, border, transition). This split exists because the design uses sub-pixel borders (`0.5px`), rgba values, and backdrop-filter that are easier to express inline than through Tailwind's JIT.
+The editor uses **Tailwind for layout/responsive classes** and **inline styles for all visual properties** (colour, shadow, border, transition). This split exists because the design uses sub-pixel borders (`0.5px`), rgba values, and backdrop-filter that are easier to express inline.
 
 Core design tokens used across inline styles:
 
@@ -84,10 +107,20 @@ Core design tokens used across inline styles:
 | Muted text | `#A39080` |
 | System border | `0.5px solid rgba(26,23,20,0.08)` |
 
-Fonts loaded in `src/app/layout.tsx`: Cormorant Garamond, DM Sans, Dancing Script, Courier Prime, Montserrat, Bebas Neue, and several script fonts used as text overlay options in TextPanel.
+### UI Components
+
+Shared UI primitives live in `src/components/ui/` (Button, Card, Input, Select, Slider, Toggle, etc.) with a barrel export at `src/components/ui/index.ts`.
+
+Admin-specific shell/navigation components are in `src/components/admin/`.
+
+### Environment Variables
+
+Required (see `.env.local`): `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RESEND_API_KEY`.
 
 ### Path Aliases
 
 `@/*` resolves to `src/*` (configured in `tsconfig.json`).
 
-use the D:\downloads\framepad\docs\implementation.md for implementation also but keep in mind that design and ui is also perfect like if uh want to make something uh just need to add on and not ruin the current design uh are allow to modift but not ruin
+### Design Guidance
+
+When modifying UI: add to the existing design, do not ruin it. Modifications are allowed but the current aesthetic must be preserved. Refer to `D:\downloads\framepad\docs\implementation.md` for implementation details.
