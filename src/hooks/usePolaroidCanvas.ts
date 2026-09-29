@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
+import type React from 'react';
 import { useStore } from '@/store';
 import type { FrameData } from '@/store';
 import { getTransparentSpotifyCode } from './useTransparentSpotifyCode';
@@ -189,7 +190,7 @@ export function renderFrameToCanvasAsync(
   });
 }
 
-export function usePolaroidCanvas() {
+export function usePolaroidCanvas(addWatermarkRef?: React.RefObject<boolean>) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderIdRef = useRef(0);
 
@@ -378,6 +379,7 @@ export function usePolaroidCanvas() {
         ctx.restore();
 
         drawOverlaysSync(ctx, currentFrame, imgX, imgY, imgW, imgH, () => {
+          if (addWatermarkRef?.current) stampWatermark(ctx, currentFrame.frameWidth, currentFrame.frameHeight);
           triggerDownload(exportCanvas);
         });
       });
@@ -385,10 +387,11 @@ export function usePolaroidCanvas() {
       ctx.fillStyle = '#F3F4F6';
       ctx.fillRect(imgX, imgY, imgW, imgH);
       drawOverlaysSync(ctx, currentFrame, imgX, imgY, imgW, imgH, () => {
+        if (addWatermarkRef?.current) stampWatermark(ctx, currentFrame.frameWidth, currentFrame.frameHeight);
         triggerDownload(exportCanvas);
       });
     }
-  }, [frame]);
+  }, [frame, addWatermarkRef]);
 
   return { canvasRef, exportPNG };
 }
@@ -668,6 +671,21 @@ function drawTapeOnCanvas(ctx: CanvasRenderingContext2D, W: number, H: number) {
   ctx.quadraticCurveTo(x, y, x + rx, y);
   ctx.closePath();
   ctx.fill();
+  ctx.restore();
+}
+
+function stampWatermark(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  const size = Math.round(Math.min(W, H) * 0.052);
+  ctx.save();
+  ctx.font = `600 ${size}px "DM Sans", sans-serif`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  // Semi-transparent white text with subtle dark outline for visibility on all backgrounds
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.fillText('polamuse.com', W - size * 0.4, H - size * 0.4);
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeText('polamuse.com', W - size * 0.4, H - size * 0.4);
   ctx.restore();
 }
 

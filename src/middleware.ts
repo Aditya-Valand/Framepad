@@ -3,7 +3,8 @@ import { jwtVerify } from 'jose';
 
 const PROTECTED_PAGES = ['/order'];
 const PROTECTED_API   = ['/api/designs', '/api/orders', '/api/payments', '/api/account'];
-const AUTH_REQUIRED_API = ['/api/designs', '/api/orders', '/api/payments', '/api/account', '/api/uploads'];
+// /api/booth/render works for guests (no DB record) — not in this list
+const AUTH_REQUIRED_API = ['/api/designs', '/api/orders', '/api/payments', '/api/account', '/api/uploads', '/api/coins', '/api/occasions'];
 const ADMIN_PATHS     = ['/admin', '/api/admin'];
 
 function getAccessSecret(): Uint8Array {
@@ -15,11 +16,19 @@ function getAccessSecret(): Uint8Array {
 // Routes that bypass auth entirely (have their own verification)
 const PUBLIC_API = ['/api/payments/webhook', '/api/pricing'];
 
+// Design sub-routes that work without auth (unlock/download checked inline)
+const PUBLIC_DESIGN_SUFFIXES = ['/unlock', '/download'];
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Skip auth for public/webhook routes
   if (PUBLIC_API.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
+
+  // Allow unlock/download sub-routes through without auth (they do their own checks)
+  if (PUBLIC_DESIGN_SUFFIXES.some((s) => pathname.endsWith(s))) {
     return NextResponse.next();
   }
 
@@ -140,5 +149,9 @@ export const config = {
     '/api/account/:path*',
     '/api/admin/:path*',
     '/api/uploads/:path*',
+    '/api/booth/:path*',
+    '/api/coins/:path*',
+    '/api/occasions/:path*',
+    '/api/sessions/:path*',
   ],
 };

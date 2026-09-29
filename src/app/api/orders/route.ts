@@ -1,5 +1,6 @@
 import { sql } from '@/lib/db';
 import { ok, err, userId } from '@/lib/api';
+import { earnCoins, hasReceivedBonus, COIN_BONUSES } from '@/lib/coins';
 
 export async function GET(req: Request) {
   const uid = userId(req);
@@ -207,6 +208,12 @@ export async function POST(req: Request) {
     }
 
     await sql`COMMIT`;
+
+    // First-order bonus (fire-and-forget)
+    hasReceivedBonus(uid, 'first_order').then((already) => {
+      if (!already) earnCoins(uid, COIN_BONUSES.first_order, 'first_order', order.id).catch(() => {});
+    }).catch(() => {});
+
     return ok({ id: order.id, orderNumber: order.order_number, totalPaise }, 201);
   } catch (e) {
     await sql`ROLLBACK`;
