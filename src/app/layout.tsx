@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -37,18 +38,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* PWA service worker registration */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').catch(function() {});
-                });
-              }
-            `,
-          }}
-        />
         {/* Prevent flash of unstyled content in standalone mode */}
         <style>{`
           @media (display-mode: standalone) {
@@ -56,7 +45,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* PWA service worker — production only to avoid caching dev chunks */}
+        {process.env.NODE_ENV === "production" && (
+          <Script
+            id="sw-register"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}`,
+            }}
+          />
+        )}
+      </body>
     </html>
   );
 }
