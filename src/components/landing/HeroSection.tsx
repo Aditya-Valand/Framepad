@@ -11,6 +11,7 @@ export default function HeroSection() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        paddingTop: 80,
       }}
     >
       <div
