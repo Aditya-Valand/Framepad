@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useCamera } from '@/hooks/useCamera';
 import { useCoins } from '@/hooks/useCoins';
 import { useAuth } from '@/hooks/useAuth';
-import { COIN_COSTS } from '@/lib/coins';
+import { COIN_COSTS } from '@/lib/coin-constants';
 
 // ── Local booth session tracking (free tier) ──────────────────
 const DAILY_FREE_SESSIONS = 3;

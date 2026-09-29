@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRazorpay } from '@/hooks/useRazorpay';
 import { useAuth } from '@/hooks/useAuth';
-import { COIN_PACKS } from '@/lib/coins';
+import { COIN_PACKS } from '@/lib/coin-constants';
 
 interface Props {
   currentBalance: number | null;

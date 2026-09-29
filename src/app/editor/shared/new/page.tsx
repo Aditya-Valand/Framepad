@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCoins } from '@/hooks/useCoins';
 import { useAuth } from '@/hooks/useAuth';
-import { COIN_COSTS } from '@/lib/coins';
+import { COIN_COSTS } from '@/lib/coin-constants';
 
 export default function NewSharedSessionPage() {
   const router = useRouter();
