@@ -26,12 +26,12 @@ import fs from 'fs'
 // On platforms without native module support (Cloudflare Workers),
 // these routes will fail at runtime with a clear error.
 const CANVAS_MODULE = 'canvas';
-let _canvas: typeof import('canvas') | null = null;
+let _canvas: any = null;
 async function getCanvas() {
-  if (!_canvas) _canvas = await import(/* webpackIgnore: true */ CANVAS_MODULE) as typeof import('canvas');
+  if (!_canvas) _canvas = await import(/* webpackIgnore: true */ CANVAS_MODULE);
   return _canvas;
 }
-type CanvasRenderingContext2D = import('canvas').CanvasRenderingContext2D;
+type CanvasRenderingContext2D = any;
 
 // ============================================================
 // CONSTANTS
