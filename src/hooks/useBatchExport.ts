@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import JSZip from 'jszip';
 import { renderFrameToCanvasAsync } from './usePolaroidCanvas';
 import type { FrameData, BatchImage } from '@/store';
 
@@ -56,6 +55,7 @@ export function useBatchExport() {
 
     if (options.format === 'zip') {
       setProgress({ current: 0, total: 1, phase: 'zipping' });
+      const JSZip = (await import('jszip')).default;
       const zip = new JSZip();
       for (const r of results) {
         zip.file(r.fileName, r.blob);

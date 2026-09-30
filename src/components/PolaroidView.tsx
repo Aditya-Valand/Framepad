@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useCallback, useState, useEffect } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { usePolaroidCanvas } from '@/hooks/usePolaroidCanvas';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { useStore } from '@/store';
@@ -8,9 +8,15 @@ import { DraggableOverlay } from '@/components/DraggableOverlay';
 import { CropModal } from '@/components/CropModal';
 import { useTransparentSpotifyCode } from '@/hooks/useTransparentSpotifyCode';
 import { TrashZone } from '@/components/TrashZone';
+import { useLivePreview } from '@/contexts/LivePreviewContext';
+import type { FilterValues } from '@/store';
 
-export function PolaroidView() {
-  const { canvasRef, exportPNG } = usePolaroidCanvas();
+interface PolaroidViewProps {
+  addWatermarkRef?: React.RefObject<boolean>;
+}
+
+export function PolaroidView({ addWatermarkRef }: PolaroidViewProps = {}) {
+  const { canvasRef, exportPNG } = usePolaroidCanvas(addWatermarkRef);
   const { uploadFile } = useImageUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -24,6 +30,13 @@ export function PolaroidView() {
   const [dragActive, setDragActive] = useState(false);
   const [overTrash, setOverTrash] = useState(false);
   const trashZoneRef = useRef<HTMLDivElement>(null);
+  // RAF handle for gesture updateFrame batching — caps store writes to 60fps
+  const gestureRafRef = useRef(0);
+
+  // ── CSS Live-Preview overlay ──
+  const liveHandle = useLivePreview();
+  const overlayWrapRef = useRef<HTMLDivElement>(null);
+  const overlayImgRef = useRef<HTMLImageElement>(null);
 
   // Calculate scale to fit canvas in container
   useEffect(() => {
@@ -90,6 +103,47 @@ export function PolaroidView() {
   const displayRef = useRef(displaySize);
   useEffect(() => { displayRef.current = displaySize; });
 
+  // Register live-preview handle — reads from refs so no deps needed
+  useEffect(() => {
+    liveHandle.current = {
+      show(filters: FilterValues) {
+        const wrap = overlayWrapRef.current;
+        const img = overlayImgRef.current;
+        const f = frameRef.current;
+        const d = displayRef.current;
+        if (!wrap || !img || !f?.imageDataUrl) return;
+
+        // CSS filter — exact same formula as buildCSSFilter in usePolaroidCanvas
+        const parts: string[] = [];
+        if (filters.brightness !== 0) parts.push(`brightness(${1 + filters.brightness / 100})`);
+        if (filters.contrast !== 0) parts.push(`contrast(${1 + filters.contrast / 100})`);
+        if (filters.saturation !== 0) parts.push(`saturate(${1 + filters.saturation / 100})`);
+        if (filters.warmth > 0) parts.push(`sepia(${filters.warmth / 200})`);
+        else if (filters.warmth < 0) parts.push(`hue-rotate(${filters.warmth / 3}deg)`);
+        img.style.filter = parts.join(' ') || 'none';
+
+        // Position wrapper over the frame's image area
+        const areaW = d.w * (f.frameWidth - f.borderLeft - f.borderRight) / f.frameWidth;
+        const areaH = d.h * (f.frameHeight - f.borderTop - f.borderBottom) / f.frameHeight;
+        wrap.style.left = `${d.w * f.borderLeft / f.frameWidth}px`;
+        wrap.style.top = `${d.h * f.borderTop / f.frameHeight}px`;
+        wrap.style.width = `${areaW}px`;
+        wrap.style.height = `${areaH}px`;
+
+        // CSS transform approximating canvas: cover + extra scale + rotate + pan
+        const panX = f.imagePanX;
+        const panY = f.imagePanY;
+        img.style.transform = `scale(${f.imageScale}) rotate(${f.imageRotation}deg) translate(${panX}%, ${panY}%)`;
+
+        wrap.style.opacity = '1';
+      },
+      hide() {
+        const wrap = overlayWrapRef.current;
+        if (wrap) wrap.style.opacity = '0';
+      },
+    };
+  }, []); // stable — always reads from refs
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -147,11 +201,11 @@ export function PolaroidView() {
       if (g.dragging && e.pointerId === g.dragId) {
         const dx = e.clientX - g.startX;
         const dy = e.clientY - g.startY;
-        const newPanX = g.origPanX + (dx / imgAreaW()) * 100;
-        const newPanY = g.origPanY + (dy / imgAreaH()) * 100;
-        updateFrame(activeFrameId, {
-          imagePanX: Math.max(-300, Math.min(300, newPanX)),
-          imagePanY: Math.max(-300, Math.min(300, newPanY)),
+        const newPanX = Math.max(-300, Math.min(300, g.origPanX + (dx / imgAreaW()) * 100));
+        const newPanY = Math.max(-300, Math.min(300, g.origPanY + (dy / imgAreaH()) * 100));
+        cancelAnimationFrame(gestureRafRef.current);
+        gestureRafRef.current = requestAnimationFrame(() => {
+          updateFrame(activeFrameId, { imagePanX: newPanX, imagePanY: newPanY });
         });
       }
 
@@ -185,19 +239,28 @@ export function PolaroidView() {
             const curPanOffY = (g.origPanYp / 100) * areaH;
             const newPanOffX = relMidX - (relMidX - curPanOffX) * scaleFactor;
             const newPanOffY = relMidY - (relMidY - curPanOffY) * scaleFactor;
-            updateFrame(activeFrameId, {
-              imageScale: newScale,
-              imagePanX: Math.max(-300, Math.min(300, (newPanOffX / areaW) * 100)),
-              imagePanY: Math.max(-300, Math.min(300, (newPanOffY / areaH) * 100)),
+            const clampedPanX = Math.max(-300, Math.min(300, (newPanOffX / areaW) * 100));
+            const clampedPanY = Math.max(-300, Math.min(300, (newPanOffY / areaH) * 100));
+            cancelAnimationFrame(gestureRafRef.current);
+            gestureRafRef.current = requestAnimationFrame(() => {
+              updateFrame(activeFrameId, {
+                imageScale: newScale,
+                imagePanX: clampedPanX,
+                imagePanY: clampedPanY,
+              });
             });
           } else {
-            updateFrame(activeFrameId, { imageScale: newScale });
+            cancelAnimationFrame(gestureRafRef.current);
+            gestureRafRef.current = requestAnimationFrame(() => {
+              updateFrame(activeFrameId, { imageScale: newScale });
+            });
           }
         }
       }
     };
 
     const onUp = (e: PointerEvent) => {
+      cancelAnimationFrame(gestureRafRef.current);
       g.pointers.delete(e.pointerId);
       if (e.pointerId === g.dragId) g.dragging = false;
       if (g.pointers.size < 2) g.pinching = false;
@@ -263,7 +326,7 @@ export function PolaroidView() {
       onDragOver={(e) => e.preventDefault()}
     >
       <div
-        className="relative"
+        className="relative polaroid-develop"
         style={{
           width: displaySize.w,
           height: displaySize.h,
@@ -273,9 +336,10 @@ export function PolaroidView() {
       >
         {/* Canvas — image + frame background */}
         <canvas
+          key={frame?.imageDataUrl ? 'has-image' : 'no-image'}
           ref={canvasRef}
           onClick={handleTap}
-          className="block touch-none"
+          className={`block touch-none${frame?.imageDataUrl ? ' photo-enter' : ''}`}
           style={{
             width: '100%',
             height: '100%',
@@ -284,6 +348,36 @@ export function PolaroidView() {
             willChange: 'transform',
           }}
         />
+
+        {/* CSS Live-Preview overlay — compositor-thread filter during slider drag */}
+        <div
+          ref={overlayWrapRef}
+          style={{
+            position: 'absolute',
+            overflow: 'hidden',
+            pointerEvents: 'none',
+            opacity: 0,
+            transition: 'opacity 0.06s ease',
+            willChange: 'opacity',
+            zIndex: 1,
+          }}
+        >
+          <img
+            ref={overlayImgRef}
+            src={frame?.imageDataUrl ?? undefined}
+            draggable={false}
+            alt=""
+            style={{
+              display: 'block',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+              pointerEvents: 'none',
+              willChange: 'filter, transform',
+            }}
+          />
+        </div>
 
         {/* Draggable Top Label */}
         {frame?.topLabelText && (

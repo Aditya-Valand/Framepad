@@ -1,7 +1,45 @@
 import { useRef, useEffect, useCallback } from 'react';
+import type React from 'react';
 import { useStore } from '@/store';
 import type { FrameData } from '@/store';
 import { getTransparentSpotifyCode } from './useTransparentSpotifyCode';
+
+// Module-level decoded-image cache shared across all renders and batch exports.
+// Keyed by src string (base64 dataURL or Cloudinary URL).
+const _imgCache = new Map<string, HTMLImageElement>();
+
+function getCachedImage(
+  src: string,
+  onReady: (img: HTMLImageElement) => void,
+  onError?: () => void
+): void {
+  const cached = _imgCache.get(src);
+  if (cached) {
+    if (cached.complete && cached.naturalWidth > 0) {
+      onReady(cached);
+    } else {
+      cached.addEventListener('load', () => onReady(cached), { once: true });
+      if (onError) cached.addEventListener('error', onError, { once: true });
+    }
+    return;
+  }
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => { _imgCache.set(src, img); onReady(img); };
+  img.onerror = () => { _imgCache.delete(src); onError?.(); };
+  img.src = src;
+}
+
+// Only reset canvas dimensions when they actually change.
+// Resetting canvas.width clears the 2D context state even when size is unchanged.
+function resetCanvasIfNeeded(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, W: number, H: number) {
+  if (canvas.width !== W || canvas.height !== H) {
+    canvas.width = W;
+    canvas.height = H;
+  } else {
+    ctx.clearRect(0, 0, W, H);
+  }
+}
 
 /**
  * Renders a FrameData to a canvas. Standalone function usable for previews.
@@ -17,8 +55,7 @@ export function renderFrameToCanvas(
 
   const W = frameData.frameWidth;
   const H = frameData.frameHeight;
-  canvas.width = W;
-  canvas.height = H;
+  resetCanvasIfNeeded(canvas, ctx, W, H);
 
   ctx.fillStyle = frameData.frameColor;
   if (frameData.borderRadius > 0) {
@@ -42,9 +79,7 @@ export function renderFrameToCanvas(
     drawRichTemplateMeta(ctx, frameData);
     drawOverlaysSync(ctx, frameData, imgX, imgY, imgW, imgH, () => {});
   } else {
-    const renderImg = new Image();
-    renderImg.crossOrigin = 'anonymous';
-    renderImg.onload = () => {
+    getCachedImage(imageSrc, (renderImg) => {
       ctx.save();
       ctx.beginPath();
       ctx.rect(imgX, imgY, imgW, imgH);
@@ -75,8 +110,7 @@ export function renderFrameToCanvas(
       if (frameData.templateId === 'tape-border') drawTapeOnCanvas(ctx, W, H);
       drawRichTemplateMeta(ctx, frameData);
       drawOverlaysSync(ctx, frameData, imgX, imgY, imgW, imgH, () => {});
-    };
-    renderImg.src = imageSrc;
+    });
   }
 }
 
@@ -96,8 +130,7 @@ export function renderFrameToCanvasAsync(
 
     const W = frameData.frameWidth;
     const H = frameData.frameHeight;
-    canvas.width = W;
-    canvas.height = H;
+    resetCanvasIfNeeded(canvas, ctx, W, H);
 
     ctx.fillStyle = frameData.frameColor;
     if (frameData.borderRadius > 0) {
@@ -121,9 +154,7 @@ export function renderFrameToCanvasAsync(
       drawRichTemplateMeta(ctx, frameData);
       drawOverlaysSync(ctx, frameData, imgX, imgY, imgW, imgH, resolve);
     } else {
-      const renderImg = new Image();
-      renderImg.crossOrigin = 'anonymous';
-      renderImg.onload = () => {
+      getCachedImage(imageSrc, (renderImg) => {
         ctx.save();
         ctx.beginPath();
         ctx.rect(imgX, imgY, imgW, imgH);
@@ -154,14 +185,12 @@ export function renderFrameToCanvasAsync(
         if (frameData.templateId === 'tape-border') drawTapeOnCanvas(ctx, W, H);
         drawRichTemplateMeta(ctx, frameData);
         drawOverlaysSync(ctx, frameData, imgX, imgY, imgW, imgH, resolve);
-      };
-      renderImg.onerror = () => resolve();
-      renderImg.src = imageSrc;
+      }, resolve);
     }
   });
 }
 
-export function usePolaroidCanvas() {
+export function usePolaroidCanvas(addWatermarkRef?: React.RefObject<boolean>) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderIdRef = useRef(0);
 
@@ -176,8 +205,7 @@ export function usePolaroidCanvas() {
     const W = frameData.frameWidth;
     const H = frameData.frameHeight;
 
-    canvas.width = W;
-    canvas.height = H;
+    resetCanvasIfNeeded(canvas, ctx, W, H);
 
     // Clear with frame color (no transparency)
     ctx.fillStyle = frameData.frameColor;
@@ -212,11 +240,8 @@ export function usePolaroidCanvas() {
       if (frameData.templateId === 'tape-border') drawTapeOnCanvas(ctx, W, H);
       drawRichTemplateMeta(ctx, frameData);
     } else {
-      // Load and draw image only (text/music are HTML overlays in preview)
-      const renderImg = new Image();
-      renderImg.crossOrigin = 'anonymous';
       const currentRenderIdAtStart = renderIdRef.current;
-      renderImg.onload = () => {
+      getCachedImage(frameData.imageDataUrl, (renderImg) => {
         if (renderIdRef.current !== currentRenderIdAtStart) return;
 
         ctx.save();
@@ -249,17 +274,50 @@ export function usePolaroidCanvas() {
 
         if (frameData.templateId === 'tape-border') drawTapeOnCanvas(ctx, W, H);
         drawRichTemplateMeta(ctx, frameData);
-      };
-      renderImg.src = frameData.imageDataUrl;
+      });
     }
   }, []);
+
+  // Canvas fingerprint — only includes fields the canvas actually draws.
+  // Text overlays (topLabel, bottomCaption for non-rich templates, musicUrl) are
+  // rendered as HTML elements and must NOT trigger a canvas redraw.
+  const canvasFingerprint = frame
+    ? [
+        frame.imageDataUrl ?? '',
+        frame.filters.brightness,
+        frame.filters.contrast,
+        frame.filters.saturation,
+        frame.filters.warmth,
+        frame.imagePanX,
+        frame.imagePanY,
+        frame.imageScale,
+        frame.imageRotation,
+        frame.frameColor,
+        frame.borderRadius,
+        frame.frameWidth,
+        frame.frameHeight,
+        frame.borderTop,
+        frame.borderLeft,
+        frame.borderRight,
+        frame.borderBottom,
+        frame.templateId,
+        frame.movieTitle,
+        frame.movieYear,
+        frame.movieDirector,
+        frame.movieCast,
+        frame.captionSubtext,
+        frame.bottomCaptionText,
+        frame.bottomCaptionFont,
+      ].join('\x00')
+    : '';
 
   useEffect(() => {
     if (frame && canvasRef.current) {
       renderIdRef.current++;
       render(frame, canvasRef.current);
     }
-  }, [frame, render]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canvasFingerprint, render]);
 
   const exportPNG = useCallback(() => {
     if (!frame) return;
@@ -292,9 +350,7 @@ export function usePolaroidCanvas() {
     const imgH = currentFrame.frameHeight - currentFrame.borderTop  - currentFrame.borderBottom;
 
     if (currentFrame.imageDataUrl) {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
+      getCachedImage(currentFrame.imageDataUrl, (img) => {
         ctx.save();
         ctx.beginPath();
         ctx.rect(imgX, imgY, imgW, imgH);
@@ -323,18 +379,19 @@ export function usePolaroidCanvas() {
         ctx.restore();
 
         drawOverlaysSync(ctx, currentFrame, imgX, imgY, imgW, imgH, () => {
+          if (addWatermarkRef?.current) stampWatermark(ctx, currentFrame.frameWidth, currentFrame.frameHeight);
           triggerDownload(exportCanvas);
         });
-      };
-      img.src = currentFrame.imageDataUrl;
+      });
     } else {
       ctx.fillStyle = '#F3F4F6';
       ctx.fillRect(imgX, imgY, imgW, imgH);
       drawOverlaysSync(ctx, currentFrame, imgX, imgY, imgW, imgH, () => {
+        if (addWatermarkRef?.current) stampWatermark(ctx, currentFrame.frameWidth, currentFrame.frameHeight);
         triggerDownload(exportCanvas);
       });
     }
-  }, [frame]);
+  }, [frame, addWatermarkRef]);
 
   return { canvasRef, exportPNG };
 }
@@ -403,7 +460,7 @@ function drawOverlaysSync(
     if (spotifyMatch) {
       const fgColor = frameData.musicCodeFg === '#FFFFFF' ? 'white' : 'black';
       const isTransparent = frameData.musicCodeBg === 'transparent';
-      
+
       const drawCodeImage = (codeImg: HTMLImageElement) => {
         ctx.save();
         const px = (frameData.musicPos.x / 100) * W;
@@ -420,9 +477,8 @@ function drawOverlaysSync(
         ctx.restore();
         onDone();
       };
-      
+
       if (isTransparent) {
-        // Use transparent code with background removed
         getTransparentSpotifyCode(frameData.musicUrl, '#FFFFFF', fgColor as 'white' | 'black')
           .then((img) => {
             if (img) {
@@ -433,14 +489,9 @@ function drawOverlaysSync(
           })
           .catch(() => onDone());
       } else {
-        // Use regular code with solid background
         const effectiveBg = frameData.musicCodeBg;
         const codeUrl = `https://scannables.scdn.co/uri/plain/png/${effectiveBg.replace('#', '')}/${fgColor}/640/spotify:${spotifyMatch[1]}:${spotifyMatch[2]}`;
-        const codeImg = new Image();
-        codeImg.crossOrigin = 'anonymous';
-        codeImg.onload = () => drawCodeImage(codeImg);
-        codeImg.onerror = () => onDone();
-        codeImg.src = codeUrl;
+        getCachedImage(codeUrl, drawCodeImage, onDone);
       }
     } else {
       onDone();
@@ -620,6 +671,21 @@ function drawTapeOnCanvas(ctx: CanvasRenderingContext2D, W: number, H: number) {
   ctx.quadraticCurveTo(x, y, x + rx, y);
   ctx.closePath();
   ctx.fill();
+  ctx.restore();
+}
+
+function stampWatermark(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  const size = Math.round(Math.min(W, H) * 0.052);
+  ctx.save();
+  ctx.font = `600 ${size}px "DM Sans", sans-serif`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  // Semi-transparent white text with subtle dark outline for visibility on all backgrounds
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.fillText('polamuse.com', W - size * 0.4, H - size * 0.4);
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeText('polamuse.com', W - size * 0.4, H - size * 0.4);
   ctx.restore();
 }
 

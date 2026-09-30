@@ -1,7 +1,10 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { useStore, FILTER_PRESETS } from '@/store';
+import type { FilterValues } from '@/store';
 import { Slider, SectionLabel, Button } from '@/components/ui';
+import { useLivePreview } from '@/contexts/LivePreviewContext';
 
 /* Visual accent gradients per preset */
 const PRESET_STYLE: Record<string, { from: string; to: string; label: string }> = {
@@ -28,12 +31,21 @@ export function EditPanel() {
   const activeFrameId = useStore((s) => s.activeFrameId);
   const frame         = useStore((s) => s.frames.find((f) => f.id === s.activeFrameId));
   const updateFrame   = useStore((s) => s.updateFrame);
+  const liveHandle    = useLivePreview();
+
+  // Local filter state — drives slider UI during drag without touching Zustand
+  const [liveFilters, setLiveFilters] = useState<FilterValues>(
+    frame?.filters ?? { brightness: 0, contrast: 0, saturation: 0, warmth: 0 }
+  );
+  const liveFiltersRef = useRef(liveFilters);
+  liveFiltersRef.current = liveFilters;
+
+  // Sync local state when filters change from outside (preset click, frame switch)
+  useEffect(() => {
+    if (frame?.filters) setLiveFilters(frame.filters);
+  }, [frame?.filters]);
 
   if (!frame) return null;
-
-  const setFilter = (key: keyof typeof frame.filters, value: number) => {
-    updateFrame(activeFrameId, { filters: { ...frame.filters, [key]: value } });
-  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -97,10 +109,23 @@ export function EditPanel() {
             <Slider
               key={key}
               label={label}
-              value={frame.filters[key]}
+              value={liveFilters[key]}
               min={-100}
               max={100}
-              onChange={(e) => setFilter(key, Number(e.target.value))}
+              onChange={(e) => {
+                // Update local state + show CSS overlay — no Zustand write during drag
+                const val = Number(e.target.value);
+                setLiveFilters(prev => {
+                  const next = { ...prev, [key]: val };
+                  liveHandle.current?.show(next);
+                  return next;
+                });
+              }}
+              onPointerUp={() => {
+                // Commit final value to Zustand on release — single canvas re-render
+                liveHandle.current?.hide();
+                updateFrame(activeFrameId, { filters: liveFiltersRef.current });
+              }}
               valueFormatter={(v) => `${v > 0 ? '+' : ''}${v}`}
             />
           ))}

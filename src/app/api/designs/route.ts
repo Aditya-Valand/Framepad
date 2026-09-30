@@ -1,5 +1,6 @@
 import { sql } from '@/lib/db';
 import { userId, ok, err } from '@/lib/api';
+import { earnCoins, hasReceivedBonus, COIN_BONUSES } from '@/lib/coins';
 
 /**
  * GET /api/designs — List user's designs (paginated)
@@ -96,6 +97,11 @@ export async function POST(req: Request) {
     await sql`
       UPDATE user_profiles SET total_designs = total_designs + 1
       WHERE user_id = ${uid}`;
+
+    // First-design bonus (fire-and-forget, non-blocking)
+    hasReceivedBonus(uid, 'first_design').then((already) => {
+      if (!already) earnCoins(uid, COIN_BONUSES.first_design, 'first_design', design.id).catch(() => {});
+    }).catch(() => {});
 
     return ok({ id: design.id, created_at: design.created_at }, 201);
   } catch (e: unknown) {

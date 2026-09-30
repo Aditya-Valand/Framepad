@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import type { ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useStore } from "@/store";
@@ -12,9 +12,17 @@ import { FramePanel } from "@/components/panels/FramePanel";
 import { EditPanel } from "@/components/panels/EditPanel";
 import { TextPanel } from "@/components/panels/TextPanel";
 import { MusicPanel } from "@/components/panels/MusicPanel";
-import { ExportSuccessModal } from "@/components/ExportSuccessModal";
+// ExportSuccessModal replaced by toast — import kept for future use
+// import { ExportSuccessModal } from "@/components/ExportSuccessModal";
 import { PrivacyPage } from "@/components/PrivacyPage";
 import { BatchModal } from "@/components/BatchModal";
+import { LivePreviewProvider } from "@/contexts/LivePreviewContext";
+import { WatermarkModal } from "@/components/WatermarkModal";
+import { useUnlockStatus } from "@/hooks/useUnlockStatus";
+import { useCoins } from "@/hooks/useCoins";
+import { CoinBadge } from "@/components/CoinBadge";
+import { CoinPurchaseSheet } from "@/components/CoinPurchaseSheet";
+import { useToast } from "@/contexts/ToastContext";
 
 const TABS = ["frame", "edit", "text", "music"] as const;
 type Tab = (typeof TABS)[number];
@@ -70,14 +78,10 @@ function Logo() {
   );
 }
 
-function ExportButton({ onSuccess }: { onSuccess: () => void }) {
-  const handleClick = () => {
-    document.getElementById("export-btn-inner")?.click();
-    setTimeout(onSuccess, 600);
-  };
+function ExportButton({ onExport }: { onExport: () => void }) {
   return (
     <button
-      onClick={handleClick}
+      onClick={onExport}
       style={{
         fontFamily: '"DM Sans", sans-serif',
         fontSize: 13,
@@ -182,11 +186,36 @@ function EditorPageInner() {
   const setActiveTab = useStore((s) => s.setActiveTab);
   const isSaving = useStore((s) => s.isSaving);
   const lastSavedAt = useStore((s) => s.lastSavedAt);
+  const currentDesignId = useStore((s) => s.currentDesignId);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [exportSuccess, setExportSuccess] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showBatch, setShowBatch] = useState(false);
+  const [showWatermarkModal, setShowWatermarkModal] = useState(false);
+  const [showCoinSheet, setShowCoinSheet] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // Coins
+  const { balance: coinBalance, loading: coinsLoading, refresh: coinsRefresh } = useCoins();
+  const { toast } = useToast();
+
+  // Watermark: ref read at export-time (no re-render needed when it changes)
+  const addWatermarkRef = useRef(false);
+  const { isUnlocked, refetch: refetchUnlock } = useUnlockStatus(currentDesignId);
+
+  // Keep watermark ref in sync: add watermark when design is saved but not unlocked
+  useEffect(() => {
+    addWatermarkRef.current = !!currentDesignId && isUnlocked === false;
+  }, [currentDesignId, isUnlocked]);
+
+  // Central export handler — shows watermark modal if locked
+  const handleExport = useCallback(() => {
+    if (currentDesignId && isUnlocked === false) {
+      setShowWatermarkModal(true);
+    } else {
+      document.getElementById("export-btn-inner")?.click();
+      setTimeout(() => toast('Saved to your device ✦', 'success'), 600);
+    }
+  }, [currentDesignId, isUnlocked, toast]);
 
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
@@ -195,7 +224,15 @@ function EditorPageInner() {
   // Auto-save hooks
   useAutoSave(isLoggedIn);
   useGuestAutoSave(isLoggedIn);
-  const { saveDesign } = useSaveDesign();
+  const { saveDesign: _saveDesign } = useSaveDesign();
+  const saveDesign = useCallback(async () => {
+    try {
+      await _saveDesign();
+      toast('Saved to memories', 'success');
+    } catch {
+      toast('Save failed — please retry', 'error');
+    }
+  }, [_saveDesign, toast]);
 
   // On mount: reset state BEFORE showing canvas to prevent flash of old data
   useEffect(() => {
@@ -284,6 +321,7 @@ function EditorPageInner() {
   );
 
   return (
+    <LivePreviewProvider>
     <>
       {/* ══════════════════════════════
           MOBILE  (< lg)
@@ -311,6 +349,9 @@ function EditorPageInner() {
           <Logo />
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <SaveIndicator isSaving={isSaving} lastSavedAt={lastSavedAt} />
+            {isLoggedIn && (
+              <CoinBadge balance={coinBalance} loading={coinsLoading} onClick={() => setShowCoinSheet(true)} />
+            )}
             {isLoggedIn && (
               <button
                 onClick={() => saveDesign()}
@@ -352,7 +393,7 @@ function EditorPageInner() {
             >
               Batch
             </button>
-            <ExportButton onSuccess={() => setExportSuccess(true)} />
+            <ExportButton onExport={handleExport} />
           </div>
         </header>
 
@@ -360,7 +401,7 @@ function EditorPageInner() {
         <main style={{ flex: 1, overflow: "hidden", position: "relative" }} aria-label="Polaroid frame editor">
           <CanvasBackground />
           <div style={{ position: "relative", width: "100%", height: "100%" }}>
-            <PolaroidView />
+            <PolaroidView addWatermarkRef={addWatermarkRef} />
           </div>
         </main>
 
@@ -549,6 +590,13 @@ function EditorPageInner() {
 
           <div style={{ flex: 1 }} />
 
+          {/* Coin badge (logged in only) */}
+          {isLoggedIn && (
+            <div style={{ marginBottom: 8, display: "flex", justifyContent: "center" }}>
+              <CoinBadge balance={coinBalance} loading={coinsLoading} onClick={() => setShowCoinSheet(true)} />
+            </div>
+          )}
+
           {/* Save button (logged in only) */}
           {isLoggedIn && (
             <div className="group" style={{ position: "relative", marginBottom: 6 }}>
@@ -586,10 +634,7 @@ function EditorPageInner() {
           {/* Export button */}
           <div className="group" style={{ position: "relative" }}>
             <button
-              onClick={() => {
-                document.getElementById("export-btn-inner")?.click();
-                setTimeout(() => setExportSuccess(true), 600);
-              }}
+              onClick={handleExport}
               aria-label="Export image"
               style={{
                 display: "flex",
@@ -682,7 +727,7 @@ function EditorPageInner() {
         >
           <CanvasBackground />
           <div style={{ position: "relative", width: "100%", height: "100%" }}>
-            <PolaroidView />
+            <PolaroidView addWatermarkRef={addWatermarkRef} />
           </div>
           {/* Watermark */}
           <div style={{
@@ -818,8 +863,40 @@ function EditorPageInner() {
         </aside>
       </div>
 
-      <ExportSuccessModal open={exportSuccess} onClose={() => setExportSuccess(false)} />
       {showBatch && <BatchModal onClose={() => setShowBatch(false)} />}
+      {showWatermarkModal && currentDesignId && (
+        <WatermarkModal
+          designId={currentDesignId}
+          coinBalance={coinBalance}
+          onUnlocked={() => {
+            setShowWatermarkModal(false);
+            refetchUnlock();
+            coinsRefresh();
+            setTimeout(() => {
+              document.getElementById("export-btn-inner")?.click();
+              setTimeout(() => toast('Saved to your device ✦', 'success'), 600);
+            }, 300);
+          }}
+          onDownloadFree={() => {
+            setShowWatermarkModal(false);
+            document.getElementById("export-btn-inner")?.click();
+            setTimeout(() => toast('Saved to your device', 'info'), 600);
+          }}
+          onClose={() => setShowWatermarkModal(false)}
+        />
+      )}
+      {showCoinSheet && (
+        <CoinPurchaseSheet
+          currentBalance={coinBalance}
+          onClose={() => setShowCoinSheet(false)}
+          onPurchased={(newBalance) => {
+            coinsRefresh();
+            setShowCoinSheet(false);
+            void newBalance;
+          }}
+        />
+      )}
     </>
+    </LivePreviewProvider>
   );
 }

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Polamuse — Offline</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #EDE6DC;
+      color: #1A1714;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      padding: max(env(safe-area-inset-top), 24px) max(env(safe-area-inset-right), 24px) max(env(safe-area-inset-bottom), 24px) max(env(safe-area-inset-left), 24px);
+      text-align: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      background: #FFFCF8;
+      border: 0.5px solid rgba(26,23,20,0.08);
+      border-radius: 20px;
+      padding: 40px 32px;
+      max-width: 340px;
+      width: 100%;
+      box-shadow: 0 4px 32px rgba(26,23,20,0.07);
+    }
+    .polaroid {
+      width: 100px;
+      height: 120px;
+      background: #fff;
+      border: 0.5px solid rgba(26,23,20,0.08);
+      border-radius: 3px;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 16px rgba(26,23,20,0.10);
+      padding: 8px 8px 24px;
+    }
+    .polaroid-inner {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #DDD4C8, #C9BFB5);
+      border-radius: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wifi-off {
+      font-size: 28px;
+      opacity: 0.4;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: #1A1714;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 13px;
+      color: #A39080;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #8B6F5C;
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+      transition: background .15s;
+    }
+    .btn:active { background: #6B4F3A; transform: scale(0.97); }
+    .note {
+      margin-top: 16px;
+      font-size: 11px;
+      color: #C4B5A6;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="polaroid">
+      <div class="polaroid-inner">
+        <span class="wifi-off">📡</span>
+      </div>
+    </div>
+    <h1>You're offline</h1>
+    <p>Your design is safe. Polamuse works best with an internet connection — reconnect and everything will sync.</p>
+    <button class="btn" onclick="window.location.reload()">Try again</button>
+    <p class="note">Any unsaved work is stored locally and will sync when you're back online.</p>
+  </div>
+</body>
+</html>
