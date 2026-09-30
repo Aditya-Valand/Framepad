@@ -18,10 +18,20 @@
  *     design rendering needed.
  */
 
-import { createCanvas, loadImage, type CanvasRenderingContext2D } from 'canvas'
 import { sql } from '@/lib/db'
 import path from 'path'
 import fs from 'fs'
+
+// Dynamic import to avoid esbuild bundling the native .node addon.
+// On platforms without native module support (Cloudflare Workers),
+// these routes will fail at runtime with a clear error.
+const CANVAS_MODULE = 'canvas';
+let _canvas: typeof import('canvas') | null = null;
+async function getCanvas() {
+  if (!_canvas) _canvas = await import(/* webpackIgnore: true */ CANVAS_MODULE) as typeof import('canvas');
+  return _canvas;
+}
+type CanvasRenderingContext2D = import('canvas').CanvasRenderingContext2D;
 
 // ============================================================
 // CONSTANTS
@@ -244,6 +254,7 @@ function placeOnSheet(sheet: Sheet, item: PrintItem, pos: { xMm: number; yMm: nu
 // ============================================================
 
 export async function renderSheet(sheet: Sheet): Promise<Buffer> {
+  const { createCanvas, loadImage } = await getCanvas()
   const canvas = createCanvas(A4_W_PX, A4_H_PX)
   const ctx = canvas.getContext('2d')
 

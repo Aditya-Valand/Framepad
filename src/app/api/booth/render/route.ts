@@ -16,7 +16,8 @@ const STRIP_W  = FRAME_W + BORDER * 2;
 const STRIP_H  = (FRAME_H + GAP) * 4 - GAP + BORDER * 2 + LABEL_H;
 
 async function renderStrip(shotUrls: string[]): Promise<Buffer> {
-  const { createCanvas, loadImage } = await import('canvas');
+  const pkg = 'canvas';
+  const { createCanvas, loadImage } = await import(/* webpackIgnore: true */ pkg);
 
   const canvas = createCanvas(STRIP_W, STRIP_H);
   const ctx = canvas.getContext('2d');
