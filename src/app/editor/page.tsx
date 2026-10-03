@@ -232,6 +232,7 @@ function EditorPageInner() {
   const toggleTheme = () => setEditorTheme(t => t === 'light' ? 'dark' : 'light');
 
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showBatch, setShowBatch] = useState(false);
   const [showWatermarkModal, setShowWatermarkModal] = useState(false);
@@ -479,6 +480,23 @@ function EditorPageInner() {
               </button>
             )}
 
+            {/* Mobile menu */}
+            <button
+              onClick={() => { haptic.light(); setShowMobileMenu(true); }}
+              aria-label="More options"
+              style={{
+                width: 34, height: 34, borderRadius: 10,
+                border: "none", background: "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: theme.tabInactive, cursor: "pointer",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
+
             {/* Export — icon-only CTA */}
             <button
               onClick={handleExport}
@@ -557,17 +575,100 @@ function EditorPageInner() {
           {panelContent}
         </BottomSheet>
 
-        {/* ── Icon-only tab bar ── */}
+        {/* ── Mobile menu overlay ── */}
+        {showMobileMenu && (
+          <div
+            onClick={() => setShowMobileMenu(false)}
+            style={{
+              position: "fixed", inset: 0, zIndex: 60,
+              background: "rgba(10,8,6,0.48)",
+              backdropFilter: "blur(4px)",
+              WebkitBackdropFilter: "blur(4px)",
+              animation: "fadeIn .18s ease forwards",
+            }}
+          />
+        )}
+        <div style={{
+          position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 61,
+          transform: showMobileMenu ? "translateY(0)" : "translateY(100%)",
+          transition: "transform 0.32s cubic-bezier(0.32,0.72,0,1)",
+        }}>
+          <div style={{
+            background: editorTheme === 'dark' ? '#1C1915' : '#FDFAF7',
+            borderRadius: "20px 20px 0 0",
+            border: `0.5px solid ${editorTheme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(26,23,20,0.07)'}`,
+            borderBottom: "none",
+            boxShadow: "0 -8px 40px rgba(0,0,0,0.22)",
+            paddingBottom: "max(24px, env(safe-area-inset-bottom))",
+            overflow: "hidden",
+          }}>
+            {/* Handle + title */}
+            <div style={{ padding: "12px 20px 16px", borderBottom: `0.5px solid ${editorTheme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(26,23,20,0.06)'}` }}>
+              <div style={{ width: 36, height: 4, borderRadius: 2, background: editorTheme === 'dark' ? 'rgba(255,255,255,0.14)' : 'rgba(26,23,20,0.14)', margin: "0 auto 14px" }} />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 19, fontWeight: 300, fontStyle: "italic", color: theme.text, letterSpacing: "-.01em" }}>
+                  Menu
+                </span>
+                <button
+                  onClick={() => setShowMobileMenu(false)}
+                  style={{ width: 30, height: 30, borderRadius: 8, border: "none", background: editorTheme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(26,23,20,0.06)', color: theme.tabInactive, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", WebkitTapHighlightColor: "transparent" }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Menu items */}
+            <div style={{ padding: "10px 14px" }}>
+              {[
+                { icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>, label: "Export PNG", sub: "Download your polaroid", action: () => { setShowMobileMenu(false); handleExport(); } },
+                { icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>, label: "Save Design", sub: "Keep it in your gallery", action: () => { setShowMobileMenu(false); saveDesign(); } },
+                { icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>, label: "My Designs", sub: "View all saved designs", action: () => { setShowMobileMenu(false); window.location.href = "/designs"; } },
+                { icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>, label: "Order Prints", sub: "Ship to your door", action: () => { setShowMobileMenu(false); window.location.href = "/order"; } },
+                { icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: "Account", sub: "Profile & settings", action: () => { setShowMobileMenu(false); window.location.href = "/account"; } },
+              ].map((item) => (
+                <button
+                  key={item.label}
+                  onClick={item.action}
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", gap: 14,
+                    padding: "13px 12px", borderRadius: 12, border: "none",
+                    background: "transparent", cursor: "pointer",
+                    textAlign: "left" as const,
+                    WebkitTapHighlightColor: "transparent",
+                    transition: "background .14s",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = editorTheme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(26,23,20,0.04)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                >
+                  <div style={{
+                    width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                    background: editorTheme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(139,99,71,0.07)',
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: editorTheme === 'dark' ? 'rgba(242,237,228,0.7)' : '#8B6347',
+                  }}>
+                    {item.icon}
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: theme.text, marginBottom: 2 }}>{item.label}</div>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: theme.tabInactive, letterSpacing: ".03em" }}>{item.sub}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Bottom tab bar ── */}
         <nav
           aria-label="Editor tools"
           style={{
             flexShrink: 0,
-            position: "relative",
             display: "flex",
-            padding: "6px 4px",
-            paddingBottom: "max(6px, env(safe-area-inset-bottom))",
+            paddingBottom: "max(8px, env(safe-area-inset-bottom))",
+            paddingTop: 4,
             background: editorTheme === 'dark' ? '#141210' : '#FFFFFF',
-            borderTop: `1px solid ${editorTheme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'}`,
+            borderTop: `0.5px solid ${editorTheme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(26,23,20,0.07)'}`,
             zIndex: 20,
             transition: "background 0.3s ease",
           }}
@@ -579,39 +680,66 @@ function EditorPageInner() {
                 key={tab}
                 onClick={() => { haptic.light(); handleMobileTabClick(tab); }}
                 aria-label={TAB_META[tab].label}
+                className={isActive ? "tab-btn-active no-active-scale" : "no-active-scale"}
                 style={{
                   flex: 1,
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  height: 44,
+                  gap: 3,
+                  height: 50,
                   border: "none",
                   background: "transparent",
                   cursor: "pointer",
                   position: "relative",
-                  zIndex: 1,
                   WebkitTapHighlightColor: "transparent",
+                  paddingTop: 6,
                 }}
               >
-                <div style={{
-                  position: "absolute",
-                  inset: "2px 4px",
-                  borderRadius: 10,
-                  background: isActive
-                    ? (editorTheme === 'dark' ? 'rgba(201,168,130,0.18)' : 'rgba(139,111,92,0.12)')
-                    : "transparent",
-                  transition: "background 0.2s ease",
-                }} />
-                <span style={{
-                  display: "flex",
-                  color: isActive ? theme.tabActive : theme.tabInactive,
-                  transform: isActive ? "scale(1.1)" : "scale(1)",
-                  transition: "transform 0.2s cubic-bezier(0.34,1.56,0.64,1), color 0.18s ease",
-                  position: "relative",
-                  zIndex: 1,
-                  opacity: isActive ? 1 : 0.55,
-                }}>
+                {/* Active indicator dot */}
+                <div
+                  className="tab-dot"
+                  style={{
+                    position: "absolute",
+                    top: 0, left: "50%",
+                    transform: "translateX(-50%)",
+                    width: 20, height: 2.5,
+                    borderRadius: 2,
+                    background: editorTheme === 'dark' ? '#C9A882' : '#8B6347',
+                    opacity: isActive ? 1 : 0,
+                    transition: isActive ? "none" : "opacity 0.18s ease",
+                  }}
+                />
+
+                {/* Icon */}
+                <span
+                  className="tab-icon"
+                  style={{
+                    display: "flex",
+                    color: isActive ? theme.tabActive : theme.tabInactive,
+                    opacity: isActive ? 1 : 0.45,
+                    transition: "color 0.18s ease, opacity 0.18s ease",
+                  }}
+                >
                   {TAB_META[tab].icon}
+                </span>
+
+                {/* Label */}
+                <span
+                  className="tab-label"
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 9.5,
+                    fontWeight: isActive ? 600 : 400,
+                    letterSpacing: ".03em",
+                    color: isActive ? theme.tabActive : theme.tabInactive,
+                    opacity: isActive ? 1 : 0.45,
+                    transition: "color 0.18s ease, opacity 0.18s ease, font-weight 0s",
+                    lineHeight: 1,
+                  }}
+                >
+                  {TAB_META[tab].label}
                 </span>
               </button>
             );
@@ -894,7 +1022,7 @@ function EditorPageInner() {
               gap: 2,
               background: "rgba(26,23,20,0.04)",
               border: "0.5px solid rgba(26,23,20,0.06)",
-              borderRadius: 100,
+              borderRadius: 10,
               padding: 3,
             }}>
               {TABS.map((tab) => {
@@ -906,7 +1034,7 @@ function EditorPageInner() {
                     style={{
                       flex: 1,
                       padding: "7px 0",
-                      borderRadius: 100,
+                      borderRadius: 8,
                       border: "none",
                       background: active ? "#fff" : "transparent",
                       color: active ? "#1A1714" : "#A39080",

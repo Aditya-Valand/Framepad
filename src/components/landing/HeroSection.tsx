@@ -201,17 +201,17 @@ export default function HeroSection() {
               animation: "float3 5.5s ease-in-out infinite 1.2s",
             }}>
               <div style={{ height: 182, margin: "11px 11px 0", background: "linear-gradient(160deg, #c8b8a0, #8b7060)", borderRadius: 1 }} />
-              <div style={{ height: 38, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                <div style={{ width: 20, height: 20, background: "#1a1714", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-                  </svg>
-                </div>
-                <div style={{ display: "flex", gap: 1.5, alignItems: "center" }}>
-                  {Array.from({ length: 18 }, (_, i) => (
-                    <div key={i} style={{ width: 2.5, background: "#1a1714", borderRadius: 1, height: 6 + Math.sin(i * 0.8) * 5 }} />
+              <div style={{ height: 38, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "0 10px" }}>
+                {/* Spotify logo */}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#1a1714" style={{ flexShrink: 0 }}>
+                  <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
+                </svg>
+                {/* Scancode bars — SVG for pixel-perfect thin lines */}
+                <svg viewBox="0 0 91 16" width="91" height="16" fill="#1a1714" style={{ display: "block", flexShrink: 0 }}>
+                  {[16,4,16,8,3,14,6,2,16,5,10,2,14,7,4,16,2,9,5,16,3,12,2,16,6,10,3,14,7,2,16,4,16].map((h, i) => (
+                    <rect key={i} x={i * 2.8} y={(16 - h) / 2} width="1.4" height={h} rx="0.3" />
                   ))}
-                </div>
+                </svg>
               </div>
             </div>
 
