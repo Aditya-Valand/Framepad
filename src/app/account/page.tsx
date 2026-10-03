@@ -265,7 +265,6 @@ export default function AccountPage() {
           boxShadow: '0 8px 40px rgba(26,23,20,0.22), 0 2px 8px rgba(26,23,20,0.14)',
           marginBottom: 20,
           position: 'relative',
-          overflow: 'hidden',
         }}>
           {/* Subtle glow */}
           <div aria-hidden style={{
