@@ -23,30 +23,35 @@ import { useCoins } from "@/hooks/useCoins";
 import { CoinBadge } from "@/components/CoinBadge";
 import { CoinPurchaseSheet } from "@/components/CoinPurchaseSheet";
 import { useToast } from "@/contexts/ToastContext";
+import { useShutterEffect } from "@/hooks/useShutterEffect";
+import { haptic } from "@/lib/haptic";
 
 const TABS = ["frame", "edit", "text", "music"] as const;
 type Tab = (typeof TABS)[number];
 
 /* ── Icons ── */
 const FrameIcon = () => (
-  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: "block" }}>
-    <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="1.8" />
-    <rect x="6" y="6" width="12" height="9" rx="1" strokeWidth="1.5" />
+  <svg width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: "block" }}>
+    <rect x="3" y="3" width="18" height="18" rx="2.5" strokeWidth="2.2" />
+    <rect x="6.5" y="6.5" width="11" height="8" rx="1" strokeWidth="2" />
   </svg>
 );
 const EditIcon = () => (
-  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: "block" }}>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+  <svg width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: "block" }}>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
   </svg>
 );
 const TextIcon = () => (
-  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: "block" }}>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M4 6h16M4 12h8m-8 6h16" />
+  <svg width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: "block" }}>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 6h16M4 12h10M4 18h14" />
   </svg>
 );
 const MusicIcon = () => (
-  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: "block" }}>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
+  <svg width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: "block" }}>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M9 18V5l12-2v13" />
+    <circle cx="6" cy="18" r="3" strokeWidth="2.2" />
+    <circle cx="18" cy="16" r="3" strokeWidth="2.2" />
   </svg>
 );
 const DownloadIcon = () => (
@@ -132,13 +137,46 @@ function SidebarTooltip({ children }: { children: string }) {
   );
 }
 
-function CanvasBackground() {
+const THEMES = {
+  light: {
+    bg: '#EAE4DB',
+    bgGradient: 'linear-gradient(160deg, #EDE8E0 0%, #E0D8CC 100%)',
+    bgDot: 'rgba(139,111,92,0.08)',
+    // Pure white chrome creates clear visual separation from warm canvas (Lightroom/iOS pattern)
+    chrome: 'rgba(255,255,255,0.97)',
+    chromeBlur: 'saturate(180%) blur(20px)',
+    chromeBorder: 'rgba(0,0,0,0.08)',
+    text: '#1C1917',
+    textMuted: '#6B7280',
+    tabActive: '#8B6F5C',
+    tabInactive: '#AEAEB2',   // iOS system grey — canonical inactive icon color
+    tabPill: 'rgba(139,111,92,0.1)',
+    logoAccent: '#8B6F5C',
+  },
+  dark: {
+    bg: '#16120F',
+    bgGradient: 'linear-gradient(148deg, #1C1713 0%, #181410 45%, #131008 100%)',
+    bgDot: 'rgba(255,255,255,0.05)',
+    chrome: 'rgba(18,15,12,0.95)',
+    chromeBlur: 'saturate(160%) blur(20px)',
+    chromeBorder: 'rgba(255,255,255,0.06)',
+    text: '#F0E8DF',
+    textMuted: '#8E8E93',
+    tabActive: '#C9A882',
+    tabInactive: '#636366',   // iOS dark system grey
+    tabPill: 'rgba(201,168,130,0.15)',
+    logoAccent: '#C9A882',
+  },
+} as const;
+type EditorTheme = keyof typeof THEMES;
+
+function CanvasBackground({ dot }: { dot?: string }) {
   return (
     <>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(148deg, #EDE6DC 0%, #E5DDD3 45%, #DDD4C8 100%)" }} />
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
-        backgroundImage: "radial-gradient(circle, rgba(139,111,92,0.15) 1px, transparent 1px)",
+        backgroundImage: `radial-gradient(circle, ${dot ?? "rgba(139,111,92,0.15)"} 1px, transparent 1px)`,
         backgroundSize: "24px 24px",
       }} />
       <div style={{
@@ -187,6 +225,12 @@ function EditorPageInner() {
   const isSaving = useStore((s) => s.isSaving);
   const lastSavedAt = useStore((s) => s.lastSavedAt);
   const currentDesignId = useStore((s) => s.currentDesignId);
+  const undo = useStore((s) => s.undo);
+  const redo = useStore((s) => s.redo);
+  const [editorTheme, setEditorTheme] = useState<EditorTheme>('light');
+  const theme = THEMES[editorTheme];
+  const toggleTheme = () => setEditorTheme(t => t === 'light' ? 'dark' : 'light');
+
   const [sheetOpen, setSheetOpen] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showBatch, setShowBatch] = useState(false);
@@ -197,6 +241,7 @@ function EditorPageInner() {
   // Coins
   const { balance: coinBalance, loading: coinsLoading, refresh: coinsRefresh } = useCoins();
   const { toast } = useToast();
+  const { trigger: triggerShutter } = useShutterEffect();
 
   // Watermark: ref read at export-time (no re-render needed when it changes)
   const addWatermarkRef = useRef(false);
@@ -212,10 +257,12 @@ function EditorPageInner() {
     if (currentDesignId && isUnlocked === false) {
       setShowWatermarkModal(true);
     } else {
+      haptic.success();
+      triggerShutter();
       document.getElementById("export-btn-inner")?.click();
       setTimeout(() => toast('Saved to your device ✦', 'success'), 600);
     }
-  }, [currentDesignId, isUnlocked, toast]);
+  }, [currentDesignId, isUnlocked, toast, triggerShutter]);
 
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
@@ -291,6 +338,20 @@ function EditorPageInner() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, authLoading]);
 
+  // Undo / redo keyboard shortcuts
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.matches('input, textarea, [contenteditable]')) return;
+      const mod = e.metaKey || e.ctrlKey;
+      if (!mod) return;
+      if (e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+      if ((e.key === 'z' && e.shiftKey) || e.key === 'y') { e.preventDefault(); redo(); }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [undo, redo]);
+
   if (!mounted) {
     return (
       <div style={{ height: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", background: "#EDE6DC" }}>
@@ -326,172 +387,231 @@ function EditorPageInner() {
       {/* ══════════════════════════════
           MOBILE  (< lg)
       ══════════════════════════════ */}
-      <div className="lg:hidden flex flex-col" style={{ height: "100dvh", overflow: "hidden", background: "#EAE2D8" }}>
+      <div className="lg:hidden flex flex-col" style={{ height: "100dvh", overflow: "hidden", background: theme.bg, transition: "background 0.3s ease" }}>
 
-        {/* Glass header */}
+        {/* ── Minimal glass header ── */}
         <header
           role="banner"
           style={{
             flexShrink: 0,
-            height: 56,
+            height: 54,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "0 18px",
-            background: "rgba(251,248,244,0.93)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-            borderBottom: "0.5px solid rgba(26,23,20,0.08)",
+            padding: "0 12px 0 16px",
+            background: editorTheme === 'dark' ? '#141210' : '#FFFFFF',
+            borderBottom: `1px solid ${editorTheme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'}`,
             zIndex: 10,
-            boxShadow: "0 1px 0 rgba(255,255,255,0.45) inset",
+            transition: "background 0.3s ease",
           }}
         >
-          <Logo />
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <SaveIndicator isSaving={isSaving} lastSavedAt={lastSavedAt} />
+          {/* Logo */}
+          <div style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: 21,
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+            lineHeight: 1,
+            color: theme.text,
+            userSelect: "none",
+          }}>
+            Pola<em style={{ fontStyle: "italic", color: theme.logoAccent, fontWeight: 400 }}>muse</em>
+          </div>
+
+          {/* Right actions */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             {isLoggedIn && (
               <CoinBadge balance={coinBalance} loading={coinsLoading} onClick={() => setShowCoinSheet(true)} />
             )}
+
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              aria-label={editorTheme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              style={{
+                width: 34, height: 34, borderRadius: 10,
+                border: "none", background: "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: theme.tabInactive, cursor: "pointer",
+                transition: "color 0.2s ease",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              {editorTheme === 'light' ? (
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                </svg>
+              ) : (
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+              )}
+            </button>
+
+            {/* Save — icon only (logged in) */}
             {isLoggedIn && (
               <button
                 onClick={() => saveDesign()}
+                aria-label="Save design"
                 style={{
-                  fontFamily: '"DM Sans", sans-serif',
-                  fontSize: 12,
-                  fontWeight: 500,
-                  background: "transparent",
-                  color: "#8B6F5C",
-                  border: "0.5px solid rgba(139,111,92,0.3)",
-                  borderRadius: 100,
-                  padding: "7px 14px",
+                  width: 34, height: 34, borderRadius: 10,
+                  border: "none", background: "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: isSaving ? theme.tabActive : theme.tabInactive,
                   cursor: "pointer",
-                  transition: "all .2s ease",
-                  letterSpacing: ".01em",
+                  transition: "color 0.2s ease",
+                  WebkitTapHighlightColor: "transparent",
+                  position: "relative",
                 }}
-                className="hover:!bg-[rgba(139,111,92,0.07)] active:scale-[0.97]"
               >
-                Save
+                {isSaving && (
+                  <span className="animate-pulse" style={{
+                    position: "absolute", top: 7, right: 7,
+                    width: 5, height: 5, borderRadius: "50%",
+                    background: theme.tabActive,
+                  }} />
+                )}
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                  <polyline points="17 21 17 13 7 13 7 21"/>
+                  <polyline points="7 3 7 8 15 8"/>
+                </svg>
               </button>
             )}
+
+            {/* Export — icon-only CTA */}
             <button
-              onClick={() => setShowBatch(true)}
-              aria-label="Batch apply"
+              onClick={handleExport}
               style={{
-                fontFamily: '"DM Sans", sans-serif',
-                fontSize: 12,
-                fontWeight: 500,
-                background: "transparent",
-                color: "#8B6F5C",
-                border: "0.5px solid rgba(139,111,92,0.3)",
+                width: 36, height: 36,
                 borderRadius: 100,
-                padding: "7px 14px",
+                background: "linear-gradient(135deg, #9B7B68 0%, #7A5538 100%)",
+                color: "#fff",
+                border: "none",
+                boxShadow: "0 2px 10px rgba(122,85,56,0.38), inset 0 1px 0 rgba(255,255,255,0.15)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 cursor: "pointer",
-                transition: "all .2s ease",
-                letterSpacing: ".01em",
+                flexShrink: 0,
+                WebkitTapHighlightColor: "transparent",
               }}
-              className="hover:!bg-[rgba(139,111,92,0.07)] active:scale-[0.97]"
             >
-              Batch
+              <span id="export-btn-inner" className="hidden" />
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/>
+              </svg>
             </button>
-            <ExportButton onExport={handleExport} />
           </div>
         </header>
 
         {/* Canvas */}
         <main style={{ flex: 1, overflow: "hidden", position: "relative" }} aria-label="Polaroid frame editor">
-          <CanvasBackground />
+          {/* Themed canvas bg */}
+          <div style={{ position: "absolute", inset: 0, background: theme.bgGradient, transition: "background 0.3s ease" }} />
+          <div style={{
+            position: "absolute", inset: 0, pointerEvents: "none",
+            backgroundImage: `radial-gradient(circle, ${theme.bgDot} 1px, transparent 1px)`,
+            backgroundSize: "20px 20px",
+            transition: "background-image 0.3s ease",
+          }} />
+          <div style={{
+            position: "absolute", inset: 0, pointerEvents: "none",
+            background: "radial-gradient(ellipse at center, transparent 50%, rgba(26,23,20,0.07) 100%)",
+          }} />
           <div style={{ position: "relative", width: "100%", height: "100%" }}>
             <PolaroidView addWatermarkRef={addWatermarkRef} />
           </div>
+
+          {/* Floating ORDER PRINT — icon-only pill */}
+          <a
+            href="/designs"
+            aria-label="Order print"
+            style={{
+              position: "absolute",
+              bottom: 14, right: 14,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: 44, height: 44,
+              background: editorTheme === 'dark'
+                ? "rgba(10,8,6,0.88)"
+                : "rgba(20,16,12,0.84)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              borderRadius: "50%",
+              textDecoration: "none",
+              border: "0.5px solid rgba(255,255,255,0.10)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.08)",
+              zIndex: 5,
+              color: "#F2EDE4",
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 01-8 0"/>
+            </svg>
+          </a>
         </main>
 
         <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
           {panelContent}
         </BottomSheet>
 
-        {/* Print nudge strip */}
-        <a
-          href="/designs"
-          style={{
-            flexShrink: 0,
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "9px 20px",
-            background: "linear-gradient(90deg, #2A1F1A 0%, #3D2B22 100%)",
-            borderTop: "0.5px solid rgba(255,255,255,0.05)",
-            textDecoration: "none",
-          }}
-        >
-          <span style={{
-            fontFamily: '"Cormorant Garamond", serif',
-            fontSize: 14, fontStyle: "italic", fontWeight: 300,
-            color: "#F2EDE4", letterSpacing: ".02em",
-          }}>
-            Hold it in your hands
-          </span>
-          <span style={{
-            fontFamily: '"DM Sans", sans-serif',
-            fontSize: 10.5, fontWeight: 500, letterSpacing: ".08em",
-            textTransform: "uppercase", color: "rgba(196,168,130,0.85)",
-            display: "flex", alignItems: "center", gap: 4,
-          }}>
-            Order print
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </span>
-        </a>
-
-        {/* Bottom tab nav */}
+        {/* ── Icon-only tab bar ── */}
         <nav
           aria-label="Editor tools"
           style={{
             flexShrink: 0,
+            position: "relative",
             display: "flex",
-            padding: "4px 8px",
-            gap: 2,
-            background: "rgba(251,248,244,0.97)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            borderTop: "0.5px solid rgba(26,23,20,0.07)",
+            padding: "6px 4px",
+            paddingBottom: "max(6px, env(safe-area-inset-bottom))",
+            background: editorTheme === 'dark' ? '#141210' : '#FFFFFF',
+            borderTop: `1px solid ${editorTheme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'}`,
             zIndex: 20,
-            boxShadow: "0 -1px 0 rgba(255,255,255,0.55) inset",
-            paddingBottom: "max(4px, env(safe-area-inset-bottom))",
+            transition: "background 0.3s ease",
           }}
         >
           {TABS.map((tab) => {
-            const active = activeTab === tab && sheetOpen;
+            const isActive = activeTab === tab;
             return (
               <button
                 key={tab}
-                onClick={() => handleMobileTabClick(tab)}
+                onClick={() => { haptic.light(); handleMobileTabClick(tab); }}
+                aria-label={TAB_META[tab].label}
                 style={{
                   flex: 1,
                   display: "flex",
-                  flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 3,
-                  padding: "7px 4px",
-                  borderRadius: 11,
+                  height: 44,
                   border: "none",
-                  background: active ? "rgba(139,111,92,0.09)" : "transparent",
-                  color: active ? "#6B4F3A" : "#B8A89E",
+                  background: "transparent",
                   cursor: "pointer",
-                  transition: "all .18s ease",
-                  minHeight: 44,
+                  position: "relative",
+                  zIndex: 1,
+                  WebkitTapHighlightColor: "transparent",
                 }}
               >
-                <span style={{ display: "block", transform: active ? "scale(1.08)" : "scale(1)", transition: "transform .18s ease" }}>
-                  {TAB_META[tab].icon}
-                </span>
+                <div style={{
+                  position: "absolute",
+                  inset: "2px 4px",
+                  borderRadius: 10,
+                  background: isActive
+                    ? (editorTheme === 'dark' ? 'rgba(201,168,130,0.18)' : 'rgba(139,111,92,0.12)')
+                    : "transparent",
+                  transition: "background 0.2s ease",
+                }} />
                 <span style={{
-                  fontFamily: '"DM Sans", sans-serif',
-                  fontSize: 9,
-                  fontWeight: active ? 600 : 400,
-                  letterSpacing: ".06em",
-                  textTransform: "uppercase",
+                  display: "flex",
+                  color: isActive ? theme.tabActive : theme.tabInactive,
+                  transform: isActive ? "scale(1.1)" : "scale(1)",
+                  transition: "transform 0.2s cubic-bezier(0.34,1.56,0.64,1), color 0.18s ease",
+                  position: "relative",
+                  zIndex: 1,
+                  opacity: isActive ? 1 : 0.55,
                 }}>
-                  {TAB_META[tab].label}
+                  {TAB_META[tab].icon}
                 </span>
               </button>
             );

@@ -16,7 +16,6 @@ export default function HeroSection() {
       <div
         className="hero-grid grid grid-cols-1 lg:grid-cols-2"
         style={{
-          gap: 48,
           alignItems: "center",
           maxWidth: 1440,
           width: "100%",
@@ -24,81 +23,92 @@ export default function HeroSection() {
         }}
       >
         {/* Text + CTA */}
-        <div>
+        <div style={{ position: "relative", zIndex: 1 }}>
+
+          {/* Eyebrow — glass pill */}
           <div
+            className="hero-eyebrow"
             style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: 11,
-              letterSpacing: ".14em",
-              color: "var(--text-3)",
-              textTransform: "uppercase",
-              marginBottom: 20,
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
-              gap: 8,
+              gap: 7,
+              padding: "6px 14px",
+              borderRadius: 100,
+              background: "rgba(255,255,255,0.52)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              border: "0.5px solid rgba(139,99,71,0.18)",
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 10,
+              letterSpacing: ".16em",
+              color: "#8B6347",
+              textTransform: "uppercase" as const,
+              marginBottom: 16,
+              opacity: 0,
+              animation: "fadeUp 0.6s ease forwards 0s",
             }}
           >
-            ✦ design it yourself
+            <span style={{ fontSize: 8 }}>✦</span>
+            design it yourself
           </div>
+
           <h1
             className="hero-title"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontWeight: 300,
-              lineHeight: 1.08,
-              letterSpacing: "-.01em",
-              marginBottom: 24,
-              opacity: 0,
-              animation: "fadeUp .8s ease forwards .1s",
+              lineHeight: 1.06,
+              letterSpacing: "-.02em",
+              marginBottom: 16,
             }}
           >
             Some gifts
             <br />
             are bought.
             <br />
-            This one is{" "}
-            <em style={{ fontStyle: "italic", color: "var(--brown)" }}>made.</em>
+            <span style={{ fontWeight: 300 }}>
+              This one is{" "}
+              <em style={{ fontStyle: "italic", color: "var(--brown)", fontWeight: 300 }}>made.</em>
+            </span>
           </h1>
+
           <p
             className="hero-desc"
             style={{
               fontWeight: 300,
               color: "var(--text-2)",
-              lineHeight: 1.75,
-              maxWidth: 480,
-              marginBottom: 36,
-              opacity: 0,
-              animation: "fadeUp .8s ease forwards .3s",
+              lineHeight: 1.65,
+              maxWidth: 340,
+              marginBottom: 28,
             }}
           >
-            Design your own Polaroid. Add a caption only you would write, a song
-            only you two know. Then hold it in your hands — or send it to theirs.
+            Your photo, your caption, your song — printed and shipped.
           </p>
 
           {/* Buttons */}
-          <div
-            className="hero-buttons"
-            style={{ opacity: 0, animation: "fadeUp .8s ease forwards .45s" }}
-          >
+          <div className="hero-buttons" style={{}}>
             <Link
               href="/editor"
               className="hero-cta"
               style={{
                 fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 500,
-                background: "var(--brown)",
+                background: "linear-gradient(135deg, #9B7B68 0%, #8B6347 50%, #7A5538 100%)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.16), 0 4px 20px rgba(139,99,71,0.32)",
                 color: "#fff",
                 border: "none",
-                borderRadius: 100,
-                padding: "14px 32px",
+                borderRadius: 12,
+                padding: "14px 28px",
                 cursor: "pointer",
-                transition: "all .22s ease",
+                transition: "transform .2s ease, box-shadow .2s ease, opacity .2s ease",
                 textDecoration: "none",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
                 whiteSpace: "nowrap",
+                letterSpacing: ".005em",
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.16), 0 8px 28px rgba(139,99,71,0.38)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.16), 0 4px 20px rgba(139,99,71,0.32)"; }}
             >
               Make Your First Polaroid →
             </Link>
@@ -107,21 +117,26 @@ export default function HeroSection() {
               style={{
                 fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 400,
-                color: "var(--text-2)",
+                fontSize: 13.5,
+                color: "var(--text-3)",
                 background: "transparent",
                 border: "none",
                 cursor: "pointer",
-                textDecoration: "underline",
-                textUnderlineOffset: 3,
                 padding: 0,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                letterSpacing: ".005em",
+                transition: "color .18s ease",
               }}
-              onClick={() =>
-                document
-                  .getElementById("templates")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
+              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-2)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-3)"; }}
+              onClick={() => document.getElementById("templates")?.scrollIntoView({ behavior: "smooth" })}
             >
               See templates
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -132,68 +147,60 @@ export default function HeroSection() {
           style={{
             position: "relative",
             opacity: 0,
-            animation: "fadeIn .9s ease forwards .5s",
+            animation: "fadeIn .9s ease forwards .45s",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
           <div style={{ position: "relative", width: "100%", maxWidth: 620, height: "100%" }}>
+
             {/* P1 */}
-            <div
-              style={{
-                position: "absolute",
-                background: "#fff",
-                boxShadow: "0 12px 40px rgba(0,0,0,.12)",
-                borderRadius: 3,
-                width: 195,
-                top: 10,
-                left: "2%",
-                transform: "rotate(-4deg)",
-                animation: "float1 6s ease-in-out infinite",
-              }}
-            >
-              <div style={{ height: 168, margin: "11px 11px 0", background: "linear-gradient(135deg, #e8d5c0, #c4a882)" }} />
+            <div style={{
+              position: "absolute",
+              background: "#fff",
+              boxShadow: "0 4px 8px rgba(26,23,20,0.06), 0 16px 48px rgba(26,23,20,0.12)",
+              borderRadius: 3,
+              width: 195,
+              top: 10, left: "2%",
+              transform: "rotate(-4deg)",
+              animation: "float1 6s ease-in-out infinite",
+            }}>
+              <div style={{ height: 168, margin: "11px 11px 0", background: "linear-gradient(135deg, #e8d5c0, #c4a882)", borderRadius: 1 }} />
               <div style={{ height: 42, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontFamily: "'Dancing Script', cursive", fontSize: 15, color: "#5a4a3a" }}>always you</span>
               </div>
             </div>
 
             {/* P2 */}
-            <div
-              style={{
-                position: "absolute",
-                background: "#fff",
-                boxShadow: "0 12px 40px rgba(0,0,0,.12)",
-                borderRadius: 3,
-                width: 185,
-                top: 50,
-                left: "32%",
-                transform: "rotate(3deg)",
-                animation: "float2 7s ease-in-out infinite .8s",
-              }}
-            >
-              <div style={{ height: 160, margin: "10px 10px 0", background: "linear-gradient(135deg, #d4c5b0, #a89080)" }} />
+            <div style={{
+              position: "absolute",
+              background: "#fff",
+              boxShadow: "0 4px 8px rgba(26,23,20,0.06), 0 16px 48px rgba(26,23,20,0.12)",
+              borderRadius: 3,
+              width: 185,
+              top: 50, left: "32%",
+              transform: "rotate(3deg)",
+              animation: "float2 7s ease-in-out infinite .8s",
+            }}>
+              <div style={{ height: 160, margin: "10px 10px 0", background: "linear-gradient(135deg, #d4c5b0, #a89080)", borderRadius: 1 }} />
               <div style={{ height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: "#7a6e65", letterSpacing: ".08em" }}>26 · 04 · 2025</span>
               </div>
             </div>
 
             {/* P3 — Spotify */}
-            <div
-              style={{
-                position: "absolute",
-                background: "#fff",
-                boxShadow: "0 12px 40px rgba(0,0,0,.12)",
-                borderRadius: 3,
-                width: 210,
-                top: 250,
-                left: "5%",
-                transform: "rotate(-2deg)",
-                animation: "float3 5.5s ease-in-out infinite 1.2s",
-              }}
-            >
-              <div style={{ height: 182, margin: "11px 11px 0", background: "linear-gradient(160deg, #c8b8a0, #8b7060)" }} />
+            <div style={{
+              position: "absolute",
+              background: "#fff",
+              boxShadow: "0 4px 8px rgba(26,23,20,0.06), 0 16px 48px rgba(26,23,20,0.12)",
+              borderRadius: 3,
+              width: 210,
+              top: 250, left: "5%",
+              transform: "rotate(-2deg)",
+              animation: "float3 5.5s ease-in-out infinite 1.2s",
+            }}>
+              <div style={{ height: 182, margin: "11px 11px 0", background: "linear-gradient(160deg, #c8b8a0, #8b7060)", borderRadius: 1 }} />
               <div style={{ height: 38, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                 <div style={{ width: 20, height: 20, background: "#1a1714", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
@@ -209,63 +216,103 @@ export default function HeroSection() {
             </div>
 
             {/* P4 — Tape */}
-            <div
-              style={{
-                position: "absolute",
-                background: "#fff",
-                boxShadow: "0 12px 40px rgba(0,0,0,.12)",
-                borderRadius: 3,
-                width: 180,
-                top: 20,
-                left: "60%",
-                transform: "rotate(5deg)",
-                animation: "float4 8s ease-in-out infinite .4s",
-              }}
-            >
-              <div style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%) rotate(-2deg)", width: 55, height: 16, background: "rgba(255,210,100,.55)", borderRadius: 2, zIndex: 2 }} />
-              <div style={{ height: 152, margin: "10px 10px 0", background: "linear-gradient(135deg, #e0ceb8, #b89878)" }} />
+            <div style={{
+              position: "absolute",
+              background: "#fff",
+              boxShadow: "0 4px 8px rgba(26,23,20,0.06), 0 16px 48px rgba(26,23,20,0.12)",
+              borderRadius: 3,
+              width: 180,
+              top: 20, left: "60%",
+              transform: "rotate(5deg)",
+              animation: "float4 8s ease-in-out infinite .4s",
+            }}>
+              <div style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%) rotate(-2deg)", width: 55, height: 16, background: "rgba(255,210,100,.52)", borderRadius: 2, zIndex: 2 }} />
+              <div style={{ height: 152, margin: "10px 10px 0", background: "linear-gradient(135deg, #e0ceb8, #b89878)", borderRadius: 1 }} />
               <div style={{ height: 34, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontFamily: "'Dancing Script', cursive", fontSize: 13, color: "#7a6e65" }}>besties forever</span>
+              </div>
+            </div>
+
+            {/* Floating glass badge */}
+            <div style={{
+              position: "absolute",
+              bottom: 20, right: "4%",
+              background: "rgba(255,255,255,0.62)",
+              backdropFilter: "blur(14px)",
+              WebkitBackdropFilter: "blur(14px)",
+              border: "0.5px solid rgba(255,255,255,0.8)",
+              borderRadius: 14,
+              padding: "10px 14px",
+              boxShadow: "0 4px 24px rgba(26,23,20,0.10)",
+              display: "flex", alignItems: "center", gap: 9,
+              zIndex: 10,
+              animation: "float2 6s ease-in-out infinite 2s",
+            }}>
+              <div style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: "linear-gradient(135deg, #e8d5c0, #c4a882)",
+                flexShrink: 0,
+              }} />
+              <div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: "#1A1714", lineHeight: 1.2 }}>2,400+ frames</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "#A39080", lineHeight: 1.3 }}>made with love</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Paper texture */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "repeat",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
       <style jsx>{`
         /* ── Mobile ── */
         .hero-section {
-          padding: 80px 20px 48px;
+          padding: 84px 24px 40px;
         }
         .hero-grid {
-          gap: 40px;
+          gap: 32px;
         }
         .hero-title {
-          font-size: 42px;
+          font-size: 44px;
+          font-weight: 700;
+          opacity: 0;
+          animation: fadeUp 0.75s ease forwards 0.12s;
         }
         .hero-desc {
           font-size: 15px;
-        }
-        .hero-visual {
-          height: 280px;
-          overflow: visible;
+          opacity: 0;
+          animation: fadeUp 0.75s ease forwards 0.28s;
         }
         .hero-buttons {
+          opacity: 0;
+          animation: fadeUp 0.75s ease forwards 0.4s;
           display: flex;
           flex-direction: column;
           align-items: flex-start;
-          gap: 14px;
+          gap: 12px;
         }
         .hero-cta {
-          font-size: 15px;
-          padding: 15px 28px;
+          font-size: 14.5px;
           width: 100%;
           text-align: center;
           justify-content: center;
         }
         .hero-secondary {
-          font-size: 14px;
-          padding-left: 4px;
+          padding-left: 2px;
+        }
+        .hero-visual {
+          height: 360px;
+          overflow: visible;
         }
 
         /* ── Desktop (lg = 1024px) ── */
@@ -280,7 +327,7 @@ export default function HeroSection() {
             font-size: 78px;
           }
           .hero-desc {
-            font-size: 18px;
+            font-size: 17px;
           }
           .hero-visual {
             height: 580px;
@@ -288,11 +335,10 @@ export default function HeroSection() {
           .hero-buttons {
             flex-direction: row;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
           }
           .hero-cta {
             font-size: 15px;
-            padding: 14px 32px;
             width: auto;
           }
         }

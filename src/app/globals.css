@@ -92,19 +92,46 @@ body::before {
   mix-blend-mode: multiply;
 }
 
-/* ── Scroll reveal ── */
+/* ── Scroll reveal — Apple-style blur + spring ── */
 .reveal {
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity .7s ease, transform .7s ease;
+  transform: translateY(22px);
+  filter: blur(7px);
+  transition:
+    opacity  0.72s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.72s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    filter   0.58s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: opacity, transform, filter;
 }
-
 .reveal.visible {
   opacity: 1;
   transform: translateY(0);
+  filter: blur(0px);
+}
+
+/* Stagger: parent container — children get .stagger-item via JS */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(18px) scale(0.97);
+  filter: blur(5px);
+  transition:
+    opacity  0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    filter   0.52s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: opacity, transform, filter;
+}
+.stagger-item.stagger-visible {
+  opacity: 1;
+  transform: none;
+  filter: blur(0px);
 }
 
 /* ── Animations ── */
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
@@ -223,4 +250,26 @@ body::before {
 /* ── Editor-specific tap highlight ── */
 .editor-page * {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Brand focus ring ── */
+:focus-visible {
+  outline: 2px solid #8B6347;
+  outline-offset: 2px;
+}
+
+/* ── Global thin warm scrollbars ── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #C9B5A8;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8B6347;
 }

@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useStore, POLAROID_TEMPLATES } from '@/store';
 import type { TemplateId } from '@/store';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { useImageColors } from '@/hooks/useImageColors';
-import { UploadButton, ColorPicker, Slider, SectionLabel } from '@/components/ui';
+import { UploadButton, ColorPicker, Slider, SectionLabel, Skeleton } from '@/components/ui';
 
 const Sep = () => (
   <div style={{ height: '0.5px', background: 'rgba(26,23,20,0.07)' }} />
@@ -18,10 +18,42 @@ export function FramePanel() {
   const applyTemplate = useStore((s) => s.applyTemplate);
   const { uploadFile }  = useImageUpload();
   const photoColors   = useImageColors(frame?.imageDataUrl ?? null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 280);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleFile = useCallback((file: File) => uploadFile(file), [uploadFile]);
 
   if (!frame) return null;
+
+  if (!mounted) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '4px 0' }}>
+        <Skeleton height={44} borderRadius={10} />
+        <div style={{ height: '0.5px', background: 'rgba(26,23,20,0.07)' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Skeleton height={12} width="40%" borderRadius={6} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} height={70} borderRadius={10} />
+            ))}
+          </div>
+        </div>
+        <div style={{ height: '0.5px', background: 'rgba(26,23,20,0.07)' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Skeleton height={12} width="30%" borderRadius={6} />
+          <Skeleton height={36} borderRadius={8} />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Skeleton height={12} width="35%" borderRadius={6} />
+          <Skeleton height={36} borderRadius={8} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -93,14 +125,25 @@ export function FramePanel() {
                   boxShadow: '0 1px 4px rgba(26,23,20,0.1)',
                   position: 'relative',
                   flexShrink: 0,
+                  overflow: 'hidden',
                 }}>
                   <div style={{
                     position: 'absolute',
-                    top: bt, left: bl, right: br, bottom: bb,
+                    top: bt, left: bl,
                     width: w - bl - br,
                     height: h - bt - bb,
                     backgroundColor: '#C4B4A4',
-                  }} />
+                    overflow: 'hidden',
+                  }}>
+                    {frame.imageDataUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={frame.imageDataUrl}
+                        alt=""
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
+                    )}
+                  </div>
                 </div>
                 <span style={{
                   fontFamily: '"DM Sans", sans-serif',

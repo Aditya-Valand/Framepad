@@ -20,6 +20,7 @@ export function PolaroidView({ addWatermarkRef }: PolaroidViewProps = {}) {
   const { uploadFile } = useImageUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const frame = useStore((s) => s.frames.find((f) => f.id === s.activeFrameId));
   const activeFrameId = useStore((s) => s.activeFrameId);
   const updateFrame = useStore((s) => s.updateFrame);
@@ -77,10 +78,22 @@ export function PolaroidView({ addWatermarkRef }: PolaroidViewProps = {}) {
     if (file) uploadFile(file);
   }, [uploadFile]);
 
+  const triggerEject = useCallback(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    card.style.transition = 'transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    card.style.transform = 'translateY(-12px) rotate(-0.5deg)';
+    setTimeout(() => {
+      card.style.transition = 'transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      card.style.transform = '';
+      setTimeout(() => { card.style.transition = ''; }, 280);
+    }, 180);
+  }, []);
+
   useEffect(() => {
     const exportBtn = document.getElementById('export-btn-inner');
-    if (exportBtn) exportBtn.onclick = exportPNG;
-  }, [exportPNG]);
+    if (exportBtn) exportBtn.onclick = () => { triggerEject(); exportPNG(); };
+  }, [exportPNG, triggerEject]);
 
   // ── Image multi-touch: drag + pinch-zoom (frame stays fixed, only image moves) ──
   const imgGesture = useRef({
@@ -205,7 +218,7 @@ export function PolaroidView({ addWatermarkRef }: PolaroidViewProps = {}) {
         const newPanY = Math.max(-300, Math.min(300, g.origPanY + (dy / imgAreaH()) * 100));
         cancelAnimationFrame(gestureRafRef.current);
         gestureRafRef.current = requestAnimationFrame(() => {
-          updateFrame(activeFrameId, { imagePanX: newPanX, imagePanY: newPanY });
+          updateFrame(activeFrameId, { imagePanX: newPanX, imagePanY: newPanY }, true);
         });
       }
 
@@ -247,7 +260,7 @@ export function PolaroidView({ addWatermarkRef }: PolaroidViewProps = {}) {
                 imageScale: newScale,
                 imagePanX: clampedPanX,
                 imagePanY: clampedPanY,
-              });
+              }, true);
             });
           } else {
             cancelAnimationFrame(gestureRafRef.current);
@@ -326,6 +339,7 @@ export function PolaroidView({ addWatermarkRef }: PolaroidViewProps = {}) {
       onDragOver={(e) => e.preventDefault()}
     >
       <div
+        ref={cardRef}
         className="relative polaroid-develop"
         style={{
           width: displaySize.w,
@@ -388,9 +402,9 @@ export function PolaroidView({ addWatermarkRef }: PolaroidViewProps = {}) {
             scale={frame.topLabelPos.scale}
             containerW={displaySize.w}
             containerH={displaySize.h}
-            onMove={(nx, ny) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, x: nx, y: ny } })}
-            onRotate={(deg) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, rotation: deg } })}
-            onScale={(s) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, scale: s } })}
+            onMove={(nx, ny) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, x: nx, y: ny } }, true)}
+            onRotate={(deg) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, rotation: deg } }, true)}
+            onScale={(s) => updateFrame(activeFrameId, { topLabelPos: { ...frame.topLabelPos, scale: s } }, true)}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDragMove={handleDragMove}
@@ -424,9 +438,9 @@ export function PolaroidView({ addWatermarkRef }: PolaroidViewProps = {}) {
               scale={frame.bottomCaptionPos.scale}
               containerW={displaySize.w}
               containerH={displaySize.h}
-              onMove={(nx, ny) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, x: nx, y: ny } })}
-              onRotate={(deg) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, rotation: deg } })}
-              onScale={(s) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, scale: s } })}
+              onMove={(nx, ny) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, x: nx, y: ny } }, true)}
+              onRotate={(deg) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, rotation: deg } }, true)}
+              onScale={(s) => updateFrame(activeFrameId, { bottomCaptionPos: { ...frame.bottomCaptionPos, scale: s } }, true)}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
               onDragMove={handleDragMove}
@@ -456,9 +470,9 @@ export function PolaroidView({ addWatermarkRef }: PolaroidViewProps = {}) {
             scale={frame.musicPos.scale}
             containerW={displaySize.w}
             containerH={displaySize.h}
-            onMove={(nx, ny) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, x: nx, y: ny } })}
-            onRotate={(deg) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, rotation: deg } })}
-            onScale={(s) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, scale: s } })}
+            onMove={(nx, ny) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, x: nx, y: ny } }, true)}
+            onRotate={(deg) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, rotation: deg } }, true)}
+            onScale={(s) => updateFrame(activeFrameId, { musicPos: { ...frame.musicPos, scale: s } }, true)}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDragMove={handleDragMove}

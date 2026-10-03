@@ -690,11 +690,28 @@ function stampWatermark(ctx: CanvasRenderingContext2D, W: number, H: number) {
 }
 
 function triggerDownload(canvas: HTMLCanvasElement) {
-  canvas.toBlob((blob) => {
+  canvas.toBlob(async (blob) => {
     if (!blob) return;
+
+    // On touch devices try the Web Share Files API first
+    const isMobile = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0;
+    if (isMobile && typeof navigator.canShare === 'function') {
+      const file = new File([blob], `polamuse-${Date.now()}.png`, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: 'My Polamuse', text: 'Made with Polamuse ✦' });
+          return;
+        } catch (err) {
+          // AbortError = user dismissed — don't fall through to download
+          if (err instanceof Error && err.name === 'AbortError') return;
+          // Other errors (e.g. browser bug) — fall through to normal download
+        }
+      }
+    }
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.download = `framepad-${Date.now()}.png`;
+    link.download = `polamuse-${Date.now()}.png`;
     link.href = url;
     document.body.appendChild(link);
     link.click();

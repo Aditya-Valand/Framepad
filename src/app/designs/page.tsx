@@ -7,6 +7,7 @@ import Navbar from '@/components/landing/Navbar';
 import { useAuth } from '@/hooks/useAuth';
 import { DesignPreview } from '@/components/DesignPreview';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { Skeleton } from '@/components/ui';
 import { useCart } from '@/store/cart';
 import type { FrameData } from '@/store';
 
@@ -186,9 +187,8 @@ function DesignsPage() {
                   </button>
                 )}
                 <button
-                  className="dp-btn"
+                  className="dp-btn danger"
                   onClick={() => { cart.clearCart(); setSelected(new Set()); setSelectMode(false); }}
-                  style={{ color: '#C05A3A', borderColor: 'rgba(192,90,58,0.3)' }}
                 >
                   Empty Cart
                 </button>
@@ -234,10 +234,34 @@ function DesignsPage() {
           </div>
         </div>
 
-        {/* Loading state */}
+        {/* Loading state — skeleton grid */}
         {fetching && (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#8B6F5C] border-t-transparent" />
+          <div className="dp-grid">
+            {activeFilter === 'all' && (
+              <div style={{ width: '100%', borderRadius: 16, overflow: 'hidden' }}>
+                <Skeleton height={200} borderRadius={12} />
+              </div>
+            )}
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {/* Polaroid card skeleton */}
+                <div style={{
+                  background: '#FFFCF8',
+                  borderRadius: 12,
+                  padding: '10px 10px 24px',
+                  boxShadow: '0 1px 3px rgba(26,23,20,0.06), 0 8px 24px rgba(139,111,92,0.10)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                }}>
+                  <Skeleton height={140} borderRadius={8} />
+                  <Skeleton height={14} width="60%" borderRadius={6} style={{ margin: '4px auto 0' }} />
+                </div>
+                {/* Meta skeleton */}
+                <Skeleton height={12} width="70%" borderRadius={6} />
+                <Skeleton height={10} width="40%" borderRadius={6} />
+              </div>
+            ))}
           </div>
         )}
 
@@ -269,22 +293,105 @@ function DesignsPage() {
 
         {/* Empty state */}
         {!fetching && filtered.length === 0 && (
-          <div className="dp-empty">
-            <div className="dp-empty-frame">
-              <div className="ph">
-                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" style={{ color: '#B5A99E', opacity: .5 }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '72px 24px 96px',
+            gap: 0,
+            textAlign: 'center',
+          }}>
+            {/* Floating polaroid illustration */}
+            <div style={{
+              width: 82,
+              height: 98,
+              background: '#FFFCF8',
+              borderRadius: 4,
+              boxShadow: '0 4px 20px rgba(26,23,20,0.10), 0 1px 3px rgba(26,23,20,0.06)',
+              display: 'flex',
+              flexDirection: 'column',
+              padding: '8px 8px 0',
+              marginBottom: 32,
+              transform: 'rotate(-3deg)',
+              animation: 'dp-empty-float 5s ease-in-out infinite',
+            }}>
+              <div style={{
+                flex: 1,
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, #EDE6DC 0%, #D8CFC4 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C4B5A8" strokeWidth="1.4">
                   <rect x="3" y="3" width="18" height="18" rx="2"/>
                   <circle cx="8.5" cy="8.5" r="1.5"/>
                   <polyline points="21 15 16 10 5 21"/>
                 </svg>
               </div>
-              <div className="fc">your first one</div>
+              <div style={{ height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 28, height: 3, borderRadius: 2, background: '#EDE6DC' }} />
+              </div>
             </div>
-            <h2>Nothing here <em>yet.</em></h2>
-            <p>Every polaroid starts with a moment worth keeping. Pick a photo, choose a frame, write the caption only you would write.</p>
-            <Link href="/editor" className="dp-btn primary">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 5v14M5 12h14"/></svg>
-              Make your first Polaroid →
+
+            <h2 style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontWeight: 500,
+              fontStyle: 'italic',
+              fontSize: 28,
+              color: '#1A1714',
+              lineHeight: 1.2,
+              letterSpacing: '-0.01em',
+              marginBottom: 10,
+            }}>
+              {activeFilter === 'all' ? 'Your first frame is waiting' : `No ${activeFilter} designs yet`}
+            </h2>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 14,
+              color: '#A39080',
+              lineHeight: 1.65,
+              maxWidth: 300,
+              fontWeight: 400,
+              marginBottom: 28,
+            }}>
+              {activeFilter === 'all'
+                ? 'Create something beautiful in the editor — every polaroid starts with a moment worth keeping.'
+                : 'Try a different filter or create a new design.'}
+            </p>
+
+            <Link
+              href="/editor"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 7,
+                padding: '11px 22px',
+                borderRadius: 10,
+                background: '#6B4F3A',
+                color: '#fff',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 13.5,
+                fontWeight: 500,
+                textDecoration: 'none',
+                boxShadow: '0 1px 3px rgba(107,79,58,0.18), 0 4px 14px rgba(107,79,58,0.24)',
+                transition: 'background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease',
+                letterSpacing: '.005em',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#5E4332';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 2px 6px rgba(107,79,58,0.22), 0 8px 20px rgba(107,79,58,0.24)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#6B4F3A';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(107,79,58,0.18), 0 4px 14px rgba(107,79,58,0.24)';
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M12 5v14M5 12h14"/></svg>
+              Create your first design
             </Link>
           </div>
         )}

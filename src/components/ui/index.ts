@@ -11,3 +11,4 @@ export { Toggle } from './Toggle';
 export { UploadButton } from './UploadButton';
 export { Select } from './Select';
 export { Tabs } from './Tabs';
+export { Skeleton } from './Skeleton';

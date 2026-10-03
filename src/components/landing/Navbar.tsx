@@ -360,90 +360,154 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — light minimal drawer */}
       <aside
         style={{
-          position: "fixed", top: 0, right: 0, height: "100vh",
-          width: "min(86vw, 340px)",
-          background: "var(--cream)", borderLeft: ".5px solid var(--border)",
-          padding: "88px 28px 32px",
-          display: "flex", flexDirection: "column", gap: 4,
+          position: "fixed", top: 0, right: 0, height: "100dvh",
+          width: "min(84vw, 320px)",
+          background: "#F0E9DF",
+          display: "flex", flexDirection: "column",
           transform: menuOpen ? "translateX(0)" : "translateX(100%)",
-          transition: "transform .35s cubic-bezier(.6,.05,.2,1)",
-          zIndex: 99, boxShadow: "-20px 0 60px rgba(26,23,20,.06)",
-          overflowY: "auto",
+          transition: "transform .38s cubic-bezier(.6,.05,.15,1)",
+          zIndex: 99,
+          boxShadow: "-8px 0 48px rgba(26,23,20,0.14), -1px 0 0 rgba(26,23,20,0.06)",
         }}
       >
-        {links.map((l) => {
-          const isPage = l.href.startsWith("/");
-          const linkStyle = { fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300, color: "var(--text)", textDecoration: "none", padding: "14px 0", borderBottom: ".5px solid var(--border)" } as const;
-          return isPage || !isHome ? (
-            <Link key={l.target} href={l.href} onClick={closeMenu} style={linkStyle}>
-              {l.label}
-            </Link>
-          ) : (
-            <a key={l.target} href={l.href} onClick={closeMenu} style={linkStyle}>
-              {l.label}
-            </a>
-          );
-        })}
+        {/* Nav links */}
+        <nav style={{ flex: 1, overflowY: "auto", padding: "72px 12px 8px" }}>
+          {links.map((l) => {
+            const isPage = l.href.startsWith("/");
+            const itemStyle: React.CSSProperties = {
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "13px 12px",
+              borderRadius: 10,
+              textDecoration: "none",
+              color: "#1A1714",
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: 22, fontWeight: 300,
+              letterSpacing: "-.01em",
+              background: "transparent",
+              transition: "background .15s ease",
+              cursor: "pointer",
+              borderBottom: "0.5px solid rgba(26,23,20,0.08)",
+            };
+            const inner = (
+              <>
+                <span>{l.label}</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4B5A8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </>
+            );
+            return isPage || !isHome ? (
+              <Link key={l.target} href={l.href} onClick={closeMenu} style={itemStyle}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(139,99,71,0.06)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+              >{inner}</Link>
+            ) : (
+              <a key={l.target} href={l.href} onClick={closeMenu} style={itemStyle}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(139,99,71,0.06)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+              >{inner}</a>
+            );
+          })}
 
-        {!loading && user ? (
-          <>
-            {cartCount > 0 && (
-              <Link
-                href="/order" onClick={closeMenu}
-                style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300, color: "var(--text)", textDecoration: "none", padding: "14px 0", borderBottom: ".5px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+          {/* Divider */}
+          <div style={{ height: "0.5px", background: "rgba(26,23,20,0.09)", margin: "6px 4px" }} />
+
+          {/* User links */}
+          {!loading && user ? (
+            <>
+              {cartCount > 0 && (
+                <Link href="/order" onClick={closeMenu}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 12px", borderRadius: 10, textDecoration: "none", color: "#1A1714", fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 300, letterSpacing: "-.01em", background: "transparent", transition: "background .15s" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(139,99,71,0.06)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                >
+                  <span>Cart</span>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, background: "#8B6347", color: "#fff", borderRadius: 5, padding: "2px 8px", fontWeight: 600 }}>{cartCount}</span>
+                </Link>
+              )}
+              <Link href="/account" onClick={closeMenu}
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 12px", borderRadius: 10, textDecoration: "none", color: "#1A1714", fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 300, letterSpacing: "-.01em", background: "transparent", transition: "background .15s" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(139,99,71,0.06)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
               >
-                Cart
-                <span style={{ fontSize: 13, fontFamily: "'DM Sans', sans-serif", background: "#8B6F5C", color: "#fff", borderRadius: 100, padding: "2px 10px", fontWeight: 600 }}>{cartCount}</span>
+                <span>My Profile</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4B5A8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </Link>
-            )}
-            <Link
-              href="/account" onClick={closeMenu}
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300, color: "var(--text)", textDecoration: "none", padding: "14px 0", borderBottom: ".5px solid var(--border)" }}
+            </>
+          ) : !loading && (
+            <Link href="/auth" onClick={closeMenu}
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 12px", borderRadius: 10, textDecoration: "none", color: "#1A1714", fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 300, letterSpacing: "-.01em", background: "transparent", transition: "background .15s" }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(139,99,71,0.06)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
             >
-              My Profile
+              <span>Sign in</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4B5A8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </Link>
-            <Link
-              href="/editor" onClick={closeMenu}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, background: "var(--brown)", color: "#fff", borderRadius: 100, padding: "14px 24px", textAlign: "center", textDecoration: "none", marginTop: 24, display: "flex", justifyContent: "center" }}
-            >
-              Open Editor →
-            </Link>
+          )}
+        </nav>
+
+        {/* Bottom CTAs */}
+        <div style={{
+          flexShrink: 0,
+          padding: "12px 16px",
+          paddingBottom: "max(18px, env(safe-area-inset-bottom))",
+          borderTop: "0.5px solid rgba(26,23,20,0.09)",
+          display: "flex", flexDirection: "column", gap: 8,
+        }}>
+          <Link href="/editor" onClick={closeMenu}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+              padding: "13px 20px", borderRadius: 10,
+              background: "#6B4F3A", color: "#fff",
+              fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500,
+              textDecoration: "none", letterSpacing: ".005em",
+              boxShadow: "0 1px 3px rgba(107,79,58,0.2), 0 4px 12px rgba(107,79,58,0.22)",
+              transition: "opacity .15s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+          >
+            Open Editor
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </Link>
+          {!loading && user && (
             <button
               onClick={() => { closeMenu(); logout(); }}
-              style={{ background: "transparent", border: ".5px solid rgba(192,90,58,0.3)", borderRadius: 100, color: "#C05A3A", padding: "12px 24px", fontFamily: "'DM Sans', sans-serif", fontSize: 14, cursor: "pointer", marginTop: 10 }}
+              style={{
+                background: "transparent", border: "0.5px solid rgba(26,23,20,0.10)",
+                borderRadius: 10, color: "#7A6E65",
+                fontFamily: "'DM Sans', sans-serif", fontSize: 13.5,
+                cursor: "pointer", padding: "11px 20px",
+                transition: "color .15s, border-color .15s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#C05A3A"; e.currentTarget.style.borderColor = "rgba(192,90,58,0.3)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#7A6E65"; e.currentTarget.style.borderColor = "rgba(26,23,20,0.10)"; }}
             >
               Sign out
             </button>
-          </>
-        ) : (
-          <>
-            <Link
-              href="/auth" onClick={closeMenu}
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300, color: "var(--text)", textDecoration: "none", padding: "14px 0", borderBottom: ".5px solid var(--border)" }}
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/editor" onClick={closeMenu}
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, background: "var(--brown)", color: "#fff", borderRadius: 100, padding: "14px 24px", textAlign: "center", textDecoration: "none", marginTop: 24, display: "flex", justifyContent: "center" }}
-            >
-              Open Editor →
-            </Link>
-          </>
-        )}
+          )}
+        </div>
       </aside>
 
       {menuOpen && (
-        <div onClick={closeMenu} style={{ position: "fixed", inset: 0, background: "rgba(26,23,20,.3)", zIndex: 98 }} />
+        <div onClick={closeMenu} style={{ position: "fixed", inset: 0, background: "rgba(26,23,20,0.28)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", zIndex: 98 }} />
       )}
 
       <style jsx>{`
         @keyframes ddFadeIn {
           from { opacity: 0; transform: translateY(-6px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes nb-slide-in {
+          from { opacity: 0; transform: translateX(16px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes nb-overlay-in {
+          from { opacity: 0; }
+          to   { opacity: 1; }
         }
         @media (min-width: 1024px) {
           nav { padding-left: 32px !important; padding-right: 32px !important; }

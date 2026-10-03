@@ -273,6 +273,10 @@ export interface BatchImage {
   exportDataUrl?: string;
 }
 
+// History snapshots exclude large image blobs to keep memory usage low
+type FrameSnapshot = Omit<FrameData, 'imageDataUrl' | 'imageUrl' | 'cloudinaryId'>;
+interface HistoryEntry { frameId: string; snapshot: FrameSnapshot }
+
 export interface AppState {
   frames: FrameData[];
   activeFrameId: string;
@@ -284,10 +288,15 @@ export interface AppState {
   lastSavedAt: Date | null;
   // Batch mode
   batchImages: BatchImage[];
+  // Undo / redo
+  history: HistoryEntry[];
+  future: HistoryEntry[];
+  canUndo: boolean;
+  canRedo: boolean;
 
   setActiveTab: (tab: SidebarTab) => void;
   setLayoutMode: (mode: LayoutMode) => void;
-  updateFrame: (id: string, patch: Partial<FrameData>) => void;
+  updateFrame: (id: string, patch: Partial<FrameData>, skipHistory?: boolean) => void;
   applyTemplate: (id: string, templateId: TemplateId) => void;
   addFrame: () => void;
   removeFrame: (id: string) => void;
@@ -299,6 +308,8 @@ export interface AppState {
   addBatchImages: (images: BatchImage[]) => void;
   removeBatchImage: (id: string) => void;
   clearBatch: () => void;
+  undo: () => void;
+  redo: () => void;
 }
 
 function createFrame(id: string): FrameData {
@@ -361,6 +372,17 @@ export const FILTER_PRESETS: Record<string, FilterValues> = {
   faded: { brightness: 20, contrast: -20, saturation: -30, warmth: 5 },
 };
 
+function makeSnapshot(frame: FrameData): FrameSnapshot {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { imageDataUrl, imageUrl, cloudinaryId, ...rest } = frame;
+  return rest;
+}
+
+function pushEntry(history: HistoryEntry[], entry: HistoryEntry): HistoryEntry[] {
+  const next = [...history, entry];
+  return next.length > 50 ? next.slice(next.length - 50) : next;
+}
+
 export const useStore = create<AppState>((set) => ({
   frames: [createFrame('frame-1')],
   activeFrameId: 'frame-1',
@@ -370,19 +392,35 @@ export const useStore = create<AppState>((set) => ({
   isSaving: false,
   lastSavedAt: null,
   batchImages: [],
+  history: [],
+  future: [],
+  canUndo: false,
+  canRedo: false,
 
   setActiveTab: (activeTab) => set({ activeTab }),
   setLayoutMode: (layoutMode) => set({ layoutMode }),
 
-  updateFrame: (id, patch) =>
-    set((s) => ({
-      frames: s.frames.map((f) => (f.id === id ? { ...f, ...patch } : f)),
-    })),
+  updateFrame: (id, patch, skipHistory = false) =>
+    set((s) => {
+      const frame = s.frames.find((f) => f.id === id);
+      if (!frame) return s;
+      const history = skipHistory ? s.history : pushEntry(s.history, { frameId: id, snapshot: makeSnapshot(frame) });
+      const future = skipHistory ? s.future : [];
+      return {
+        frames: s.frames.map((f) => (f.id === id ? { ...f, ...patch } : f)),
+        history,
+        future,
+        canUndo: history.length > 0,
+        canRedo: future.length > 0,
+      };
+    }),
 
   applyTemplate: (id, templateId) =>
     set((s) => {
       const template = POLAROID_TEMPLATES.find((t) => t.id === templateId);
       if (!template) return s;
+      const frame = s.frames.find((f) => f.id === id);
+      const history = frame ? pushEntry(s.history, { frameId: id, snapshot: makeSnapshot(frame) }) : s.history;
 
       // Seed dummy text for rich templates
       const richDefaults: Partial<FrameData> = {};
@@ -435,6 +473,10 @@ export const useStore = create<AppState>((set) => ({
               }
             : f
         ),
+        history,
+        future: [],
+        canUndo: history.length > 0,
+        canRedo: false,
       };
     }),
 
@@ -458,4 +500,44 @@ export const useStore = create<AppState>((set) => ({
   addBatchImages: (images) => set((s) => ({ batchImages: [...s.batchImages, ...images] })),
   removeBatchImage: (id) => set((s) => ({ batchImages: s.batchImages.filter((i) => i.id !== id) })),
   clearBatch: () => set({ batchImages: [] }),
+
+  undo: () =>
+    set((s) => {
+      if (s.history.length === 0) return s;
+      const entry = s.history[s.history.length - 1];
+      const history = s.history.slice(0, -1);
+      const currentFrame = s.frames.find((f) => f.id === entry.frameId);
+      const future = currentFrame
+        ? [{ frameId: entry.frameId, snapshot: makeSnapshot(currentFrame) }, ...s.future]
+        : s.future;
+      return {
+        frames: s.frames.map((f) =>
+          f.id === entry.frameId ? { ...f, ...entry.snapshot } : f
+        ),
+        history,
+        future: future.slice(0, 50),
+        canUndo: history.length > 0,
+        canRedo: true,
+      };
+    }),
+
+  redo: () =>
+    set((s) => {
+      if (s.future.length === 0) return s;
+      const entry = s.future[0];
+      const future = s.future.slice(1);
+      const currentFrame = s.frames.find((f) => f.id === entry.frameId);
+      const history = currentFrame
+        ? pushEntry(s.history, { frameId: entry.frameId, snapshot: makeSnapshot(currentFrame) })
+        : s.history;
+      return {
+        frames: s.frames.map((f) =>
+          f.id === entry.frameId ? { ...f, ...entry.snapshot } : f
+        ),
+        history,
+        future,
+        canUndo: true,
+        canRedo: future.length > 0,
+      };
+    }),
 }));
